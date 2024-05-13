@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.user.v1;
 
-option go_package = "github.com/smallbiznis/go-genproto/user/v1;user";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/user/v1;user";
 
 import "smallbiznis/user/v1/user_resource.proto";
 import "smallbiznis/protobuf/empty.proto";

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.subscription.v1;
 
-option go_package = "github.com/smallbiznis/go-genproto/subscription/v1;subscription";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subscription/v1;subscription";
 
 import "google/protobuf/timestamp.proto";
 

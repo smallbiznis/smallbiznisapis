@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package smallbiznis.user.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/user/v1;user";
+
+import "smallbiznis/user/v1/user_resource.proto";
+import "smallbiznis/protobuf/empty.proto";
+
+import "google/api/annotations.proto";
+
+message ListUserRequest {}
+
+message ListUserResponse {}
+
+message CreateUserRequest {}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message UpdateUserRequest {
+  string user_id = 1;
+}
+
+message DeleteUserRequest {
+  string user_id = 1;
+}
+
+service Service {
+  rpc List(ListUserRequest) returns (ListUserResponse) {
+    option (google.api.http) = {
+      get: "/v1/users"
+    };
+  }
+
+  rpc Get(GetUserRequest) returns (User) {
+    option (google.api.http) = {
+      get: "/v1/users/{user_id}"
+    };
+  }
+
+  rpc Create(CreateUserRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/v1/users",
+      body: "*"
+    };
+  }
+
+  rpc Update(UpdateUserRequest) returns (User) {
+    option (google.api.http) = {
+      put: "/v1/users/{user_id}",
+      body: "*"
+    };
+  }
+
+  rpc Delete(DeleteUserRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/users/{user_id}"
+    };
+  }
+}

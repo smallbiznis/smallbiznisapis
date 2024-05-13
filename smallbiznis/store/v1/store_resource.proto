@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package smallbiznis.store.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/store/v1;store";
+
+import "smallbiznis/user/v1/user_resource.proto";
+import "google/protobuf/timestamp.proto";
+
+message Store {
+
+  string store_id = 1;
+
+  string image_uri = 2;
+
+  string name = 3;
+
+  string display_name = 4;
+
+  enum Status {
+
+    INACTIVE = 0;
+
+    ACTIVE = 1;
+
+  }
+
+  Status status = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+  google.protobuf.Timestamp deleted_at = 8;
+
+}

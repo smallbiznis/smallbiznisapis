@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package smallbiznis.store.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/store/v1;store";
+
+import "smallbiznis/store/v1/store_resource.proto";
+import "smallbiznis/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+message ListStoreRequest {}
+
+message ListStoreResponse {}
+
+message CreateStoreRequest {}
+
+message GetStoreRequest {
+  string store_id = 1;
+}
+
+message UpdateStoreRequest {
+  string store_id = 1;
+}
+
+message DeleteStoreRequest {
+  string store_id = 1;
+}
+
+service Service {
+  rpc ListStore(ListStoreRequest) returns (ListStoreResponse) {
+    option (google.api.http) = {
+      get: "/v1/stores"
+    };
+  }
+
+  rpc GetStore(GetStoreRequest) returns (Store) {
+    option (google.api.http) = {
+      get: "/v1/stores/{store_id}"
+    };
+  }
+
+  rpc CreateStore(CreateStoreRequest) returns (Store) {
+    option (google.api.http) = {
+      post: "/v1/stores",
+      body: "*"
+    };
+  }
+
+  rpc UpdateStore(UpdateStoreRequest) returns (Store) {
+    option (google.api.http) = {
+      put: "/v1/stores/{store_id}",
+      body: "*"
+    };
+  }
+
+  rpc DeleteStore(DeleteStoreRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/stores/{store_id}"
+    };
+  }
+}

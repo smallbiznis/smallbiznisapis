@@ -26,8 +26,8 @@ message ListStoreRequest {
 }
 
 message ListStoreResponse {
-  repeated Store data = 0;
-  int64 total_data = 1;
+  repeated Store data = 1;
+  int64 total_data = 2;
 }
 
 message GetStoreRequest {

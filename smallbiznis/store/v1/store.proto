@@ -8,11 +8,27 @@ import "smallbiznis/store/v1/store_resource.proto";
 import "smallbiznis/protobuf/empty.proto";
 import "google/api/annotations.proto";
 
-message ListStoreRequest {}
+message ListStoreRequest {
 
-message ListStoreResponse {}
+  int64 limit = 1;
 
-message CreateStoreRequest {}
+  int64 offset = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+    ASC = 0;
+    DESC = 1;
+  }
+
+  OrderBy order_by = 4;
+
+}
+
+message ListStoreResponse {
+  repeated Store data = 0;
+  int64 total_data = 1;
+}
 
 message GetStoreRequest {
   string store_id = 1;
@@ -39,7 +55,7 @@ service Service {
     };
   }
 
-  rpc CreateStore(CreateStoreRequest) returns (Store) {
+  rpc CreateStore(Store) returns (Store) {
     option (google.api.http) = {
       post: "/v1/stores",
       body: "*"

@@ -9,11 +9,26 @@ import "smallbiznis/protobuf/empty.proto";
 
 import "google/api/annotations.proto";
 
-message ListUserRequest {}
+message ListUserRequest {
 
-message ListUserResponse {}
+  int64 limit = 1;
 
-message CreateUserRequest {}
+  int64 offset = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+    ASC = 0;
+    DESC = 1;
+  }
+
+  OrderBy order_by = 4;
+}
+
+message ListUserResponse {
+  repeated User data = 1;
+  int64 total_data = 2;
+}
 
 message GetUserRequest {
   string user_id = 1;
@@ -40,7 +55,7 @@ service Service {
     };
   }
 
-  rpc Create(CreateUserRequest) returns (User) {
+  rpc Create(User) returns (User) {
     option (google.api.http) = {
       post: "/v1/users",
       body: "*"

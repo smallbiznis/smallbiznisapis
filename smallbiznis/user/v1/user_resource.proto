@@ -20,12 +20,20 @@ message User {
 
   string last_name = 6;
 
-  google.protobuf.Timestamp verified_at = 7;
+  enum Role {
 
-  google.protobuf.Timestamp created_at = 8;
+    USER = 0;
 
-  google.protobuf.Timestamp updated_at = 9;
+  }
 
-  google.protobuf.Timestamp deleted_at = 10;
+  repeated Role roles = 7;
+
+  google.protobuf.Timestamp verified_at = 8;
+
+  google.protobuf.Timestamp created_at = 9;
+
+  google.protobuf.Timestamp updated_at = 10;
+
+  google.protobuf.Timestamp deleted_at = 11;
 
 }

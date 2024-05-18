@@ -34,3 +34,43 @@ message Store {
   google.protobuf.Timestamp deleted_at = 8;
 
 }
+
+message Staff {
+
+  string user_id = 1;
+
+  string store_id = 2;
+
+  enum Role {
+
+    CHANNEL_ADMIN = 0;
+
+    CHANNEL_PRODUCT = 1;
+
+    CHANNEL_SALES = 2;
+
+    CHANNEL_MARKETING = 3;
+
+    CHANNEL_DEVELOPER = 4;
+
+  }
+
+  repeated Role roles = 3;
+
+  enum Status {
+
+    PENDING = 0;
+
+    ACTIVE = 1;
+
+    SUSPENDED = 2;
+
+  }
+
+  Status status = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}

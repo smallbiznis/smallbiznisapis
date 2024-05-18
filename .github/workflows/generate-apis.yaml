@@ -38,7 +38,7 @@ jobs:
       - name: Commit changes
         run: |
           cd gen
-          git config --local user.name "Small Biznis APIs"
+          git config user.name "Small Biznis APIs"
           git add .
           git commit -m "regenerate API"
           git push

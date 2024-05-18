@@ -44,9 +44,9 @@ message Staff {
 
     CHANNEL_ADMIN = 0;
 
-    CHANNEL_PRODUCT = 1;
+    CHANNEL_PRODUCT_SUPPORT = 1;
 
-    CHANNEL_SALES = 2;
+    CHANNEL_SUPPORT = 2;
 
     CHANNEL_MARKETING = 3;
 

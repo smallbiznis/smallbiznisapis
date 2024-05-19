@@ -58,6 +58,10 @@ message ListMemberRequest {
   }
 
   OrderBy order_by = 4;
+
+  string store_id = 5;
+
+  string email = 6;
 }
 
 message ListMemberResponse {

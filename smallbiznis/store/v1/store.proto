@@ -44,6 +44,46 @@ message DeleteStoreRequest {
   string store_id = 1;
 }
 
+message AddMemberRequest {
+
+  string store_id = 1;
+
+  message AddMember {
+
+    string email = 1;
+
+    repeated Role roles = 2;
+
+  }
+
+  AddMember data = 2;
+
+}
+
+message UpdateMemberRequest {
+  
+  string store_id = 1;
+
+  string member_id = 2;
+
+  message UpdateMember {
+
+    Status status = 1;
+
+    repeated Role roles = 2;
+
+  }
+
+  UpdateMember data = 3;
+
+}
+
+message DeleteMemberRequest {
+
+  string member_id = 2;
+
+}
+
 service Service {
   rpc ListStore(ListStoreRequest) returns (ListStoreResponse) {
     option (google.api.http) = {
@@ -74,6 +114,26 @@ service Service {
   rpc DeleteStore(DeleteStoreRequest) returns (smallbiznis.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/stores/{store_id}"
+    };
+  }
+
+  rpc AddMember(AddMemberRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/members"
+      body: "*"
+    };
+  }
+
+  rpc UpdateMember(UpdateMemberRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/members/{member_id}"
+      body: "data"
+    };
+  }
+
+  rpc DeleteMember(DeleteMemberRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/members/{member_id}"
     };
   }
 }

@@ -1,0 +1,185 @@
+syntax = "proto3";
+
+package smallbiznis.product.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;product";
+
+import "google/protobuf/timestamp.proto";
+
+message ProductImage {
+
+  string product_id = 1;
+
+  string src = 2;
+
+  string alt = 3;
+
+  int32 position = 4;
+
+  repeated string variant_ids = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+}
+
+message Category {
+
+  string category_id = 1;
+
+  string store_id = 2;
+
+  string image_uri = 3;
+
+  string name = 4;
+
+  string title = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+}
+
+message Brand {
+
+  string brand_id = 1;
+
+  string store_id = 2;
+
+  string image_uri = 3;
+
+  string name = 4;
+
+  string title = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+}
+
+enum Status {
+
+  Active = 0;
+
+  Inactive = 1;
+
+  Archived = 2;
+
+}
+
+message Option {
+
+  string option_id = 1;
+
+  string store_id = 2;
+
+  string name = 3;
+
+  string display_name = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}
+
+message OptionValue {
+
+  string option_value_id = 1;
+
+  string option_id = 2;
+
+  string value = 3;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}
+
+message VariantOption {
+
+  string variant_option_id = 1;
+
+  string variant_id = 2;
+
+  string option_id = 3;
+
+  string option_value_id = 4;
+
+  int32 position = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+}
+
+message Variant {
+
+  string variant_id = 1;
+
+  string product_id = 2;
+
+  string sku = 3;
+
+  int32 position = 4;
+
+  repeated VariantOption options = 5;
+
+  float cost_price = 6;
+
+  float price = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
+
+}
+
+message ProductOption {
+
+  string product_option_id = 1;
+
+  string product_id = 2;
+
+  string option_id = 3;
+
+  int32 position = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}
+
+message Product {
+
+  string product_id = 1;
+
+  string store_id = 2;
+
+  Category category = 3;
+
+  Brand brand = 4;
+
+  repeated ProductImage images = 5;
+
+  string slug = 6;
+
+  string title = 7;
+
+  string body_html = 8;
+
+  Status status = 9;
+
+  repeated ProductOption options = 10;
+
+  google.protobuf.Timestamp created_at = 11;
+
+  google.protobuf.Timestamp updated_at = 12;
+
+}

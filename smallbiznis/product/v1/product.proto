@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+package smallbiznis.product.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;product";
+
+import "smallbiznis/product/v1/product_resource.proto";
+import "smallbiznis/protobuf/empty.proto";
+
+// Category
+message ListCategoryRequest {
+
+  int32 limit = 1;
+
+  int32 offset = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+}
+
+message ListCategoryResponse {
+  repeated Product data = 1;
+
+  int32 total_data = 2;
+}
+
+message GetCategoryRequest {
+  string brand_id = 1;
+}
+
+message DeleteCategoryRequest {
+  string brand_id = 1;
+}
+
+// Brand
+message ListBrandRequest {
+
+  int32 limit = 1;
+
+  int32 offset = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  message Filter {
+
+    string name = 1;
+
+    string title = 2;
+
+  }
+
+  Filter filter = 5;
+}
+
+message ListBrandResponse {
+  repeated Brand data = 1;
+  int32 total_data = 2;
+}
+
+message GetBrandRequest {
+  string brand_id = 1;
+}
+
+message DeleteBrandRequest {
+  string brand_id = 1;
+}
+
+// Option
+message ListOptionRequest {
+
+  int32 limit = 1;
+
+  int32 offset = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  message Filter {
+
+    string name = 1;
+
+  }
+
+  Filter filter = 5;
+}
+
+message ListOptionResponse {
+  repeated Option data = 1;
+  int32 total_data = 2;
+}
+
+message GetOptionRequest {
+  string option_id = 1;
+}
+
+message DeleteOptionRequest {
+  string option_id = 1;
+}
+
+// Product
+message ListProductRequest {
+
+  int32 limit = 1;
+
+  int32 offset = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+}
+
+message ListProductResponse {
+  repeated Category data = 1;
+  int32 total_data = 2;
+}
+
+message GetProductRequest {
+  string product_id = 1;
+}
+
+message DeleteProductrequest {
+  string product_id = 1;
+}
+
+// Batch
+message BatchAddCategoryRequest {
+  repeated Category data = 1;
+}
+
+message BatchAddCategoryResponse {}
+
+message BatchUpdateCategoryRequest {
+  repeated Category data = 1;
+}
+
+message BatchUpdateCateogryResponse {}
+
+service Service {
+
+  // Category
+  rpc ListCategory(ListCategoryRequest) returns (ListBrandResponse) {}
+  rpc GetCategory(GetCategoryRequest) returns (Category) {}
+  rpc AddCategory(Category) returns (Category) {}
+  rpc UpdateCategory(Category) returns (Category) {}
+  rpc DeleteCategory(DeleteCategoryRequest) returns (smallbiznis.protobuf.Empty) {}
+
+  // Brand
+  rpc ListBrand(ListBrandRequest) returns (ListBrandResponse) {}
+  rpc GetBrand(GetBrandRequest) returns (Brand) {}
+  rpc AddBrand(Brand) returns (Brand) {}
+  rpc UpdateBrand(Brand) returns (Brand) {}
+  rpc DeleteBrand(DeleteBrandRequest) returns (smallbiznis.protobuf.Empty) {}
+
+  // Option
+  rpc ListOption(ListOptionRequest) returns (ListOptionResponse) {}
+  rpc GetOption(GetOptionRequest) returns (Option) {}
+  rpc AddOption(Option) returns  (Option) {}
+  rpc UpdateOption(Option) returns (Option) {}
+  rpc DeleteOption(DeleteOptionRequest) returns (smallbiznis.protobuf.Empty) {}
+
+  // Product
+  rpc ListProduct(ListProductRequest) returns (ListProductResponse) {}
+  rpc GetProduct(GetProductRequest) returns (Product) {}
+  rpc AddProduct(Product) returns (Product) {}
+  rpc UpdateProduct(Product) returns (Product) {}
+  rpc DeleteProduct(Product) returns (smallbiznis.protobuf.Empty) {}
+
+  // Batch
+  // rpc BatchAddCategory() returns () {}
+  // rpc BatchUpdateCategory() returns () {}
+  // rpc BatchDeleteCategory() returns () {}
+
+}

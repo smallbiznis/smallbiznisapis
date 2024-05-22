@@ -176,18 +176,70 @@ message BatchUpdateCateogryResponse {}
 service Service {
 
   // Category
-  rpc ListCategory(ListCategoryRequest) returns (ListBrandResponse) {}
-  rpc GetCategory(GetCategoryRequest) returns (Category) {}
-  rpc AddCategory(Category) returns (Category) {}
-  rpc UpdateCategory(Category) returns (Category) {}
-  rpc DeleteCategory(DeleteCategoryRequest) returns (smallbiznis.protobuf.Empty) {}
+  rpc ListCategory(ListCategoryRequest) returns (ListBrandResponse) {
+    option (google.api.http) = {
+      get: "/v1/categories"
+    };
+  }
+
+  rpc GetCategory(GetCategoryRequest) returns (Category) {
+    option (google.api.http) = {
+      get: "/v1/categories/{category_id}"
+    };
+  }
+
+  rpc AddCategory(Category) returns (Category) {
+    option (google.api.http) = {
+      post: "/v1/categories"
+      body: "*"
+    };
+  }
+
+  rpc UpdateCategory(Category) returns (Category) {
+    option (google.api.http) = {
+      put: "/v1/categories/{category_id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteCategory(DeleteCategoryRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/categories/{category_id}"
+    };
+  }
 
   // Brand
-  rpc ListBrand(ListBrandRequest) returns (ListBrandResponse) {}
-  rpc GetBrand(GetBrandRequest) returns (Brand) {}
-  rpc AddBrand(Brand) returns (Brand) {}
-  rpc UpdateBrand(Brand) returns (Brand) {}
-  rpc DeleteBrand(DeleteBrandRequest) returns (smallbiznis.protobuf.Empty) {}
+  rpc ListBrand(ListBrandRequest) returns (ListBrandResponse) {
+    option (google.api.http) = {
+      get: "/v1/brands"
+    };
+  }
+
+  rpc GetBrand(GetBrandRequest) returns (Brand) {
+    option (google.api.http) = {
+      get: "/v1/brands/{brand_id}"
+    };
+  }
+
+  rpc AddBrand(Brand) returns (Brand) {
+    option (google.api.http) = {
+      post: "/v1/brands"
+      body: "*"
+    };
+  }
+
+  rpc UpdateBrand(Brand) returns (Brand) {
+    option (google.api.http) = {
+      get: "/v1/brands/{brand_id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteBrand(DeleteBrandRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/categories"
+    };
+  }
 
   // Option
   rpc ListOption(ListOptionRequest) returns (ListOptionResponse) {}
@@ -197,11 +249,37 @@ service Service {
   rpc DeleteOption(DeleteOptionRequest) returns (smallbiznis.protobuf.Empty) {}
 
   // Product
-  rpc ListProduct(ListProductRequest) returns (ListProductResponse) {}
-  rpc GetProduct(GetProductRequest) returns (Product) {}
-  rpc AddProduct(Product) returns (Product) {}
-  rpc UpdateProduct(Product) returns (Product) {}
-  rpc DeleteProduct(Product) returns (smallbiznis.protobuf.Empty) {}
+  rpc ListProduct(ListProductRequest) returns (ListProductResponse) {
+    option (google.api.http) = {
+      get: "/v1/products"
+    };
+  }
+
+  rpc GetProduct(GetProductRequest) returns (Product) {
+    option (google.api.http) = {
+      get: "/v1/products/{product_id}"
+    };
+  }
+
+  rpc AddProduct(Product) returns (Product) {
+    option (google.api.http) = {
+      post: "/v1/products",
+      body: "*"
+    };
+  }
+
+  rpc UpdateProduct(Product) returns (Product) {
+    option (google.api.http) = {
+      put: "/v1/products/{product_id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteProduct(DeleteProductrequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/products/{product_id}"
+    };
+  }
 
   // Batch
   // rpc BatchAddCategory() returns () {}

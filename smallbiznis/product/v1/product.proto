@@ -7,6 +7,8 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;p
 import "smallbiznis/product/v1/product_resource.proto";
 import "smallbiznis/protobuf/empty.proto";
 
+import "google/api/annotations.proto";
+
 // Category
 message ListCategoryRequest {
 
@@ -35,11 +37,11 @@ message ListCategoryResponse {
 }
 
 message GetCategoryRequest {
-  string brand_id = 1;
+  string category_id = 1;
 }
 
 message DeleteCategoryRequest {
-  string brand_id = 1;
+  string category_id = 1;
 }
 
 // Brand
@@ -230,7 +232,7 @@ service Service {
 
   rpc UpdateBrand(Brand) returns (Brand) {
     option (google.api.http) = {
-      get: "/v1/brands/{brand_id}"
+      put: "/v1/brands/{brand_id}"
       body: "*"
     };
   }

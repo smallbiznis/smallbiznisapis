@@ -142,7 +142,7 @@ service Service {
 
   rpc ListMember(ListMemberRequest) returns (ListMemberResponse) {
     option (google.api.http) = {
-      get: "/v1/members"
+      get: "/v1/stores/{store_id}/members"
     };
   }
 

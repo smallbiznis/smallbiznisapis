@@ -66,12 +66,24 @@ message Member {
 
   string user_id = 3;
 
-  repeated Role roles = 4;
+  message User {
 
-  Status status = 5;
+    string email = 1;
 
-  google.protobuf.Timestamp created_at = 6;
+    string first_name = 2;
 
-  google.protobuf.Timestamp updated_at = 7;
+    string last_name = 3;
+
+  }
+
+  User user = 4;
+
+  repeated Role roles = 5;
+
+  Status status = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
 
 }

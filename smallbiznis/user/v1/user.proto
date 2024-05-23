@@ -55,7 +55,9 @@ message ListUserRequest {
 
   OrderBy order_by = 4;
 
-  string email = 5;
+  string user_id = 5;
+
+  string email = 6;
 }
 
 message ListUserResponse {

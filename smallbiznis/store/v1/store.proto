@@ -4,9 +4,83 @@ package smallbiznis.store.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/store/v1;store";
 
-import "smallbiznis/store/v1/store_resource.proto";
+import "smallbiznis/user/v1/user.proto";
 import "smallbiznis/protobuf/empty.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+
+message Store {
+
+  string store_id = 1;
+
+  string image_uri = 2;
+
+  string name = 3;
+
+  string display_name = 4;
+
+  enum Status {
+
+    INACTIVE = 0;
+
+    ACTIVE = 1;
+
+  }
+
+  Status status = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+  google.protobuf.Timestamp deleted_at = 8;
+
+}
+
+enum Status {
+
+  PENDING = 0;
+
+  ACTIVE = 1;
+
+  SUSPENDED = 2;
+
+}
+
+enum Role {
+
+  CHANNEL_ADMIN = 0;
+
+  CHANNEL_PRODUCT_SUPPORT = 1;
+
+  CHANNEL_SUPPORT = 2;
+
+  CHANNEL_MARKETING = 3;
+
+  CHANNEL_DEVELOPER = 4;
+
+}
+
+message Member {
+
+  string member_id = 1;
+
+  string store_id = 2;
+
+  string user_id = 3;
+
+  smallbiznis.user.v1.User user = 4;
+
+  repeated Role roles = 5;
+
+  Status status = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
+
+}
 
 message ListStoreRequest {
 

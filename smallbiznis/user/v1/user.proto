@@ -4,10 +4,41 @@ package smallbiznis.user.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/user/v1;user";
 
-import "smallbiznis/user/v1/user_resource.proto";
 import "smallbiznis/protobuf/empty.proto";
-
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+message User {
+
+  string user_id = 1;
+
+  string external_id = 2;
+
+  string avatar_uri = 3;
+
+  string email = 4;
+
+  string first_name = 5;
+
+  string last_name = 6;
+
+  enum Role {
+
+    USER = 0;
+
+  }
+
+  repeated Role roles = 7;
+
+  google.protobuf.Timestamp verified_at = 8;
+
+  google.protobuf.Timestamp created_at = 9;
+
+  google.protobuf.Timestamp updated_at = 10;
+
+  google.protobuf.Timestamp deleted_at = 11;
+
+}
 
 message ListUserRequest {
 

@@ -21,16 +21,22 @@ PROTOINCLUDE ?= /usr/local/include
 # Choose protoc binary
 PROTOC ?= protoc -I .
 
+GOOGLEAPIS ?= ./googleapis
+
+# Choose gapic directory
+# GAPIC_OUT ?= ./gapic
+
 # Compile the entire repository
 #
 # NOTE: if "protoc" command is not in the PATH, you need to modify this file.
 #
 
-FLAGS+= -I ./internal/third_party/googleapis
+FLAGS+= -I $(GOOGLEAPIS)
 FLAGS+= --$(LANGUAGE)_out=$(OUTPUT) --$(LANGUAGE)_opt=paths=source_relative
 FLAGS+= --$(LANGUAGE)-grpc_out=$(OUTPUT) --$(LANGUAGE)-grpc_opt=paths=source_relative
 FLAGS+= --grpc-gateway_out=$(OUTPUT) --grpc-gateway_opt paths=source_relative
 FLAGS+=	--plugin=protoc-gen-grpc=$(GRPCPLUGIN)
+# FLAGS+= --go_gapic_out=$(GAPIC_OUT) --go_gapic_opt 'go-gapic-package=github.com/smallbiznis/smallbiznis-api-go-client;smallbiznis'
 
 SUFFIX:= pb.go
 

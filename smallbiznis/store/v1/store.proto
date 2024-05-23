@@ -146,14 +146,14 @@ service Service {
     };
   }
 
-  rpc AddMember(AddMemberRequest) returns (smallbiznis.protobuf.Empty) {
+  rpc AddMember(AddMemberRequest) returns (Member) {
     option (google.api.http) = {
       post: "/v1/members"
       body: "*"
     };
   }
 
-  rpc UpdateMember(UpdateMemberRequest) returns (smallbiznis.protobuf.Empty) {
+  rpc UpdateMember(UpdateMemberRequest) returns (Member) {
     option (google.api.http) = {
       put: "/v1/members/{member_id}"
       body: "data"

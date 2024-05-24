@@ -60,15 +60,13 @@ message Invitation {
 
   string store_id = 2;
 
-  string user_id = 3;
+  string email = 3;
 
-  string email = 4;
+  Role role = 4;
 
-  Role role = 5;
+  google.protobuf.Timestamp created_at = 5;
 
-  google.protobuf.Timestamp created_at = 6;
-
-  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp updated_at = 6;
 
 }
 
@@ -254,7 +252,7 @@ service Service {
 
   rpc ListInvitation(ListInvitationRequest) returns (ListInvitationResponse) {
     option (google.api.http) = {
-      get: "/v1/invitations"
+      get: "/v1/stores/{store_id}/invitations"
     };
   }
 

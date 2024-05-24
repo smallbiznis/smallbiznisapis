@@ -6,6 +6,8 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/store/v1;sto
 
 import "smallbiznis/user/v1/user.proto";
 import "smallbiznis/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -38,16 +40,6 @@ message Store {
 
 }
 
-enum Status {
-
-  PENDING = 0;
-
-  ACTIVE = 1;
-
-  SUSPENDED = 2;
-
-}
-
 enum Role {
 
   CHANNEL_ADMIN = 0;
@@ -59,6 +51,24 @@ enum Role {
   CHANNEL_MARKETING = 3;
 
   CHANNEL_DEVELOPER = 4;
+
+}
+
+message Invitation {
+
+  string invitation_id = 1;
+
+  string store_id = 2;
+
+  string user_id = 3;
+
+  string email = 4;
+
+  Role role = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
 
 }
 
@@ -74,11 +84,21 @@ message Member {
 
   repeated Role roles = 5;
 
-  Status status = 6;
+  google.protobuf.Timestamp created_at = 6;
 
-  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 7;
 
-  google.protobuf.Timestamp updated_at = 8;
+}
+
+message CreateStoreRequest {
+
+  string image_uri = 1;
+
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  Store.Status status = 4;
 
 }
 
@@ -143,41 +163,53 @@ message ListMemberResponse {
   int32 total_data = 2;
 }
 
-message AddMemberRequest {
+message ListInvitationRequest {
 
-  string store_id = 1;
+  int32 limit = 1;
 
-  message AddMember {
+  int32 offset = 2;
 
-    string email = 1;
+  string sort_by = 3;
 
-    repeated Role roles = 2;
-
+  enum OrderBy {
+    ASC = 0;
+    DESC = 1;
   }
 
-  AddMember data = 2;
+  OrderBy order_by = 4;
+
+  string store_id = 5;
+
+}
+
+message ListInvitationResponse {
+  repeated Invitation data = 1;
+  int32 total_data = 2;
+}
+
+message SendInvitationRequest {
+
+  string store_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string user_id = 2;
+
+  string email = 3;
+
+  Role role = 4;
 
 }
 
 message UpdateMemberRequest {
   
-  string member_id = 1;
+  string member_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  message UpdateMember {
-
-    Status status = 1;
-
-    repeated Role roles = 2;
-
-  }
-
-  UpdateMember data = 2;
+  repeated Role roles = 2;
 
 }
 
 message DeleteMemberRequest {
 
-  string member_id = 2;
+  string member_id = 2 [(google.api.field_behavior) = REQUIRED];
 
 }
 
@@ -194,7 +226,7 @@ service Service {
     };
   }
 
-  rpc CreateStore(Store) returns (Store) {
+  rpc CreateStore(CreateStoreRequest) returns (Store) {
     option (google.api.http) = {
       post: "/v1/stores",
       body: "*"
@@ -214,23 +246,29 @@ service Service {
     };
   }
 
+  rpc ListInvitation(ListInvitationRequest) returns (ListInvitationResponse) {
+    option (google.api.http) = {
+      get: "/v1/invitations"
+    };
+  }
+
+  rpc SendInvitation(SendInvitationRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/invitations",
+      body: "*"
+    };
+  }
+
   rpc ListMember(ListMemberRequest) returns (ListMemberResponse) {
     option (google.api.http) = {
       get: "/v1/stores/{store_id}/members"
     };
   }
 
-  rpc AddMember(AddMemberRequest) returns (Member) {
-    option (google.api.http) = {
-      post: "/v1/members"
-      body: "*"
-    };
-  }
-
   rpc UpdateMember(UpdateMemberRequest) returns (Member) {
     option (google.api.http) = {
       put: "/v1/members/{member_id}"
-      body: "data"
+      body: "*"
     };
   }
 

@@ -199,6 +199,12 @@ message SendInvitationRequest {
 
 }
 
+message VerifyInvitationRequest {
+
+  string token = 1;
+
+}
+
 message UpdateMemberRequest {
   
   string member_id = 1 [(google.api.field_behavior) = REQUIRED];
@@ -256,6 +262,12 @@ service Service {
     option (google.api.http) = {
       post: "/v1/invitations",
       body: "*"
+    };
+  }
+
+  rpc VerifyInvitation(VerifyInvitationRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/invitations/{token}"
     };
   }
 

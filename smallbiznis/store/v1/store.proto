@@ -203,7 +203,7 @@ message UpdateMemberRequest {
   
   string member_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  repeated Role roles = 2;
+  Role roles = 2;
 
 }
 

@@ -203,7 +203,7 @@ message VerifyInvitationRequest {
 
 message DeleteInvitationRequest {
 
-  string invitation_id = 1; [(google.api.field_behavior) = REQUIRED];
+  string invitation_id = 1 [(google.api.field_behavior) = REQUIRED];
 
 }
 
@@ -273,7 +273,7 @@ service Service {
     };
   }
 
-  rpc DeleteInvitation() returns (smallbiznis.protobuf.Empty) {
+  rpc DeleteInvitation(DeleteInvitationRequest) returns (smallbiznis.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/invitations/{invitation_id}"
     };

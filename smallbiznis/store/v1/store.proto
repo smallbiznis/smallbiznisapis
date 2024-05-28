@@ -74,17 +74,15 @@ message Member {
 
   string member_id = 1;
 
-  string store_id = 2;
+  Store store = 2;
 
-  string user_id = 3;
+  smallbiznis.user.v1.User user = 3;
 
-  smallbiznis.user.v1.User user = 4;
+  repeated Role roles = 4;
 
-  repeated Role roles = 5;
+  google.protobuf.Timestamp created_at = 5;
 
-  google.protobuf.Timestamp created_at = 6;
-
-  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp updated_at = 6;
 
 }
 
@@ -153,7 +151,7 @@ message ListMemberRequest {
 
   string store_id = 5;
 
-  string email = 6;
+  string user_id = 6;
 }
 
 message ListMemberResponse {
@@ -199,7 +197,13 @@ message SendInvitationRequest {
 
 message VerifyInvitationRequest {
 
-  string token = 1;
+  string token = 1 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message DeleteInvitationRequest {
+
+  string invitation_id = 1; [(google.api.field_behavior) = REQUIRED];
 
 }
 
@@ -268,6 +272,12 @@ service Service {
       put: "/v1/invitations/{token}"
     };
   }
+
+  rpc DeleteInvitation() returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/invitations/{invitation_id}"
+    };
+  } 
 
   rpc ListMember(ListMemberRequest) returns (ListMemberResponse) {
     option (google.api.http) = {

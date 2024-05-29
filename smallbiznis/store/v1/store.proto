@@ -195,6 +195,14 @@ message SendInvitationRequest {
 
 }
 
+message ResendInvitationRequest {
+
+  string invitation_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  Role role = 2;
+
+}
+
 message VerifyInvitationRequest {
 
   string token = 1 [(google.api.field_behavior) = REQUIRED];
@@ -263,6 +271,13 @@ service Service {
   rpc SendInvitation(SendInvitationRequest) returns (smallbiznis.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/invitations",
+      body: "*"
+    };
+  }
+
+  rpc ResendInvitation(ResendInvitationRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/invitations/{invitation_id}"
       body: "*"
     };
   }

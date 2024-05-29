@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package smallbiznis.inventory.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1;inventory";
+
+import "google/protobuf/timestamp.proto";
+
+message InventoryItem {
+
+  string inventory_item_id = 1;
+
+  string store_id = 2;
+
+  string sku = 3;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}
+
+message InventoryLevel {
+
+  string inventory_level_id = 1;
+
+  string inventory_item_id = 2;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}

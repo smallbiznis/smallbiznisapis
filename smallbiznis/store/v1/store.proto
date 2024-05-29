@@ -187,7 +187,7 @@ message SendInvitationRequest {
 
   string store_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  string user_id = 2;
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
 
   string email = 3;
 
@@ -198,8 +198,10 @@ message SendInvitationRequest {
 message ResendInvitationRequest {
 
   string invitation_id = 1 [(google.api.field_behavior) = REQUIRED];
+  
+  string store_id = 2 [(google.api.field_behavior) = REQUIRED];
 
-  Role role = 2;
+  Role role = 3;
 
 }
 
@@ -212,6 +214,8 @@ message VerifyInvitationRequest {
 message DeleteInvitationRequest {
 
   string invitation_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string store_id = 2 [(google.api.field_behavior) = REQUIRED];
 
 }
 
@@ -270,29 +274,29 @@ service Service {
 
   rpc SendInvitation(SendInvitationRequest) returns (smallbiznis.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/v1/invitations",
+      post: "/v1/stores/{store_id}/invitations",
       body: "*"
     };
   }
 
   rpc ResendInvitation(ResendInvitationRequest) returns (smallbiznis.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/v1/invitations/{invitation_id}"
+      put: "/v1/stores/{store_id}/invitations/{invitation_id}"
       body: "*"
     };
   }
+
+  rpc DeleteInvitation(DeleteInvitationRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/stores/{store_id}/invitations/{invitation_id}"
+    };
+  } 
 
   rpc VerifyInvitation(VerifyInvitationRequest) returns (smallbiznis.protobuf.Empty) {
     option (google.api.http) = {
       put: "/v1/invitations/{token}"
     };
   }
-
-  rpc DeleteInvitation(DeleteInvitationRequest) returns (smallbiznis.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/invitations/{invitation_id}"
-    };
-  } 
 
   rpc ListMember(ListMemberRequest) returns (ListMemberResponse) {
     option (google.api.http) = {

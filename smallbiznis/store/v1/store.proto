@@ -187,9 +187,7 @@ message SendInvitationRequest {
 
   string store_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
-
-  string email = 3;
+  string email = 2 [(google.api.field_behavior) = REQUIRED];
 
   Role role = 4;
 
@@ -220,7 +218,7 @@ message DeleteInvitationRequest {
 }
 
 message UpdateMemberRequest {
-  
+
   string member_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   Role roles = 2;
@@ -300,7 +298,7 @@ service Service {
 
   rpc ListMember(ListMemberRequest) returns (ListMemberResponse) {
     option (google.api.http) = {
-      get: "/v1/stores/{store_id}/members"
+      get: "/v1/members"
     };
   }
 

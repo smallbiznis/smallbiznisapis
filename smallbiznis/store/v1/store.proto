@@ -209,6 +209,16 @@ message VerifyInvitationRequest {
 
 }
 
+message AddMemberRequest {
+
+  string store_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string email = 2 [(google.api.field_behavior) = REQUIRED];
+
+  Role role = 3;
+
+}
+
 message DeleteInvitationRequest {
 
   string invitation_id = 1 [(google.api.field_behavior) = REQUIRED];
@@ -293,6 +303,13 @@ service Service {
   rpc VerifyInvitation(VerifyInvitationRequest) returns (smallbiznis.protobuf.Empty) {
     option (google.api.http) = {
       put: "/v1/invitations/{token}"
+    };
+  }
+
+  rpc AddMember(AddMemberRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/members",
+      body: "*"
     };
   }
 

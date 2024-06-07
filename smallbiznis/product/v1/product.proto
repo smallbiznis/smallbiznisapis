@@ -7,6 +7,7 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;p
 import "smallbiznis/product/v1/product_resource.proto";
 import "smallbiznis/protobuf/empty.proto";
 
+import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
 
 // Category
@@ -28,6 +29,8 @@ message ListCategoryRequest {
 
   OrderBy order_by = 4;
 
+  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
+
 }
 
 message ListCategoryResponse {
@@ -37,7 +40,8 @@ message ListCategoryResponse {
 }
 
 message GetCategoryRequest {
-  string category_id = 1;
+  string store_id = 1;
+  string category_id = 2;
 }
 
 message DeleteCategoryRequest {
@@ -63,15 +67,7 @@ message ListBrandRequest {
 
   OrderBy order_by = 4;
 
-  message Filter {
-
-    string name = 1;
-
-    string title = 2;
-
-  }
-
-  Filter filter = 5;
+  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListBrandResponse {
@@ -106,13 +102,7 @@ message ListOptionRequest {
 
   OrderBy order_by = 4;
 
-  message Filter {
-
-    string name = 1;
-
-  }
-
-  Filter filter = 5;
+  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListOptionResponse {
@@ -147,6 +137,8 @@ message ListProductRequest {
 
   OrderBy order_by = 4;
 
+  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
+
 }
 
 message ListProductResponse {
@@ -161,19 +153,6 @@ message GetProductRequest {
 message DeleteProductrequest {
   string product_id = 1;
 }
-
-// Batch
-message BatchAddCategoryRequest {
-  repeated Category data = 1;
-}
-
-message BatchAddCategoryResponse {}
-
-message BatchUpdateCategoryRequest {
-  repeated Category data = 1;
-}
-
-message BatchUpdateCateogryResponse {}
 
 service Service {
 
@@ -244,11 +223,37 @@ service Service {
   }
 
   // Option
-  rpc ListOption(ListOptionRequest) returns (ListOptionResponse) {}
-  rpc GetOption(GetOptionRequest) returns (Option) {}
-  rpc AddOption(Option) returns  (Option) {}
-  rpc UpdateOption(Option) returns (Option) {}
-  rpc DeleteOption(DeleteOptionRequest) returns (smallbiznis.protobuf.Empty) {}
+  rpc ListOption(ListOptionRequest) returns (ListOptionResponse) {
+    option (google.api.http) = {
+      get: "/v1/options"
+    };
+  }
+
+  rpc GetOption(GetOptionRequest) returns (Option) {
+    option (google.api.http) = {
+      get: "/v1/options/{option_id}"
+    };
+  }
+
+  rpc AddOption(Option) returns  (Option) {
+    option (google.api.http) = {
+      post: "/v1/options"
+      body: "*"
+    };
+  }
+
+  rpc UpdateOption(Option) returns (Option) {
+    option (google.api.http) = {
+      put: "/v1/options/{option_id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteOption(DeleteOptionRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/options/{option_id}"
+    };
+  }
 
   // Product
   rpc ListProduct(ListProductRequest) returns (ListProductResponse) {
@@ -282,10 +287,5 @@ service Service {
       delete: "/v1/products/{product_id}"
     };
   }
-
-  // Batch
-  // rpc BatchAddCategory() returns () {}
-  // rpc BatchUpdateCategory() returns () {}
-  // rpc BatchDeleteCategory() returns () {}
 
 }

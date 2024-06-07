@@ -157,7 +157,7 @@ message DeleteProductrequest {
 service Service {
 
   // Category
-  rpc ListCategory(ListCategoryRequest) returns (ListBrandResponse) {
+  rpc ListCategory(ListCategoryRequest) returns (ListCategoryResponse) {
     option (google.api.http) = {
       get: "/v1/categories"
     };

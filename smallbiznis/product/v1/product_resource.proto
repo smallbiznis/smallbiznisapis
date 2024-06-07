@@ -62,11 +62,11 @@ message Brand {
 
 enum Status {
 
-  Active = 0;
+  ACTIVE = 0;
 
-  Inactive = 1;
+  INACTIVE = 1;
 
-  Archived = 2;
+  ARCHIVED = 2;
 
 }
 

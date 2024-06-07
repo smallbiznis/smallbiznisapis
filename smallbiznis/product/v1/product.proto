@@ -40,12 +40,11 @@ message ListCategoryResponse {
 }
 
 message GetCategoryRequest {
-  string store_id = 1;
-  string category_id = 2;
+  string category_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message DeleteCategoryRequest {
-  string category_id = 1;
+  string category_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Brand
@@ -142,7 +141,7 @@ message ListProductRequest {
 }
 
 message ListProductResponse {
-  repeated Category data = 1;
+  repeated Product data = 1;
   int32 total_data = 2;
 }
 

@@ -152,6 +152,24 @@ message ProductOption {
 
   int32 position = 4;
 
+  repeated ProductOptionValue values = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+}
+
+message ProductOptionValue {
+
+  string product_option_value_id = 1;
+
+  string product_option_id = 2;
+
+  string option_value_id = 3;
+
+  int32 position = 4;
+
   google.protobuf.Timestamp created_at = 5;
 
   google.protobuf.Timestamp updated_at = 6;

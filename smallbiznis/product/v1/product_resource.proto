@@ -80,9 +80,11 @@ message Option {
 
   string display_name = 4;
 
-  google.protobuf.Timestamp created_at = 5;
+  repeated OptionValue values = 5;
 
-  google.protobuf.Timestamp updated_at = 6;
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
 
 }
 
@@ -92,7 +94,7 @@ message OptionValue {
 
   string option_id = 2;
 
-  string value = 3;
+  string value = 4;
 
   google.protobuf.Timestamp created_at = 5;
 

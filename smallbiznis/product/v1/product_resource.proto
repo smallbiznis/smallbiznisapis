@@ -108,37 +108,15 @@ message VariantOption {
 
   string variant_id = 2;
 
-  string option_id = 3;
+  string product_option_id = 3;
 
-  string option_value_id = 4;
+  string product_option_value_id = 4;
 
   int32 position = 5;
 
   google.protobuf.Timestamp created_at = 6;
 
   google.protobuf.Timestamp updated_at = 7;
-
-}
-
-message Variant {
-
-  string variant_id = 1;
-
-  string product_id = 2;
-
-  string sku = 3;
-
-  int32 position = 4;
-
-  repeated VariantOption options = 5;
-
-  float cost_price = 6;
-
-  float price = 7;
-
-  google.protobuf.Timestamp created_at = 8;
-
-  google.protobuf.Timestamp updated_at = 9;
 
 }
 
@@ -150,13 +128,17 @@ message ProductOption {
 
   string option_id = 3;
 
-  int32 position = 4;
+  string name = 4;
 
-  repeated ProductOptionValue values = 5;
+  string display_name = 5;
 
-  google.protobuf.Timestamp created_at = 6;
+  int32 position = 6;
 
-  google.protobuf.Timestamp updated_at = 7;
+  repeated ProductOptionValue values = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
 
 }
 
@@ -168,11 +150,13 @@ message ProductOptionValue {
 
   string option_value_id = 3;
 
-  int32 position = 4;
+  string value = 4;
 
-  google.protobuf.Timestamp created_at = 5;
+  int32 position = 5;
 
-  google.protobuf.Timestamp updated_at = 6;
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
 
 }
 
@@ -201,5 +185,39 @@ message Product {
   google.protobuf.Timestamp created_at = 11;
 
   google.protobuf.Timestamp updated_at = 12;
+
+}
+
+message Variant {
+
+  string variant_id = 1;
+
+  string store_id = 2;
+
+  string product_id = 3;
+
+  string sku = 4;
+
+  message Attribute {
+
+    string product_option_id = 1;
+
+    string product_option_value_id = 2;
+
+    string name = 3;
+
+    string value = 4;
+
+  }
+
+  repeated Attribute attrs = 5;
+
+  float cost = 6;
+
+  float price = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
 
 }

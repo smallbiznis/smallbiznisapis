@@ -83,6 +83,17 @@ message DeleteBrandRequest {
 }
 
 // Option
+message AddOptionRequest {
+
+  string store_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  repeated string values = 4;
+}
+
 message ListOptionRequest {
 
   int32 limit = 1;
@@ -151,6 +162,27 @@ message GetProductRequest {
 
 message DeleteProductrequest {
   string product_id = 1;
+}
+
+// Product Option
+
+message ListProductOptionResponse {
+
+  repeated ProductOption data = 1;
+
+}
+
+message ListProductVariantResponse {
+
+  repeated Variant data = 1;
+
+}
+
+// Product Variant
+
+message GetVariantRequest {
+  string product_id = 1;
+  string variant_id = 2;
 }
 
 service Service {
@@ -234,7 +266,7 @@ service Service {
     };
   }
 
-  rpc AddOption(Option) returns  (Option) {
+  rpc AddOption(AddOptionRequest) returns  (Option) {
     option (google.api.http) = {
       post: "/v1/options"
       body: "*"

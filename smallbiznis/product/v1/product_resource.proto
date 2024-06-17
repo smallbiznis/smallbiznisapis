@@ -168,23 +168,21 @@ message Product {
 
   Category category = 3;
 
-  Brand brand = 4;
+  repeated ProductImage images = 4;
 
-  repeated ProductImage images = 5;
+  string slug = 5;
 
-  string slug = 6;
+  string title = 6;
 
-  string title = 7;
+  string body_html = 7;
 
-  string body_html = 8;
+  Status status = 8;
 
-  Status status = 9;
+  repeated Option options = 9;
 
-  repeated ProductOption options = 10;
+  google.protobuf.Timestamp created_at = 10;
 
-  google.protobuf.Timestamp created_at = 11;
-
-  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp updated_at = 11;
 
 }
 

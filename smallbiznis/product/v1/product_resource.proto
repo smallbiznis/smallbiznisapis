@@ -180,9 +180,11 @@ message Product {
 
   repeated ProductOption options = 9;
 
-  google.protobuf.Timestamp created_at = 10;
+  repeated Variant variants = 10;
 
-  google.protobuf.Timestamp updated_at = 11;
+  google.protobuf.Timestamp created_at = 11;
+
+  google.protobuf.Timestamp updated_at = 12;
 
 }
 
@@ -196,19 +198,7 @@ message Variant {
 
   string sku = 4;
 
-  message Attribute {
-
-    string product_option_id = 1;
-
-    string product_option_value_id = 2;
-
-    string name = 3;
-
-    string value = 4;
-
-  }
-
-  repeated Attribute attrs = 5;
+  repeated string options = 5;
 
   float cost = 6;
 

@@ -178,7 +178,7 @@ message Product {
 
   Status status = 8;
 
-  repeated Option options = 9;
+  repeated ProductOption options = 9;
 
   google.protobuf.Timestamp created_at = 10;
 

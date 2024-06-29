@@ -12,17 +12,19 @@ message ProductResource {
 
   string type = 2;
 
-  string src = 3;
+  string name = 3;
 
-  string alt = 4;
+  string src = 4;
 
-  int32 position = 5;
+  string alt = 5;
 
-  repeated string variant_ids = 6;
+  int32 position = 6;
 
-  google.protobuf.Timestamp created_at = 7;
+  repeated string variant_ids = 7;
 
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
 
 }
 

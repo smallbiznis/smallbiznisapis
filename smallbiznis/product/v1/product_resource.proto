@@ -6,21 +6,23 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;p
 
 import "google/protobuf/timestamp.proto";
 
-message ProductImage {
+message ProductResource {
 
   string product_id = 1;
 
-  string src = 2;
+  string type = 2;
 
-  string alt = 3;
+  string src = 3;
 
-  int32 position = 4;
+  string alt = 4;
 
-  repeated string variant_ids = 5;
+  int32 position = 5;
 
-  google.protobuf.Timestamp created_at = 6;
+  repeated string variant_ids = 6;
 
-  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
 
 }
 
@@ -168,7 +170,7 @@ message Product {
 
   Category category = 3;
 
-  repeated ProductImage images = 4;
+  repeated ProductResource resources = 4;
 
   string slug = 5;
 
@@ -194,16 +196,18 @@ message Variant {
 
   string product_id = 2;
 
-  string sku = 3;
+  string title = 3;
 
-  repeated string options = 4;
+  string sku = 4;
 
-  float cost = 5;
+  repeated string options = 5;
 
-  float price = 6;
+  float cost = 6;
 
-  google.protobuf.Timestamp created_at = 7;
+  float price = 7;
 
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
 
 }

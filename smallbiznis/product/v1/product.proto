@@ -156,6 +156,28 @@ message ListProductResponse {
   int32 total_data = 2;
 }
 
+message AddProductRequest {
+
+  string store_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string title = 2 [(google.api.field_behavior) = REQUIRED];
+
+  string slug = 3;
+
+  Category category = 4;
+
+  repeated ProductImage images = 5;
+
+  string body_html = 6;
+
+  repeated ProductOption options = 7;
+
+  repeated Variant variants = 8;
+
+  Status status = 9;
+
+}
+
 message GetProductRequest {
   string product_id = 1;
 }

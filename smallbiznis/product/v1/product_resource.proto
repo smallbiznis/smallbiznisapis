@@ -34,15 +34,19 @@ message Category {
 
   string store_id = 2;
 
-  string image_uri = 3;
+  string parent_id = 3;
 
-  string name = 4;
+  string image_uri = 4;
 
-  string title = 5;
+  string name = 5;
 
-  google.protobuf.Timestamp created_at = 6;
+  string title = 6;
 
-  google.protobuf.Timestamp updated_at = 7;
+  repeated Category children = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
 
 }
 

@@ -34,7 +34,7 @@ message ListCategoryRequest {
 }
 
 message ListCategoryResponse {
-  repeated Product data = 1;
+  repeated Category data = 1;
 
   int32 total_data = 2;
 }

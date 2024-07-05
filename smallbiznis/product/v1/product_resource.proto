@@ -18,7 +18,7 @@ message ProductResource {
 
   string alt = 5;
 
-  in32 size = 6;
+  int32 size = 6;
 
   int32 position = 7;
 

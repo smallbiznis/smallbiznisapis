@@ -30,6 +30,26 @@ message ProductResource {
 
 }
 
+message Collection {
+
+  string collection_id = 1;
+
+  string store_id = 2;
+
+  string image_uri = 3;
+
+  string name = 4;
+
+  string title = 5;
+
+  bool is_active = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
+
+}
+
 message Category {
 
   string category_id = 1;
@@ -176,25 +196,27 @@ message Product {
 
   string store_id = 2;
 
-  Category category = 3;
+  repeated Category categories = 3;
 
-  repeated ProductResource resources = 4;
+  repeated Collection collections = 4;
 
-  string slug = 5;
+  repeated ProductResource resources = 5;
 
-  string title = 6;
+  string slug = 6;
 
-  string body_html = 7;
+  string title = 7;
 
-  Status status = 8;
+  string body_html = 8;
 
-  repeated ProductOption options = 9;
+  Status status = 9;
 
-  repeated Variant variants = 10;
+  repeated ProductOption options = 10;
 
-  google.protobuf.Timestamp created_at = 11;
+  repeated Variant variants = 11;
 
-  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp created_at = 12;
+
+  google.protobuf.Timestamp updated_at = 13;
 
 }
 

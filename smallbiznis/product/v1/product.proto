@@ -10,6 +10,35 @@ import "smallbiznis/protobuf/empty.proto";
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
 
+// Collection
+message ListCollectionRequest {
+
+  int32 limit = 1;
+
+  int32 offset = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
+
+}
+
+message ListCollectionResponse {
+  repeated Collection data = 1;
+
+  int32 total_data = 2;
+}
+
 // Category
 message ListCategoryRequest {
 
@@ -208,6 +237,25 @@ message GetVariantRequest {
 }
 
 service Service {
+
+  // Collection
+  rpc ListCollection(ListCollectionRequest) returns (ListCollectionResponse) {
+    option (google.api.http) = {
+      get: "/v1/collections"
+    };
+  }
+
+  rpc AddCollection(Collection) returns (Collection) {
+    option (google.api.http) = {
+      post: "/v1/collections"
+    };
+  }
+
+  rpc UpdateCollection(Collection) returns (Collection) {
+    option (google.api.http) = {
+      put: "/v1/collections/{collection_id}"
+    };
+  }
 
   // Category
   rpc ListCategory(ListCategoryRequest) returns (ListCategoryResponse) {

@@ -247,13 +247,15 @@ service Service {
 
   rpc AddCollection(Collection) returns (Collection) {
     option (google.api.http) = {
-      post: "/v1/collections"
+      post: "/v1/collections",
+      body: "*"
     };
   }
 
   rpc UpdateCollection(Collection) returns (Collection) {
     option (google.api.http) = {
-      put: "/v1/collections/{collection_id}"
+      put: "/v1/collections/{collection_id}",
+      body: "*"
     };
   }
 

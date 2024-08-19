@@ -1,0 +1,186 @@
+syntax = "proto3";
+
+package smallbiznis.organization.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/organization/v1;organization";
+
+import "smallbiznis/user/v1/user.proto";
+import "smallbiznis/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+
+message Organization {
+
+  string organization_id = 1;
+
+  string organization_logo = 2;
+
+  string organization_name = 3;
+
+  enum Status {
+
+    INACTIVE = 0;
+
+    ACTIVE = 1;
+
+  }
+
+  Status organization_status = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+  google.protobuf.Timestamp deleted_at = 8;
+
+}
+
+message Country {
+
+  string country_code = 1;
+
+  string county_name = 2;
+
+  string continent = 3;
+
+}
+
+message Location {
+
+  string location_id = 1;
+
+  string organization_id = 2;
+
+  string name = 3;
+
+  Country country = 4;
+
+  bool is_default = 5;
+
+  bool is_active = 6;
+
+}
+
+enum Role {
+
+  CHANNEL_ADMIN = 0;
+
+  CHANNEL_PRODUCT_SUPPORT = 1;
+
+  CHANNEL_SUPPORT = 2;
+
+  CHANNEL_MARKETING = 3;
+
+  CHANNEL_DEVELOPER = 4;
+
+}
+
+message Member {
+
+  string member_id = 1;
+
+  Organization organization = 2;
+
+  smallbiznis.user.v1.User user = 3;
+
+  repeated Role roles = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}
+
+message FirstUser {
+
+  string email = 1;
+
+  string first_name = 2;
+
+  string last_name = 3;
+
+}
+
+message CreateOrganizationRequest {
+
+  string organization_name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string organization_id = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  FirstUser first_user = 3 [(google.api.field_behavior) = OPTIONAL];
+
+}
+
+message ListOrganizationRequest {
+
+  int32 limit = 1;
+
+  int32 offset = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+    ASC = 0;
+    DESC = 1;
+  }
+
+  OrderBy order_by = 4;
+
+  string display_name = 5;
+
+}
+
+message ListOrganizationResponse {
+  repeated Organization data = 1;
+  int32 total_data = 2;
+}
+
+message GetOrganizationRequest {
+  string organization_id = 1;
+}
+
+message UpdateOrganizationRequest {
+  string organization_id = 1;
+}
+
+message DeleteOrganizationRequest {
+  string organization_id = 1;
+}
+
+service Service {
+
+  rpc ListOrg(ListOrganizationRequest) returns (ListOrganizationResponse) {
+    option (google.api.http) = {
+      get: "/v1/organizations"
+    };
+  }
+
+  rpc GetOrg(GetOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {
+      get: "/v1/organizations/{organization_id}"
+    };
+  }
+
+  rpc CreateOrg(CreateOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {
+      post: "/v1/organizations",
+      body: "*"
+    };
+  }
+
+  rpc UpdateOrg(Organization) returns (Organization) {
+    option (google.api.http) = {
+      put: "/v1/organizations/{organization_id}",
+      body: "*"
+    };
+  }
+
+  rpc DeleteOrg(Organization) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/organizations/{organization_id}"
+    };
+  }
+}

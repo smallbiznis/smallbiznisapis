@@ -12,7 +12,7 @@ message User {
 
   string user_id = 1;
 
-  string external_id = 2;
+  string provider = 2;
 
   string avatar_uri = 3;
 
@@ -22,21 +22,13 @@ message User {
 
   string last_name = 6;
 
-  enum Role {
+  google.protobuf.Timestamp verified_at = 7;
 
-    USER = 0;
+  google.protobuf.Timestamp created_at = 8;
 
-  }
+  google.protobuf.Timestamp updated_at = 9;
 
-  repeated Role roles = 7;
-
-  google.protobuf.Timestamp verified_at = 8;
-
-  google.protobuf.Timestamp created_at = 9;
-
-  google.protobuf.Timestamp updated_at = 10;
-
-  google.protobuf.Timestamp deleted_at = 11;
+  google.protobuf.Timestamp deleted_at = 10;
 
 }
 

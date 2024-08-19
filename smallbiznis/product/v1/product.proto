@@ -29,7 +29,7 @@ message ListBannerRequest {
 
   OrderBy order_by = 4;
 
-  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
+  string organization_id = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListBannerResponse {
@@ -57,7 +57,7 @@ message ListCollectionRequest {
 
   OrderBy order_by = 4;
 
-  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
+  string organization_id = 5 [(google.api.field_behavior) = OPTIONAL];
 
 }
 
@@ -86,7 +86,7 @@ message ListCategoryRequest {
 
   OrderBy order_by = 4;
 
-  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
+  string organization_id = 5 [(google.api.field_behavior) = OPTIONAL];
 
 }
 
@@ -123,7 +123,7 @@ message ListBrandRequest {
 
   OrderBy order_by = 4;
 
-  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
+  string organization_id = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListBrandResponse {
@@ -142,7 +142,7 @@ message DeleteBrandRequest {
 // Option
 message AddOptionRequest {
 
-  string store_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   string name = 2 [(google.api.field_behavior) = OPTIONAL];
 
@@ -169,7 +169,7 @@ message ListOptionRequest {
 
   OrderBy order_by = 4;
 
-  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
+  string organization_id = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListOptionResponse {
@@ -204,7 +204,7 @@ message ListProductRequest {
 
   OrderBy order_by = 4;
 
-  string store_id = 5 [(google.api.field_behavior) = OPTIONAL];
+  string organization_id = 5 [(google.api.field_behavior) = OPTIONAL];
 
 }
 
@@ -215,7 +215,7 @@ message ListProductResponse {
 
 message AddProductRequest {
 
-  string store_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   string title = 2 [(google.api.field_behavior) = REQUIRED];
 

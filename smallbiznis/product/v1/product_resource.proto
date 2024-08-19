@@ -34,7 +34,7 @@ message Collection {
 
   string collection_id = 1;
 
-  string store_id = 2;
+  string organization_id = 2;
 
   string image_uri = 3;
 
@@ -54,7 +54,7 @@ message Category {
 
   string category_id = 1;
 
-  string store_id = 2;
+  string organization_id = 2;
 
   string parent_id = 3;
 
@@ -76,7 +76,7 @@ message Brand {
 
   string brand_id = 1;
 
-  string store_id = 2;
+  string organization_id = 2;
 
   string image_uri = 3;
 
@@ -104,7 +104,7 @@ message Option {
 
   string option_id = 1;
 
-  string store_id = 2;
+  string organization_id = 2;
 
   string name = 3;
 
@@ -194,7 +194,7 @@ message Product {
 
   string product_id = 1;
 
-  string store_id = 2;
+  string organization_id = 2;
 
   repeated Category categories = 3;
 

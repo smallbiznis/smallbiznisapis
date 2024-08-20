@@ -48,9 +48,9 @@ endif
 
 # FLAGS+= --go_gapic_out=$(GAPIC_OUT) --go_gapic_opt 'go-gapic-package=github.com/smallbiznis/smallbiznis-api-go-client;smallbiznis'
 
-SUFFIX ?= pb.go
+SUFFIX:= pb.go
 
-DEPS:= $(shell find smallbiznis -type f -name '*.proto' | sed "s/proto$$/*.$(SUFFIX)/")
+DEPS:= $(shell find smallbiznis -type f -name '*.proto' | sed "s/proto$$/$(SUFFIX)/")
 
 all: $(DEPS)
 

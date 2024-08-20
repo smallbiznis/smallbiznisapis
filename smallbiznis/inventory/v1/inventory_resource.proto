@@ -1,10 +1,26 @@
 syntax = "proto3";
 
-package smallbiznis.product.v1;
+package smallbiznis.inventory.v1;
 
-option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;product";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1;inventory";
 
 import "google/protobuf/timestamp.proto";
+
+message InventoryItem {
+
+  string inventory_item_id = 1;
+
+  string location_id = 2;
+
+  string variant_id = 3;
+
+  Variant Variant = 4;
+
+  int32 quantity = 5;
+
+  int32 reorder_level = 6;
+
+}
 
 message ProductResource {
 
@@ -224,11 +240,11 @@ message Variant {
 
   string variant_id = 1;
 
-  string product_id = 2;
+  Product product = 2;
 
-  string title = 3;
+  string sku = 3;
 
-  string sku = 4;
+  string title = 4;
 
   repeated string options = 5;
 

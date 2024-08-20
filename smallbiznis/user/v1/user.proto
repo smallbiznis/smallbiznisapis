@@ -34,9 +34,9 @@ message User {
 
 message ListUserRequest {
 
-  int32 limit = 1;
+  int32 page = 1;
 
-  int32 offset = 2;
+  int32 size = 2;
 
   string sort_by = 3;
 

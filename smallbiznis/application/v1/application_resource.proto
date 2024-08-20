@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package smallbiznis.application.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/application/v1;application";
+
+import "google/protobuf/timestamp.proto";
+
+message Application {
+
+  string app_id = 2;
+
+  string organization_id = 3;
+
+  string logo_uri = 4;
+
+  string title = 5;
+
+  string short_desc = 6;
+
+  string long_desc = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
+
+}

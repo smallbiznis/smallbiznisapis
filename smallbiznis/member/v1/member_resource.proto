@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package smallbiznis.member.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/member/v1;member";
+
+import "google/protobuf/timestamp.proto";
+
+enum Role {
+  ROLE_ADMIN = 0;
+
+  // E-Commerce Management
+  ROLE_PRODUCT_MANAGER = 1;
+  ROLE_CATEGORY_MANAGER = 2;
+
+  // Marketing and Sales
+  ROLE_MARKETING_MANAGER = 3;
+
+  // Customer Service and Support
+  ROLE_CUSTOMER_SERVICE_MANAGER = 6;
+  ROLE_CUSTOMER_SUPPORT_REPRESENTATIVE = 7;
+
+  // Finance and Accounting
+  ROLE_ACCOUNTANT = 8;
+  ROLE_FINANCE_ANALYST = 9;
+
+  // IT
+  ROLE_DEVELOPER = 10;
+}
+
+message Member {
+
+  string member_id = 1;
+
+  string organization_id = 2;
+
+  string user_id = 3;
+
+  repeated Role roles = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}

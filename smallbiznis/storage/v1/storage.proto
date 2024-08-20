@@ -14,9 +14,9 @@ message CreateBucketRequest {}
 
 message ListBucketRequest {
 
-  int32 limit = 1;
+  int32 page = 1;
 
-  int32 offset = 2;
+  int32 size = 2;
 
   string store_id = 3 [(google.api.field_behavior) = REQUIRED];
 

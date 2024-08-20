@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package smallbiznis.hosting.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/hosting/v1;hosting";
+
+import "google/protobuf/timestamp.proto";
+
+message Domain {
+
+  string domain_id = 1;
+
+  string organization_id = 2;
+
+  string domain_name = 3;
+
+  bool is_default = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}

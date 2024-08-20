@@ -11,7 +11,7 @@ permissions:
   packages: write
   checks: read
 jobs:
-  build:
+  build-go:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,35 @@ jobs:
           github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
           google.golang.org/protobuf/cmd/protoc-gen-go \
           google.golang.org/grpc/cmd/protoc-gen-go-grpc
-          make OUTPUT=gen all
+          make LANGUAGE=go OUTPUT=gen 
+      - name: Commit changes
+        run: |
+          cd gen
+          git config user.name "Small Biznis APIs"
+          git add .
+          git commit -m "regenerate API"
+          git push
+  build-ts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+      - name: Setup Node 18
+        uses: actions/setup-node@v4
+        with:
+          # Semantic version range syntax or exact version of Go
+          node-version: 18
+      - name: Checkout ts-genproto
+        uses: actions/checkout@v4
+        with:
+          repository: smallbiznis/ts-genproto
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: gen
+      - name: Generate APIs
+        run: |
+          npm install --save-dev grpc-tools grpc_tools_node_protoc_ts
+          make LANGUAGE=ts OUTPUT=gen
       - name: Commit changes
         run: |
           cd gen

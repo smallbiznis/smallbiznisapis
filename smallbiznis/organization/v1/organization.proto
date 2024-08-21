@@ -15,9 +15,9 @@ message Organization {
 
   string organization_id = 1;
 
-  string organization_logo_uri = 2;
+  string logo_url = 2;
 
-  string organization_name = 3;
+  string title = 3;
 
   enum Status {
 
@@ -29,7 +29,7 @@ message Organization {
 
   bool is_default = 4;
 
-  Status organization_status = 5;
+  Status status = 5;
 
   google.protobuf.Timestamp created_at = 6;
 

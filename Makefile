@@ -37,6 +37,7 @@ ifeq ($(LANGUAGE),ts)
 FLAGS+= --js_out=import_style=commonjs,binary:$(OUTPUT)
 FLAGS+= --$(LANGUAGE)_out=import_style=commonjs,binary:$(OUTPUT)
 FLAGS+= --plugin=protoc-gen-$(LANGUAGE)=./node_modules/.bin/protoc-gen-$(LANGUAGE)
+FLAGS+= --plugin=protoc-gen-js=./node_modules/.bin/protoc-gen-js
 FLAGS+= --plugin=protoc-gen-grpc-gateway-ts=$(which protoc-gen-grpc-gateway-ts)
 FLAGS+= --plugin=protoc-gen-grpc-web=./node_modules/.bin/protoc-gen-grpc-web
 endif

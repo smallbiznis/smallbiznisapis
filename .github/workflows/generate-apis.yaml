@@ -38,12 +38,12 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
+          cd gen
           git status --porcelain
           echo "::set-output name=changes::$(git status --porcelain)"
       - name: Commit changes
         if: steps.check_changes.outputs.changes != ''
         run: |
-          cd gen
           git config user.name "Small Biznis APIs"
           git add .
           git commit -m "regenerate API"

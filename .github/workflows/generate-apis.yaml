@@ -40,7 +40,7 @@ jobs:
         run: |
           cd gen
           git status --porcelain
-          echo "name=changes::$(git status --porcelain)" >> >> $GITHUB_OUTPUT
+          echo "name=changes::$(git status --porcelain)" >> $GITHUB_OUTPUT
       - name: Commit changes
         if: steps.check_changes.outputs.changes != ''
         run: |
@@ -74,7 +74,7 @@ jobs:
         run: |
           cd gen
           git status --porcelain
-          echo "name=changes::$(git status --porcelain)" >> >> $GITHUB_OUTPUT
+          echo "name=changes::$(git status --porcelain)" >> $GITHUB_OUTPUT
       - name: Commit changes
         run: |
           cd gen

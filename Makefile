@@ -36,19 +36,19 @@ FLAGS+= -I $(GOOGLEAPIS)
 ifeq ($(LANGUAGE),ts)
 FLAGS+= --js_out=import_style=commonjs,binary:$(OUTPUT)
 FLAGS+= --$(LANGUAGE)_out=import_style=commonjs,binary:$(OUTPUT)
+FLAGS+= --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin`
 # FLAGS+= --plugin=protoc-gen-$(LANGUAGE)=./node_modules/.bin/protoc-gen-$(LANGUAGE)
-# FLAGS+= --plugin=protoc-gen-js=./node_modules/.bin/protoc-gen-js
-FLAGS+= --grpc-web_out=import_style=commonjs,mode=grpcwebtext:$(OUTPUT)
-# FLAGS+= --plugin=protoc-gen-grpc-gateway-ts=$(which protoc-gen-grpc-gateway-ts)
 # FLAGS+= --plugin=protoc-gen-grpc-web=./node_modules/.bin/protoc-gen-grpc-web
+# FLAGS+= --grpc-web_out=import_style=commonjs,mode=grpcwebtext:$(OUTPUT)
 endif
 
 ifeq ($(LANGUAGE),go)
 FLAGS+= --$(LANGUAGE)_out=$(OUTPUT) --$(LANGUAGE)_opt=paths=source_relative
 FLAGS+= --$(LANGUAGE)-grpc_out=$(OUTPUT) --$(LANGUAGE)-grpc_opt=paths=source_relative
 FLAGS+= --grpc-gateway_out=$(OUTPUT) --grpc-gateway_opt paths=source_relative
-FLAGS+=	--plugin=protoc-gen-grpc=$(GRPCPLUGIN)
 endif
+
+FLAGS+=	--plugin=protoc-gen-grpc=$(GRPCPLUGIN)
 
 # FLAGS+= --go_gapic_out=$(GAPIC_OUT) --go_gapic_opt 'go-gapic-package=github.com/smallbiznis/smallbiznis-api-go-client;smallbiznis'
 

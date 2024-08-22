@@ -35,18 +35,14 @@ message Member {
 
   string member_id = 1;
 
-  string organization_id = 2;
+  smallbiznis.organization.v1.Organization organization = 2;
 
-  smallbiznis.organization.v1.Organization organization = 3;
+  smallbiznis.user.v1.User user = 3;
 
-  string user_id = 4;
+  repeated Role roles = 4;
 
-  smallbiznis.user.v1.User user = 5;
+  google.protobuf.Timestamp created_at = 5;
 
-  repeated Role roles = 6;
-
-  google.protobuf.Timestamp created_at = 7;
-
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp updated_at = 6;
 
 }

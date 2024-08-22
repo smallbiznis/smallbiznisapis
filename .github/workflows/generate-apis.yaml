@@ -40,7 +40,7 @@ jobs:
         run: |
           cd gen
           CHANGES=$(git status --porcelain)
-          echo "changes=$(git status --porcelain)" >> $GITHUB_OUTPUT
+          echo "changes=$(git status --porcelain | tr '\n' ' ')" >> $GITHUB_OUTPUT
           echo "Detected changes or untracked files:"
           echo "$CHANGES"
       - name: No changes detected
@@ -80,7 +80,7 @@ jobs:
         run: |
           cd gen
           CHANGES=$(git status --porcelain)
-          echo "changes=$(git status --porcelain)" >> $GITHUB_OUTPUT
+          echo "changes=$(git status --porcelain | tr '\n' ' ')" >> $GITHUB_OUTPUT
           echo "Detected changes or untracked files:"
           echo "$CHANGES"
       - name: No changes detected

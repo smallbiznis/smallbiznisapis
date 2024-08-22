@@ -67,7 +67,7 @@ jobs:
           path: gen
       - name: Generate APIs
         run: |
-          npm install --save-dev grpc-tools grpc_tools_node_protoc_ts
+          npm install --save-dev grpc-tools grpc_tools_node_protoc_ts protoc-gen-ts protoc-gen-grpc-web ts-protoc-gen
           make LANGUAGE=ts OUTPUT=gen
       - name: Check for changes
         id: check_changes

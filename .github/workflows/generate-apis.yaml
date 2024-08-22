@@ -50,6 +50,7 @@ jobs:
         if: steps.check_changes.outputs.changes != ''
         run: |
           echo "There are changes or untracked files, proceeding with the next steps."
+          cd gen
           git config user.name "Small Biznis APIs"
           git add .
           git commit -m "regenerate API"
@@ -90,6 +91,7 @@ jobs:
         if: steps.check_changes.outputs.changes != ''
         run: |
           echo "There are changes or untracked files, proceeding with the next steps."
+          cd gen
           git config user.name "Small Biznis APIs"
           git add .
           git commit -m "regenerate API"

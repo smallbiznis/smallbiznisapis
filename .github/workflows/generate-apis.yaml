@@ -39,7 +39,10 @@ jobs:
         id: check_changes
         run: |
           cd gen
-          echo "name=changes::$(git status --porcelain | grep -v '??')" >> $GITHUB_OUTPUT
+          CHANGES=$(git status --porcelain)
+          echo "changes=$CHANGES" >> $GITHUB_OUTPUT
+          echo "Detected changes or untracked files:"
+          echo "$CHANGES"
       - name: Commit changes
         if: steps.check_changes.outputs.changes != ''
         run: |
@@ -72,7 +75,10 @@ jobs:
         id: check_changes
         run: |
           cd gen
-          echo "name=changes::$(git status --porcelain | grep -v '??')" >> $GITHUB_OUTPUT
+          CHANGES=$(git status --porcelain)
+          echo "changes=$CHANGES" >> $GITHUB_OUTPUT
+          echo "Detected changes or untracked files:"
+          echo "$CHANGES"
       - name: Commit changes
         if: steps.check_changes.outputs.changes != ''
         run: |

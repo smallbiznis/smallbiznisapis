@@ -48,12 +48,29 @@ message DeleteMemberRequest {
 
 service MemberService {
 
-  rpc ListMember(ListMemberRequest) returns (ListMemberResponse) {}
+  rpc ListMember(ListMemberRequest) returns (ListMemberResponse) {
+    option (google.api.http) = {
+      get: "/v1/members"
+    };
+  }
 
-  rpc GetMember(GetMemberRequest) returns (Member) {}
+  rpc GetMember(GetMemberRequest) returns (Member) {
+    option (google.api.http) = {
+      get: "/v1/members/{member_id}"
+    };
+  }
 
-  rpc UpdateMember(UpdateMemberRequest) returns (Member) {}
+  rpc AddMember(UpdateMemberRequest) returns (Member) {
+    option (google.api.http) = {
+      put: "/v1/members/{member_id}"
+      body: "*"
+    };
+  }
 
-  rpc DeleteMember(DeleteMemberRequest) returns (smallbiznis.protobuf.Empty) {}
+  rpc DeleteMember(DeleteMemberRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/members/{member_id}"
+    };
+  }
 
 }

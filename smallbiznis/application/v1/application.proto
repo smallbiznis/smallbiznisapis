@@ -41,12 +41,30 @@ message GetAppRequest {
 
 service ApplicationService {
 
-  rpc ListApp(ListAppRequest) returns (ListAppResponse) {}
+  rpc ListApp(ListAppRequest) returns (ListAppResponse) {
+    option (google.api.http) = {
+      get: "/v1/applications"
+    };
+  }
 
-  rpc GetApp(GetAppRequest) returns (Application) {}
+  rpc GetApp(GetAppRequest) returns (Application) {
+    option (google.api.http) = {
+      get: "/v1/applications/{app_id}"
+    };
+  }
 
-  rpc CreateApp(Application) returns (Application) {}
+  rpc CreateApp(Application) returns (Application) {
+    option (google.api.http) = {
+      post: "/v1/applications"
+      body: "*"
+    };
+  }
 
-  rpc UpdateApp(Application) returns (Application) {}
+  rpc UpdateApp(Application) returns (Application) {
+    option (google.api.http) = {
+      put: "/v1/applications/{app_id}"
+      body: "*"
+    };
+  }
 
 }

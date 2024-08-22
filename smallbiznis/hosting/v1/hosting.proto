@@ -38,8 +38,26 @@ message GetDomainRequest {
 }
 
 service HostingService {
-  rpc ListDomain(ListDomainRequest) returns (ListDomainResponse) {}
-  rpc GetDomain(GetDomainRequest) returns (Domain) {}
-  rpc AddDomain(Domain) returns (Domain) {}
-  rpc UpdateDomain(Domain) returns (Domain) {}
+  rpc ListDomain(ListDomainRequest) returns (ListDomainResponse) {
+    option (google.api.http) = {
+      get: "/v1/domains"
+    };
+  }
+  rpc GetDomain(GetDomainRequest) returns (Domain) {
+    option (google.api.http) = {
+      get: "/v1/domains/{domain_id}"
+    };
+  }
+  rpc AddDomain(Domain) returns (Domain) {
+    option (google.api.http) = {
+      post: "/v1/domains"
+      body: "*"
+    };
+  }
+  rpc UpdateDomain(Domain) returns (Domain) {
+    option (google.api.http) = {
+      put: "/v1/domains/{domain_id}"
+      body: "*"
+    };
+  }
 }

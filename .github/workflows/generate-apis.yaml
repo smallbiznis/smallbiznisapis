@@ -51,7 +51,8 @@ jobs:
         run: |
           echo "There are changes or untracked files, proceeding with the next steps."
           cd gen
-          git config user.name "Small Biznis APIs"
+          git config --global user.email "taufiktriantono4@gmail.com"
+          git config --global user.name "Taufik Triantono"
           git add .
           git commit -m "regenerate API"
           git push
@@ -92,7 +93,8 @@ jobs:
         run: |
           echo "There are changes or untracked files, proceeding with the next steps."
           cd gen
-          git config user.name "Small Biznis APIs"
+          git config --global user.email "taufiktriantono4@gmail.com"
+          git config --global user.name "Taufik Triantono"
           git add .
           git commit -m "regenerate API"
           git push

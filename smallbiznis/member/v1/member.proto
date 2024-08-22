@@ -37,12 +37,12 @@ message GetMemberRequest {
   string member_id = 1;
 }
 
-message AddMember {
+message AddMemberRequest {
   string user_id = 1;
   repeated Role roles = 2;
 }
 
-message UpdateMember {
+message UpdateMemberRequest {
   string member_id = 1;
   repeated Role roles = 2;
 }
@@ -65,14 +65,14 @@ service MemberService {
     };
   }
 
-  rpc AddMember(AddMember) returns (Member) {
+  rpc AddMember(AddMemberRequest) returns (Member) {
     option (google.api.http) = {
       post: "/v1/members"
       body: "*"
     };
   }
 
-  rpc UpdateMember(UpdateMember) returns (Member) {
+  rpc UpdateMember(UpdateMemberRequest) returns (Member) {
     option (google.api.http) = {
       put: "/v1/members/{member_id}"
       body: "*"

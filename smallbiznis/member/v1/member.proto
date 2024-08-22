@@ -26,6 +26,12 @@ message ListMemberRequest {
 
   OrderBy order_by = 4;
 
+  string user_id = 5;
+
+  string email = 6;
+
+  string organization_id = 7;
+
 }
 
 message ListMemberResponse {

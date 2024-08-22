@@ -40,7 +40,7 @@ jobs:
         run: |
           cd gen
           git status --porcelain
-          echo "::set-output name=changes::$(git status --porcelain)"
+          echo "name=changes::$(git status --porcelain)" >> >> $GITHUB_OUTPUT
       - name: Commit changes
         if: steps.check_changes.outputs.changes != ''
         run: |
@@ -69,6 +69,12 @@ jobs:
         run: |
           npm install --save-dev grpc-tools grpc_tools_node_protoc_ts
           make LANGUAGE=ts OUTPUT=gen
+      - name: Check for changes
+        id: check_changes
+        run: |
+          cd gen
+          git status --porcelain
+          echo "name=changes::$(git status --porcelain)" >> >> $GITHUB_OUTPUT
       - name: Commit changes
         run: |
           cd gen

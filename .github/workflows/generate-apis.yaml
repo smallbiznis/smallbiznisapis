@@ -43,6 +43,9 @@ jobs:
           echo "changes=$CHANGES" >> $GITHUB_OUTPUT
           echo "Detected changes or untracked files:"
           echo "$CHANGES"
+      - name: No changes detected
+        if: steps.check_changes.outputs.changes == ''
+        run: echo "No changes or untracked files detected, skipping further steps."
       - name: Commit changes
         if: steps.check_changes.outputs.changes != ''
         run: |
@@ -79,6 +82,9 @@ jobs:
           echo "changes=$CHANGES" >> $GITHUB_OUTPUT
           echo "Detected changes or untracked files:"
           echo "$CHANGES"
+      - name: No changes detected
+        if: steps.check_changes.outputs.changes == ''
+        run: echo "No changes or untracked files detected, skipping further steps."
       - name: Commit changes
         if: steps.check_changes.outputs.changes != ''
         run: |

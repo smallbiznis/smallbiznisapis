@@ -39,8 +39,8 @@ jobs:
         id: check_changes
         run: |
           cd gen
-          git status --porcelain
-          echo "name=changes::$(git status --porcelain)" >> $GITHUB_OUTPUT
+          CHANGES=$(git status --porcelain | grep -v '??')
+          echo "name=changes::$CHANGES" >> $GITHUB_OUTPUT
       - name: Commit changes
         if: steps.check_changes.outputs.changes != ''
         run: |
@@ -73,8 +73,8 @@ jobs:
         id: check_changes
         run: |
           cd gen
-          git status --porcelain
-          echo "name=changes::$(git status --porcelain)" >> $GITHUB_OUTPUT
+          CHANGES=$(git status --porcelain | grep -v '??')
+          echo "name=changes::$CHANGES" >> $GITHUB_OUTPUT
       - name: Commit changes
         run: |
           cd gen

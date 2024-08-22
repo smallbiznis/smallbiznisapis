@@ -34,8 +34,8 @@ GOOGLEAPIS ?= ./googleapis
 FLAGS+= -I $(GOOGLEAPIS)
 
 ifeq ($(LANGUAGE),ts)
-FLAGS+= --js_out=import_style=commonjs,binary:$(OUTPUT)
-FLAGS+= --$(LANGUAGE)_out=import_style=commonjs:$(OUTPUT)
+FLAGS+= --js_out=library=smallbiznis,binary:$(OUTPUT)
+FLAGS+= --$(LANGUAGE)_out=library=smallbiznis,binary:$(OUTPUT)
 FLAGS+= --grpc-web_out=import_style=commonjs,mode=grpcwebtext:$(OUTPUT)
 endif
 

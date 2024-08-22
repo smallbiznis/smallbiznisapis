@@ -4,6 +4,9 @@ package smallbiznis.member.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/member/v1;member";
 
+import "smallbiznis/organization/v1/organization.proto";
+import "smallbiznis/user/v1/user.proto";
+
 import "google/protobuf/timestamp.proto";
 
 enum Role {
@@ -34,12 +37,16 @@ message Member {
 
   string organization_id = 2;
 
-  string user_id = 3;
+  smallbiznis.organization.v1.Organization organization = 3;
 
-  repeated Role roles = 4;
+  string user_id = 4;
 
-  google.protobuf.Timestamp created_at = 5;
+  smallbiznis.user.v1.User user = 5;
 
-  google.protobuf.Timestamp updated_at = 6;
+  repeated Role roles = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
 
 }

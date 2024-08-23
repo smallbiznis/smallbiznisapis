@@ -45,7 +45,8 @@ message GetMemberRequest {
 
 message AddMemberRequest {
   string user_id = 1;
-  repeated Role roles = 2;
+  string organizatin_id = 2;
+  repeated Role roles = 3;
 }
 
 message UpdateMemberRequest {

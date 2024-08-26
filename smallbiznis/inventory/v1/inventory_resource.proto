@@ -10,99 +10,19 @@ message InventoryItem {
 
   string inventory_item_id = 1;
 
-  string location_id = 2;
+  string organization_id = 2;
 
-  string variant_id = 3;
+  string location_id = 3;
 
-  Variant Variant = 4;
+  string sku = 4;
 
   int32 quantity = 5;
 
   int32 reorder_level = 6;
 
-}
-
-message ProductResource {
-
-  string product_id = 1;
-
-  string type = 2;
-
-  string name = 3;
-
-  string src = 4;
-
-  string alt = 5;
-
-  int32 size = 6;
-
-  int32 position = 7;
-
-  repeated string variant_ids = 8;
-
-  google.protobuf.Timestamp created_at = 9;
-
-  google.protobuf.Timestamp updated_at = 10;
-
-}
-
-message Collection {
-
-  string collection_id = 1;
-
-  string organization_id = 2;
-
-  string image_uri = 3;
-
-  string name = 4;
-
-  string title = 5;
-
-  bool is_active = 6;
-
   google.protobuf.Timestamp created_at = 7;
 
   google.protobuf.Timestamp updated_at = 8;
-
-}
-
-message Category {
-
-  string category_id = 1;
-
-  string organization_id = 2;
-
-  string parent_id = 3;
-
-  string image_uri = 4;
-
-  string name = 5;
-
-  string title = 6;
-
-  repeated Category children = 7;
-
-  google.protobuf.Timestamp created_at = 8;
-
-  google.protobuf.Timestamp updated_at = 9;
-
-}
-
-message Brand {
-
-  string brand_id = 1;
-
-  string organization_id = 2;
-
-  string image_uri = 3;
-
-  string name = 4;
-
-  string title = 5;
-
-  google.protobuf.Timestamp created_at = 6;
-
-  google.protobuf.Timestamp updated_at = 7;
 
 }
 
@@ -116,144 +36,30 @@ enum Status {
 
 }
 
-message Option {
-
-  string option_id = 1;
-
-  string organization_id = 2;
-
-  string name = 3;
-
-  string display_name = 4;
-
-  repeated OptionValue values = 5;
-
-  google.protobuf.Timestamp created_at = 6;
-
-  google.protobuf.Timestamp updated_at = 7;
-
-}
-
-message OptionValue {
-
-  string option_value_id = 1;
-
-  string option_id = 2;
-
-  string value = 4;
-
-  google.protobuf.Timestamp created_at = 5;
-
-  google.protobuf.Timestamp updated_at = 6;
-
-}
-
-message VariantOption {
-
-  string variant_option_id = 1;
-
-  string variant_id = 2;
-
-  string product_option_id = 3;
-
-  string product_option_value_id = 4;
-
-  int32 position = 5;
-
-  google.protobuf.Timestamp created_at = 6;
-
-  google.protobuf.Timestamp updated_at = 7;
-
-}
-
-message ProductOption {
-
-  string product_option_id = 1;
-
-  string product_id = 2;
-
-  string option_id = 3;
-
-  string name = 4;
-
-  string display_name = 5;
-
-  int32 position = 6;
-
-  repeated ProductOptionValue values = 7;
-
-  google.protobuf.Timestamp created_at = 8;
-
-  google.protobuf.Timestamp updated_at = 9;
-
-}
-
-message ProductOptionValue {
-
-  string product_option_value_id = 1;
-
-  string product_option_id = 2;
-
-  string option_value_id = 3;
-
-  string value = 4;
-
-  int32 position = 5;
-
-  google.protobuf.Timestamp created_at = 6;
-
-  google.protobuf.Timestamp updated_at = 7;
-
-}
-
 message Product {
 
   string product_id = 1;
 
   string organization_id = 2;
 
-  repeated Category categories = 3;
-
-  repeated Collection collections = 4;
-
-  repeated ProductResource resources = 5;
-
-  string slug = 6;
-
-  string title = 7;
-
-  string body_html = 8;
-
-  Status status = 9;
-
-  repeated ProductOption options = 10;
-
-  repeated Variant variants = 11;
-
-  google.protobuf.Timestamp created_at = 12;
-
-  google.protobuf.Timestamp updated_at = 13;
-
-}
-
-message Variant {
-
-  string variant_id = 1;
-
-  Product product = 2;
-
-  string sku = 3;
+  string slug = 3;
 
   string title = 4;
 
-  repeated string options = 5;
+  string body_html = 5;
 
-  float cost = 6;
+  Status status = 6;
 
-  float price = 7;
+  message Variant {
 
-  google.protobuf.Timestamp created_at = 8;
+    string variant_id = 1;
 
-  google.protobuf.Timestamp updated_at = 9;
+    string product_id = 2;
+
+    string sku = 3;
+
+  }
+
+  repeated Variant variants = 8;
 
 }

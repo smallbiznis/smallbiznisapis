@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package smallbiznis.notification.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/notification/v1;notification";
+
+import "smallbiznis/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+message Notification {
+
+  string notification_id = 1;
+
+  string user_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  string organization_id = 3 [(google.api.field_behavior) = REQUIRED];
+
+  string title = 4 [(google.api.field_behavior) = REQUIRED];
+
+  string body_html = 5 [(google.api.field_behavior) = REQUIRED];
+
+  bool unread = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
+
+}

@@ -10,180 +10,6 @@ import "smallbiznis/protobuf/empty.proto";
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
 
-// Banner
-message ListBannerRequest {
-
-  int32 page = 1;
-
-  int32 size = 2;
-
-  string sort_by = 3;
-
-  enum OrderBy {
-
-    ASC = 0;
-
-    DESC = 1;
-
-  }
-
-  OrderBy order_by = 4;
-
-  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
-
-}
-
-message ListBannerResponse {
-  repeated Collection data = 1;
-  int32 total_data = 2;
-}
-
-// Collection
-message ListCollectionRequest {
-
-  int32 page = 1;
-
-  int32 size = 2;
-
-  string sort_by = 3;
-
-  enum OrderBy {
-
-    ASC = 0;
-
-    DESC = 1;
-
-  }
-
-  OrderBy order_by = 4;
-
-  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
-
-}
-
-message ListCollectionResponse {
-  repeated Collection data = 1;
-  int32 total_data = 2;
-}
-
-// Category
-message ListCategoryRequest {
-
-  int32 page = 1;
-
-  int32 size = 2;
-
-  string sort_by = 3;
-
-  enum OrderBy {
-
-    ASC = 0;
-
-    DESC = 1;
-
-  }
-
-  OrderBy order_by = 4;
-
-  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
-
-}
-
-message ListCategoryResponse {
-  repeated Category data = 1;
-
-  int32 total_data = 2;
-}
-
-message GetCategoryRequest {
-  string category_id = 1 [(google.api.field_behavior) = REQUIRED];
-}
-
-message DeleteCategoryRequest {
-  string category_id = 1 [(google.api.field_behavior) = REQUIRED];
-}
-
-// Brand
-message ListBrandRequest {
-
-  int32 page = 1;
-
-  int32 size = 2;
-
-  string sort_by = 3;
-
-  enum OrderBy {
-
-    ASC = 0;
-
-    DESC = 1;
-
-  }
-
-  OrderBy order_by = 4;
-
-  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
-}
-
-message ListBrandResponse {
-  repeated Brand data = 1;
-  int32 total_data = 2;
-}
-
-message GetBrandRequest {
-  string brand_id = 1;
-}
-
-message DeleteBrandRequest {
-  string brand_id = 1;
-}
-
-// Option
-message AddOptionRequest {
-
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
-
-  string name = 2 [(google.api.field_behavior) = OPTIONAL];
-
-  string display_name = 3 [(google.api.field_behavior) = REQUIRED];
-
-  repeated string values = 4;
-}
-
-message ListOptionRequest {
-
-  int32 page = 1;
-
-  int32 size = 2;
-
-  string sort_by = 3;
-
-  enum OrderBy {
-
-    ASC = 0;
-
-    DESC = 1;
-
-  }
-
-  OrderBy order_by = 4;
-
-  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
-}
-
-message ListOptionResponse {
-  repeated Option data = 1;
-  int32 total_data = 2;
-}
-
-message GetOptionRequest {
-  string option_id = 1;
-}
-
-message DeleteOptionRequest {
-  string option_id = 1;
-}
-
 // Product
 message ListProductRequest {
 
@@ -220,46 +46,30 @@ message AddProductRequest {
 
   string slug = 3;
 
-  Category category = 4;
+  string body_html = 4 [(google.api.field_behavior) = REQUIRED];
 
-  repeated ProductResource images = 5;
+  message Variant {
 
-  string body_html = 6;
+    string sku = 1;
 
-  repeated ProductOption options = 7;
+    float price = 2;
 
-  repeated Variant variants = 8;
+    float cost = 3;
+
+  }
+
+  repeated Variant variants = 5 [(google.api.field_behavior) = OPTIONAL];
 
   Status status = 9;
 
 }
 
 message GetProductRequest {
-  string product_id = 1;
+  string product_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message DeleteProductrequest {
-  string product_id = 1;
-}
-
-// Product Option
-
-message ListProductOptionResponse {
-
-  repeated ProductOption data = 1;
-
-}
-
-message ListProductVariantResponse {
-
-  repeated Variant data = 1;
-
-}
-
-// Product Variant
-message GetVariantRequest {
-  string product_id = 1;
-  string variant_id = 2;
+  string product_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Inventory
@@ -281,7 +91,9 @@ message ListInventoryItemRequest {
 
   OrderBy order_by = 4;
 
-  repeated string location_ids = 5 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
+
+  repeated string location_ids = 6 [(google.api.field_behavior) = OPTIONAL];
 
 }
 
@@ -290,127 +102,25 @@ message ListInventoryItemResponse {
   int32 total_data = 2;
 }
 
+message GetInventoryRequest {
+  string inventory_item_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message CreateInventoryRequest {
+
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string locatio_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  string sku = 3 [(google.api.field_behavior) = REQUIRED];
+
+  int32 quantity = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  int32 reorder_level = 5 [(google.api.field_behavior) = OPTIONAL];
+
+}
+
 service Service {
-
-  // Collection
-  rpc ListCollection(ListCollectionRequest) returns (ListCollectionResponse) {
-    option (google.api.http) = {
-      get: "/v1/collections"
-    };
-  }
-
-  rpc AddCollection(Collection) returns (Collection) {
-    option (google.api.http) = {
-      post: "/v1/collections",
-      body: "*"
-    };
-  }
-
-  rpc UpdateCollection(Collection) returns (Collection) {
-    option (google.api.http) = {
-      put: "/v1/collections/{collection_id}",
-      body: "*"
-    };
-  }
-
-  // Category
-  rpc ListCategory(ListCategoryRequest) returns (ListCategoryResponse) {
-    option (google.api.http) = {
-      get: "/v1/categories"
-    };
-  }
-
-  rpc GetCategory(GetCategoryRequest) returns (Category) {
-    option (google.api.http) = {
-      get: "/v1/categories/{category_id}"
-    };
-  }
-
-  rpc AddCategory(Category) returns (Category) {
-    option (google.api.http) = {
-      post: "/v1/categories"
-      body: "*"
-    };
-  }
-
-  rpc UpdateCategory(Category) returns (Category) {
-    option (google.api.http) = {
-      put: "/v1/categories/{category_id}"
-      body: "*"
-    };
-  }
-
-  rpc DeleteCategory(DeleteCategoryRequest) returns (smallbiznis.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/categories/{category_id}"
-    };
-  }
-
-  // Brand
-  rpc ListBrand(ListBrandRequest) returns (ListBrandResponse) {
-    option (google.api.http) = {
-      get: "/v1/brands"
-    };
-  }
-
-  rpc GetBrand(GetBrandRequest) returns (Brand) {
-    option (google.api.http) = {
-      get: "/v1/brands/{brand_id}"
-    };
-  }
-
-  rpc AddBrand(Brand) returns (Brand) {
-    option (google.api.http) = {
-      post: "/v1/brands"
-      body: "*"
-    };
-  }
-
-  rpc UpdateBrand(Brand) returns (Brand) {
-    option (google.api.http) = {
-      put: "/v1/brands/{brand_id}"
-      body: "*"
-    };
-  }
-
-  rpc DeleteBrand(DeleteBrandRequest) returns (smallbiznis.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/categories"
-    };
-  }
-
-  // Option
-  rpc ListOption(ListOptionRequest) returns (ListOptionResponse) {
-    option (google.api.http) = {
-      get: "/v1/options"
-    };
-  }
-
-  rpc GetOption(GetOptionRequest) returns (Option) {
-    option (google.api.http) = {
-      get: "/v1/options/{option_id}"
-    };
-  }
-
-  rpc AddOption(AddOptionRequest) returns  (Option) {
-    option (google.api.http) = {
-      post: "/v1/options"
-      body: "*"
-    };
-  }
-
-  rpc UpdateOption(Option) returns (Option) {
-    option (google.api.http) = {
-      put: "/v1/options/{option_id}"
-      body: "*"
-    };
-  }
-
-  rpc DeleteOption(DeleteOptionRequest) returns (smallbiznis.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/options/{option_id}"
-    };
-  }
 
   // Product
   rpc ListProduct(ListProductRequest) returns (ListProductResponse) {
@@ -449,6 +159,26 @@ service Service {
   rpc ListInventoryItem(ListInventoryItemRequest) returns (ListInventoryItemResponse) {
     option (google.api.http) = {
       get: "/v1/inventories"
+    };
+  }
+
+  rpc GetInventoryItem(GetInventoryRequest) returns (ListInventoryItemResponse) {
+    option (google.api.http) = {
+      get: "/v1/inventories/{inventory_item_id}"
+    };
+  }
+
+  rpc CreateInventoryItem(CreateInventoryRequest) returns (InventoryItem) {
+    option (google.api.http) = {
+      post: "/v1/inventories"
+      body: "*"
+    };
+  }
+
+  rpc UpdateInventoryItem(InventoryItem) returns (InventoryItem) {
+    option (google.api.http) = {
+      put: "/v1/inventories/{inventory_item_id}"
+      body: "*"
     };
   }
 

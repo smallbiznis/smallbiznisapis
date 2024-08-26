@@ -162,7 +162,7 @@ service Service {
     };
   }
 
-  rpc GetInventoryItem(GetInventoryRequest) returns (ListInventoryItemResponse) {
+  rpc GetInventoryItem(GetInventoryRequest) returns (InventoryItem) {
     option (google.api.http) = {
       get: "/v1/inventories/{inventory_item_id}"
     };

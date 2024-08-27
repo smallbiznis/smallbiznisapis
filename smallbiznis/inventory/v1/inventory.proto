@@ -44,9 +44,23 @@ message AddProductRequest {
 
   string title = 2 [(google.api.field_behavior) = REQUIRED];
 
-  string slug = 3;
+  string slug = 3 [(google.api.field_behavior) = OPTIONAL];
 
   string body_html = 4 [(google.api.field_behavior) = REQUIRED];
+
+  message Option {
+
+    string option_id = 1;
+
+    string option_key = 2;
+
+    string option_name = 3;
+
+    string option_values = 4 [(google.api.field_behavior) = REQUIRED];
+
+  }
+
+  repeated Option options = 5;
 
   message Variant {
 
@@ -58,9 +72,9 @@ message AddProductRequest {
 
   }
 
-  repeated Variant variants = 5 [(google.api.field_behavior) = OPTIONAL];
+  repeated Variant variants = 6 [(google.api.field_behavior) = OPTIONAL];
 
-  Status status = 9;
+  Status status = 9 [(google.api.field_behavior) = REQUIRED];
 
 }
 

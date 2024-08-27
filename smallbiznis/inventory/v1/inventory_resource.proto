@@ -36,6 +36,30 @@ enum Status {
 
 }
 
+message Option {
+
+  string option_id = 1;
+
+  string organization_id = 2;
+
+  string option_key = 3;
+
+  string option_name = 4;
+
+  repeated string option_values = 5;
+
+}
+
+message Tag {
+
+  string tag_id = 1;
+
+  string organization_id = 2;
+
+  string name = 3;
+
+}
+
 message Product {
 
   string product_id = 1;
@@ -50,16 +74,36 @@ message Product {
 
   Status status = 6;
 
-  message Variant {
-
-    string variant_id = 1;
-
-    string product_id = 2;
-
-    string sku = 3;
-
-  }
+  repeated Option options = 7;
 
   repeated Variant variants = 8;
+
+  repeated string tags = 9;
+
+  google.protobuf.Timestamp created_at = 10;
+
+  google.protobuf.Timestamp updated_at = 11;
+
+}
+
+message Variant {
+
+  string variant_id = 1;
+
+  string product_id = 2;
+
+  string sku = 3;
+
+  float price = 4;
+
+  float cost = 5;
+
+  repeated string attributes = 6;
+
+  repeated string inventory_item_ids = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
 
 }

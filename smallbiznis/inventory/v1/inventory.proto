@@ -134,6 +134,30 @@ message CreateInventoryRequest {
 
 }
 
+message ReservedStockRequest {
+  string inventory_item_id = 1;
+
+  message Body {
+
+    int32 reserved_stock = 2;
+
+  }
+
+  Body body = 2;
+}
+
+message ReleaseStockRequest {
+  string inventory_item_id = 1;
+
+  message Body {
+
+    int32 reserved_stock = 2;
+
+  }
+
+  Body body = 2;
+}
+
 service Service {
 
   // Product
@@ -195,5 +219,9 @@ service Service {
       body: "*"
     };
   }
+
+  rpc ReservedStock(ReservedStockRequest) returns (smallbiznis.protobuf.Empty) {}
+
+  rpc ReleaseStock(ReleaseStockRequest) returns (smallbiznis.protobuf.Empty) {}
 
 }

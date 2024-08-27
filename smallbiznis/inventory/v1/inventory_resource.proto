@@ -42,11 +42,9 @@ message Option {
 
   string organization_id = 2;
 
-  string option_key = 3;
+  string option_name = 3;
 
-  string option_name = 4;
-
-  repeated string option_values = 5;
+  repeated string option_values = 4;
 
 }
 
@@ -73,6 +71,16 @@ message Product {
   string body_html = 5;
 
   Status status = 6;
+
+  message Option {
+
+    string name = 1;
+
+    int32 position = 2;
+
+    repeated string values = 3;
+
+  }
 
   repeated Option options = 7;
 

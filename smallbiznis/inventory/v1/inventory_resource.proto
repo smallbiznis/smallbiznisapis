@@ -110,7 +110,7 @@ message Variant {
 
   repeated string attributes = 6;
 
-  repeated string inventory_item_ids = 7;
+  repeated InventoryItem inventory_items = 7;
 
   google.protobuf.Timestamp created_at = 8;
 

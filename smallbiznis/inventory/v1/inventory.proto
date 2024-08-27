@@ -206,7 +206,7 @@ service Service {
     };
   }
 
-  rpc CreateInventoryItem(CreateInventoryRequest) returns (InventoryItem) {
+  rpc CreateInventoryItem(InventoryItem) returns (InventoryItem) {
     option (google.api.http) = {
       post: "/v1/inventories"
       body: "*"

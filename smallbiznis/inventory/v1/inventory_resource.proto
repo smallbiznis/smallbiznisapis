@@ -16,13 +16,15 @@ message InventoryItem {
 
   string sku = 4;
 
-  int32 quantity = 5;
+  int32 total_stock = 5;
 
-  int32 reorder_level = 6;
+  int32 reserved_stock = 6;
 
-  google.protobuf.Timestamp created_at = 7;
+  int32 reorder_level = 7;
 
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
 
 }
 

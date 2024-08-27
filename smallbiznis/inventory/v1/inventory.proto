@@ -128,9 +128,9 @@ message CreateInventoryRequest {
 
   string sku = 3 [(google.api.field_behavior) = REQUIRED];
 
-  int32 quantity = 4 [(google.api.field_behavior) = OPTIONAL];
+  int32 total_stock = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  int32 reorder_level = 5 [(google.api.field_behavior) = OPTIONAL];
+  int32 reorder_level = 6 [(google.api.field_behavior) = OPTIONAL];
 
 }
 

@@ -72,6 +72,8 @@ message AddVariantRequest {
 
   repeated string attributes = 4;
 
+  repeated AddInventoryItemRequest inventory_items = 5;
+
 }
 
 message AddProductRequest {
@@ -86,7 +88,7 @@ message AddProductRequest {
 
   repeated AddOptionRequest options = 5 [(google.api.field_behavior) = OPTIONAL];
 
-  repeated AddInventoryItemRequest variants = 6 [(google.api.field_behavior) = OPTIONAL];
+  repeated AddVariantRequest variants = 6 [(google.api.field_behavior) = OPTIONAL];
 
   Status status = 9 [(google.api.field_behavior) = REQUIRED];
 

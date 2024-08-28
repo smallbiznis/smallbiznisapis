@@ -46,7 +46,9 @@ message AddOptionRequest {
 
   string option_name = 3;
 
-  repeated string option_values = 4;
+  int32 position = 4;
+
+  repeated string option_values = 5;
 
 }
 

@@ -74,16 +74,6 @@ message Product {
 
   Status status = 6;
 
-  message Option {
-
-    string name = 1;
-
-    int32 position = 2;
-
-    repeated string values = 3;
-
-  }
-
   repeated Option options = 7;
 
   repeated Variant variants = 8;

@@ -185,7 +185,7 @@ service Service {
     };
   }
 
-  rpc AddProduct(Product) returns (Product) {
+  rpc AddProduct(AddProductRequest) returns (Product) {
     option (google.api.http) = {
       post: "/v1/products",
       body: "*"

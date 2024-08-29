@@ -72,9 +72,9 @@ message AddVariantRequest {
 
   float cost = 4;
 
-  repeated string attributes = 4;
+  repeated string attributes = 5;
 
-  repeated AddInventoryItemRequest inventory_items = 5;
+  repeated AddInventoryItemRequest inventory_items = 6;
 
 }
 

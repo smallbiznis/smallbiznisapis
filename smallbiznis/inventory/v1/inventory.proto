@@ -92,9 +92,9 @@ message AddProductRequest {
 
   float cost = 6 [(google.api.field_behavior) = OPTIONAL];
 
-  repeated AddOptionRequest options = 5 [(google.api.field_behavior) = OPTIONAL];
+  repeated AddOptionRequest options = 7 [(google.api.field_behavior) = OPTIONAL];
 
-  repeated AddVariantRequest variants = 6 [(google.api.field_behavior) = OPTIONAL];
+  repeated AddVariantRequest variants = 8 [(google.api.field_behavior) = OPTIONAL];
 
   Status status = 9 [(google.api.field_behavior) = REQUIRED];
 

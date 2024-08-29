@@ -14,7 +14,7 @@ message InventoryItem {
 
   string location_id = 3;
 
-  string sku = 4;
+  string variant_id = 4;
 
   int32 total_stock = 5;
 

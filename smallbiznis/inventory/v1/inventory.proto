@@ -140,7 +140,7 @@ message CreateInventoryRequest {
 
   string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  string locatio_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string location_id = 2 [(google.api.field_behavior) = REQUIRED];
 
   string sku = 3 [(google.api.field_behavior) = REQUIRED];
 

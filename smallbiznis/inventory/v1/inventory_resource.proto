@@ -106,16 +106,18 @@ message Variant {
 
   string sku = 3;
 
-  float price = 4;
+  string title = 4;
 
-  float cost = 5;
+  float price = 5;
 
-  repeated string attributes = 6;
+  float cost = 6;
 
-  repeated InventoryItem inventory_items = 7;
+  repeated string attributes = 7;
 
-  google.protobuf.Timestamp created_at = 8;
+  repeated InventoryItem inventory_items = 8;
 
-  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp created_at = 9;
+
+  google.protobuf.Timestamp updated_at = 10;
 
 }

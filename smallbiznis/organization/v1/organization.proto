@@ -13,11 +13,13 @@ import "google/protobuf/timestamp.proto";
 // Organization
 message Organization {
 
-  string organization_id = 1;
+  string id = 1;
 
-  string logo_url = 2;
+  string organization_id = 2;
 
-  string title = 3;
+  string logo_url = 3;
+
+  string title = 4;
 
   enum Status {
 
@@ -27,13 +29,13 @@ message Organization {
 
   }
 
-  bool is_default = 4;
+  bool is_default = 5;
 
-  Status status = 5;
+  Status status = 6;
 
-  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp created_at = 7;
 
-  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 
 }
 

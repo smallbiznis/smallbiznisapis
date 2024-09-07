@@ -48,7 +48,7 @@ message AddOptionRequest {
 
   int32 position = 4;
 
-  repeated string option_values = 5;
+  repeated string values = 5;
 
 }
 

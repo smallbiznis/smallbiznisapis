@@ -31,7 +31,7 @@ message ListProductRequest {
 
   string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
 
-  Status status = 6 [(google.api.field_behavior) = REQUIRED];
+  string status = 6 [(google.api.field_behavior) = REQUIRED];
 
 }
 

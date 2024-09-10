@@ -4,6 +4,7 @@ package smallbiznis.inventory.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1;inventory";
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
 message InventoryItem {

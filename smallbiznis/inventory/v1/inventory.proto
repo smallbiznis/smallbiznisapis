@@ -224,6 +224,7 @@ service Service {
     };
   }
 
+  // Variant
   rpc GetVariant(GetVariantRequest) returns (Variant) {
     option (google.api.http) = {
       get: "/v1/variants/{variant_id}"

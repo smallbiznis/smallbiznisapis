@@ -16,15 +16,17 @@ message InventoryItem {
 
   string variant_id = 4;
 
-  int32 total_stock = 5;
+  Variant variant = 5;
 
-  int32 reserved_stock = 6;
+  int32 total_stock = 6;
 
-  int32 reorder_level = 7;
+  int32 reserved_stock = 7;
 
-  google.protobuf.Timestamp created_at = 8;
+  int32 reorder_level = 8;
 
-  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp created_at = 9;
+
+  google.protobuf.Timestamp updated_at = 10;
 
 }
 
@@ -100,7 +102,7 @@ message Product {
 
 message Variant {
 
-  string variant_id = 1;
+  string variant_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   string product_id = 2;
 

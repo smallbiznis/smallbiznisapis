@@ -110,6 +110,13 @@ message DeleteProductrequest {
   string product_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
+// Variant
+message GetVariantRequest {
+
+  string variant_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+}
+
 // Inventory
 message ListInventoryItemRequest {
 
@@ -214,6 +221,19 @@ service Service {
   rpc DeleteProduct(DeleteProductrequest) returns (smallbiznis.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/products/{product_id}"
+    };
+  }
+
+  rpc GetVariant(GetVariantRequest) returns (Variant) {
+    option (google.api.http) = {
+      get: "/v1/variants/{variant_id}"
+    };
+  }
+
+  rpc UpdateVariant(Variant) returns (Variant) {
+    option (google.api.http) = {
+      put: "/v1/variants/{variant_id}"
+      body: "*"
     };
   }
 

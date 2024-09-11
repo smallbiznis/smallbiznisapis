@@ -131,7 +131,7 @@ message ListVariantRequest {
 
   string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
 
-  string location_ids = 6 [(google.api.field_behavior) = OPTIONAL];
+  repeated string location_ids = 6 [(google.api.field_behavior) = OPTIONAL];
 
 }
 

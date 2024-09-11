@@ -107,20 +107,22 @@ message Variant {
 
   string product_id = 2;
 
-  string sku = 3;
+  Product product = 3;
 
-  string title = 4;
+  string sku = 4;
 
-  float price = 5;
+  string title = 5;
 
-  float cost = 6;
+  float price = 6;
 
-  repeated string attributes = 7;
+  float cost = 7;
 
-  repeated InventoryItem inventory_items = 8;
+  repeated string attributes = 8;
 
-  google.protobuf.Timestamp created_at = 9;
+  repeated InventoryItem inventory_items = 9;
 
-  google.protobuf.Timestamp updated_at = 10;
+  google.protobuf.Timestamp created_at = 10;
+
+  google.protobuf.Timestamp updated_at = 11;
 
 }

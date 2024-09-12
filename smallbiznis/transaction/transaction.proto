@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package smallbiznis.transaction.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/transaction/v1;transaction";
+
+import "smallbiznis/transaction/v1/transaction_resource.proto";
+import "smallbiznis/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
+
+message ListOrderRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
+
+  string status = 6 [(google.api.field_behavior) = OPTIONAL];
+
+}
+
+message ListOrderResponse {
+
+  repeated Order data = 1;
+
+  int32 total_data = 2;
+
+}
+
+message GetOrderRequest {
+
+  string order_id = 1;
+
+}
+
+service TransactionService {
+  rpc ListOrder(ListOrderRequest) returns (ListOrderResponse) {
+    option (google.api.http) = {
+      get: "/v1/orders"
+    };
+  }
+
+  rpc GetOrder(GetOrderRequest) returns (Order) {
+    option (google.api.http) = {
+      get: "/v1/orders/{order_id}"
+    };
+  }
+
+  rpc CreateOrder(Order) returns (Order) {
+    option (google.api.http) = {
+      post: "/v1/orders"
+      body: "*"
+    };
+  }
+
+  rpc UpdateOrder(Order) returns (Order) {
+    option (google.api.http) = {
+      put: "/v1/orders/{order_id}"
+      body: "*"
+    };
+  }
+}

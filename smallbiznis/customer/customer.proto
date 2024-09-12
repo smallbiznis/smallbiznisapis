@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package smallbiznis.customer.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/customer/v1;customer";
+
+import "smallbiznis/customer/v1/customer_resource.proto";
+import "smallbiznis/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
+
+message ListCustomerRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message ListCustomerResponse {}
+
+message GetCustomerRequest {
+
+  string customer_id = 1;
+
+}
+
+message DeleteCustomerRequest {
+
+  string customer_id = 1;
+
+}
+
+service CustomerService {
+  
+  rpc ListCustomer(ListCustomerRequest) returns (ListCustomerResponse) {
+    option (google.api.http) = {
+      get: "/v1/customers"
+    };
+  }
+
+  rpc GetCustomer(GetCustomerRequest) returns (Customer) {
+    option (google.api.http) = {
+      get: "/v1/customers/{customer_id}"
+    };
+  }
+
+  rpc CreateCustomer(Customer) returns (Customer) {
+    option (google.api.http) = {
+      post: "/v1/customers"
+      body: "*"
+    };
+  }
+
+  rpc UpdateCustomer(Customer) returns (Customer) {
+    option (google.api.http) = {
+      put: "/v1/customers/{customer_id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteCustomer(DeleteCustomerRequest) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/customers/{customer_id}"
+    };
+  }
+
+}

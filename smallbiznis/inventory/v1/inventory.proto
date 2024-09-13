@@ -5,7 +5,7 @@ package smallbiznis.inventory.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1;inventory";
 
 import "smallbiznis/inventory/v1/inventory_resource.proto";
-import "smallbiznis/protobuf/empty.proto";
+import "google/protobuf/empty.proto";
 
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
@@ -250,7 +250,7 @@ service Service {
     };
   }
 
-  rpc DeleteProduct(DeleteProductrequest) returns (smallbiznis.protobuf.Empty) {
+  rpc DeleteProduct(DeleteProductrequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/products/{product_id}"
     };
@@ -303,8 +303,8 @@ service Service {
     };
   }
 
-  rpc ReservedStock(ReservedStockRequest) returns (smallbiznis.protobuf.Empty) {}
+  rpc ReservedStock(ReservedStockRequest) returns (google.protobuf.Empty) {}
 
-  rpc ReleaseStock(ReleaseStockRequest) returns (smallbiznis.protobuf.Empty) {}
+  rpc ReleaseStock(ReleaseStockRequest) returns (google.protobuf.Empty) {}
 
 }

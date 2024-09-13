@@ -5,7 +5,7 @@ package smallbiznis.transaction.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/transaction/v1;transaction";
 
 import "smallbiznis/transaction/v1/transaction_resource.proto";
-import "smallbiznis/protobuf/empty.proto";
+import "google/protobuf/empty.proto";
 
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";

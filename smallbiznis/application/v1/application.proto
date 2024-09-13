@@ -5,8 +5,7 @@ package smallbiznis.application.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/application/v1;application";
 
 import "smallbiznis/application/v1/application_resource.proto";
-import "smallbiznis/protobuf/empty.proto";
-
+import "google/protobuf/empty.proto";
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
 

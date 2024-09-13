@@ -4,7 +4,7 @@ package smallbiznis.user.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/user/v1;user";
 
-import "smallbiznis/protobuf/empty.proto";
+import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -96,7 +96,7 @@ service Service {
     };
   }
 
-  rpc Delete(DeleteUserRequest) returns (smallbiznis.protobuf.Empty) {
+  rpc Delete(DeleteUserRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/users/{user_id}"
     };

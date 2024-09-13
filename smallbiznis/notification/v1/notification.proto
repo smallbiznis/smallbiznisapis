@@ -4,7 +4,7 @@ package smallbiznis.notification.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/notification/v1;notification";
 
-import "smallbiznis/protobuf/empty.proto";
+import "google/protobuf/empty.proto";
 import "smallbiznis/notification/v1/notification_resource.proto";
 
 import "google/api/field_behavior.proto";
@@ -104,20 +104,20 @@ service Service {
     };
   }
 
-  rpc DeleteNotification(DeleteNotificationRequest) returns (smallbiznis.protobuf.Empty) {
+  rpc DeleteNotification(DeleteNotificationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: '/v1/notifications/{notification_id}'
     };
   }
 
-  rpc BatchUpdateNotification(BatchNotificationRequest) returns (smallbiznis.protobuf.Empty) {
+  rpc BatchUpdateNotification(BatchNotificationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: '/v1/batch/notifications/update'
       body: "*"
     };
   }
 
-  rpc BatchDeleteNotification(BatchNotificationRequest) returns (smallbiznis.protobuf.Empty) {
+  rpc BatchDeleteNotification(BatchNotificationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: '/v1/batch/notifications/delete'
       body: "*"

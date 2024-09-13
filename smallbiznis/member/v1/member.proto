@@ -5,7 +5,7 @@ package smallbiznis.member.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/member/v1;member";
 
 import "smallbiznis/member/v1/member_resource.proto";
-import "smallbiznis/protobuf/empty.proto";
+import "google/protobuf/empty.proto";
 
 import "google/protobuf/timestamp.proto";
 import "google/api/field_behavior.proto";
@@ -86,7 +86,7 @@ service MemberService {
     };
   }
 
-  rpc DeleteMember(DeleteMemberRequest) returns (smallbiznis.protobuf.Empty) {
+  rpc DeleteMember(DeleteMemberRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/members/{member_id}"
     };

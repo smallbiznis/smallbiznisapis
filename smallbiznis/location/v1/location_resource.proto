@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package smallbiznis.location.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/location/v1;location";
+
+import "smallbiznis/protobuf/empty.proto";
+
+message Province {
+
+  string province_id = 1;
+
+  string name = 2;
+
+}
+
+message City {
+
+  string city_id = 1;
+
+  string province_id = 2;
+
+  string name = 3;
+
+}
+
+message District {
+
+  string district_id = 1;
+
+  string city_id = 2;
+
+  string name = 3;
+
+}

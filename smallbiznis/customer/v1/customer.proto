@@ -46,6 +46,37 @@ message DeleteCustomerRequest {
 
 }
 
+message ListAddressRequest {
+
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string customer_id = 5 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message ListAddressResponse {
+
+  repeated Address data = 1;
+
+  int32 total_data = 2;
+
+}
+
 service CustomerService {
   
   rpc ListCustomer(ListCustomerRequest) returns (ListCustomerResponse) {
@@ -77,6 +108,36 @@ service CustomerService {
   rpc DeleteCustomer(DeleteCustomerRequest) returns (smallbiznis.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/customers/{customer_id}"
+    };
+  }
+
+  rpc ListAddress(ListAddressRequest) returns (ListAddressResponse) {
+    option (google.api.http) = {
+      get: "/v1/address"
+    };
+  }
+
+  rpc GetAddress(Address) returns (Address) {
+    option (google.api.http) = {
+      get: "/v1/address/{address_id}"
+    };
+  }
+
+  rpc CreateAddress(Address) returns (Address) {
+    option (google.api.http) = {
+      post: "/v1/address"
+    };
+  }
+
+  rpc UpdateAddress(Address) returns (Address) {
+    option (google.api.http) = {
+      put: "/v1/address/{address_id}"
+    };
+  }
+
+  rpc DeleteAddress(Address) returns (smallbiznis.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/address/{address_id}"
     };
   }
 

@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package smallbiznis.location.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/location/v1;location";
+
+import "smallbiznis/location/v1/location_resource.proto";
+import "smallbiznis/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+message ListProvinceRequest {}
+
+message ListProvinceResponse {
+
+  repeated Province data = 1;
+
+  int32 total_data = 2;
+
+}
+
+message ListCityRequest {}
+
+message ListCityResponse {
+
+  repeated City data = 1;
+
+  int32 total_data = 2;
+
+}
+
+message ListDistrictRequest {}
+
+message ListDistrictResponse {
+
+  repeated District data = 1;
+
+  int32 total_data = 2;
+
+}
+
+service LocationService {
+  
+  rpc ListProvince(ListProvinceRequest) returns (ListProvinceResponse) {
+    option (google.api.http) = {
+      get: "/v1/provinces"
+    };
+  }
+
+  rpc ListCity(ListCityRequest) returns (ListCityResponse) {
+    option (google.api.http) = {
+      get: "/v1/cities"
+    };
+  }
+
+  rpc ListDistrict(ListDistrictRequest) returns (ListDistrictResponse) {
+    option (google.api.http) = {
+      get: "/v1/districts"
+    };
+  }
+
+}

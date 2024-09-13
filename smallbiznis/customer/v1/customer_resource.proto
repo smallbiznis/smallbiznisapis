@@ -4,6 +4,8 @@ package smallbiznis.customer.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/customer/v1;customer";
 
+import "smallbiznis/location/v1/location_resource.proto";
+
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -22,5 +24,29 @@ message Customer {
   google.protobuf.Timestamp created_at = 6;
 
   google.protobuf.Timestamp updated_at = 7;
+
+}
+
+message Address {
+
+  string address_id = 1;
+
+  string customer_id = 2;
+
+  string provice_id = 3;
+
+  string city_id = 4;
+
+  string district_id = 5;
+  
+  string address = 6;
+
+  string postal_code = 7;
+
+  bool is_default = 8;
+
+  google.protobuf.Timestamp created_at = 9;
+
+  google.protobuf.Timestamp updated_at = 10;
 
 }

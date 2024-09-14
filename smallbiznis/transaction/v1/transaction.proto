@@ -42,6 +42,20 @@ message ListOrderResponse {
 
 }
 
+message CreateOrderRequest {
+
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string customer_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  string shipping_address_id = 3 [(google.api.field_behavior) = REQUIRED];;
+
+  repeated OrderItem order_items = 4;
+
+  string payment_method = 5;
+
+}
+
 message GetOrderRequest {
 
   string order_id = 1;
@@ -61,7 +75,7 @@ service TransactionService {
     };
   }
 
-  rpc CreateOrder(Order) returns (Order) {
+  rpc CreateOrder(CreateOrderRequest) returns (Order) {
     option (google.api.http) = {
       post: "/v1/orders"
       body: "*"

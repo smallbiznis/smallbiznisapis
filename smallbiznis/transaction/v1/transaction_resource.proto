@@ -15,9 +15,11 @@ message Order {
 
   string customer_id = 3;
 
-  string order_no = 4;
+  string shipping_address_id = 4;
 
-  float total_amount = 5;
+  string order_no = 5;
+
+  float total_amount = 6;
 
   enum Status {
 
@@ -35,13 +37,13 @@ message Order {
 
   }
 
-  Status status = 6;
+  Status status = 7;
 
-  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp created_at = 8;
 
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 
-  repeated OrderItem order_items = 9;
+  repeated OrderItem order_items = 10;
 
 }
 

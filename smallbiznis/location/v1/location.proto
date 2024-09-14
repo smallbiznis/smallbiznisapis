@@ -59,7 +59,7 @@ service LocationService {
 
   rpc ListCity(ListCityRequest) returns (ListCityResponse) {
     option (google.api.http) = {
-      get: "/v1/cities"
+      get: "/v1/regencies"
     };
   }
 

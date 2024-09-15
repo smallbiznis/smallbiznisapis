@@ -116,7 +116,31 @@ message Location {
 
   Country country = 4;
 
-  bool is_default = 5;
+  string contact_name = 5;
+
+  string contact_phone = 6;
+
+  message GeoPoint {
+
+    float latitude = 1;
+
+    float longitude = 2;
+
+  }
+
+  repeated GeoPoint geo_point = 7;
+
+  string provice_id = 8;
+
+  string city_id = 9;
+
+  string district_id = 10;
+  
+  string address = 11;
+
+  string postal_code = 12;
+
+  bool is_default = 13;
 
 }
 

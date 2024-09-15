@@ -33,20 +33,34 @@ message Address {
 
   string customer_id = 2;
 
-  string provice_id = 3;
+  string contact_name = 3;
 
-  string city_id = 4;
+  string contact_phone = 4;
 
-  string district_id = 5;
+  string provice_id = 5;
+
+  string city_id = 6;
+
+  string district_id = 7;
   
-  string address = 6;
+  string address = 8;
 
-  string postal_code = 7;
+  string postal_code = 9;
 
-  bool is_default = 8;
+  message GeoPoint {
 
-  google.protobuf.Timestamp created_at = 9;
+    float latitude = 1;
 
-  google.protobuf.Timestamp updated_at = 10;
+    float longitude = 2;
+
+  }
+
+  repeated GeoPoint geo_point = 10;
+
+  bool is_default = 11;
+
+  google.protobuf.Timestamp created_at = 12;
+
+  google.protobuf.Timestamp updated_at = 13;
 
 }

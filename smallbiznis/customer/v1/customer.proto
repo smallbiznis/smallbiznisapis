@@ -34,7 +34,7 @@ message ListCustomerRequest {
 
 message ListCustomerResponse {
 
-  int32 total_dat = 1;
+  int32 total_data = 1;
 
   repeated Customer data = 2;
 

@@ -32,7 +32,13 @@ message ListCustomerRequest {
 
 }
 
-message ListCustomerResponse {}
+message ListCustomerResponse {
+
+  int32 total_dat = 1;
+
+  repeated Customer data = 2;
+
+}
 
 message GetCustomerRequest {
 

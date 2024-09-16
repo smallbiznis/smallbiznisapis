@@ -55,7 +55,7 @@ message Address {
 
   }
 
-  repeated GeoPoint geo_point = 10;
+  GeoPoint geo_point = 10;
 
   bool is_default = 11;
 

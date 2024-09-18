@@ -10,6 +10,12 @@ import "google/protobuf/empty.proto";
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
 
+message CreateBalanceRequest {
+
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+}
+
 message GetBalanceRequest {
 
   string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
@@ -77,6 +83,8 @@ message GetTransactionRequest {
 }
 
 service BalanceService {
+
+  rpc CreateBalance(CreateBalanceRequest) returns (Balance);
 
   rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
     option (google.api.http) = {

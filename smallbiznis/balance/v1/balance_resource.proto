@@ -4,6 +4,8 @@ package smallbiznis.balance.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/balance/v1;balance";
 
+import "google/protobuf/timestamp.proto";
+
 message Balance {
 
   string balance_id = 1;

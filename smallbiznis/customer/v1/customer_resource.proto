@@ -21,6 +21,8 @@ message Customer {
 
   string email = 5;
 
+  string country_id = 6;
+
   google.protobuf.Timestamp created_at = 6;
 
   google.protobuf.Timestamp updated_at = 7;

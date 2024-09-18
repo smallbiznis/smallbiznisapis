@@ -48,7 +48,7 @@ message CreateOrderRequest {
 
   string customer_id = 2 [(google.api.field_behavior) = REQUIRED];
 
-  string shipping_address_id = 3 [(google.api.field_behavior) = REQUIRED];;
+  string shipping_address_id = 3 [(google.api.field_behavior) = REQUIRED];
 
   repeated OrderItem order_items = 4;
 

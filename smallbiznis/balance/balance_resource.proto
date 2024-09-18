@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package smallbiznis.balance.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/balance/v1;balance";
+
+message Balance {
+
+  string balance_id = 1;
+
+  string organization_id = 2;
+
+  float balance = 3;
+
+  google.protobuf.Timestamp created_at = 4;
+
+  google.protobuf.Timestamp updated_at = 5;
+
+}
+
+enum TransactionType {
+
+  TRANSACTION = 0;
+
+  SERVICE_FEE = 1;
+
+  VAT = 2;
+
+  PAYOUT = 3;
+
+}
+
+message Transaction {
+
+  string id = 1;
+
+  string balance_id = 2;
+
+  TransactionType type = 3;
+
+  string reference_id = 4;
+
+  string transaction_id = 5;
+
+  float total_amount = 6;
+
+  float balance = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
+
+}

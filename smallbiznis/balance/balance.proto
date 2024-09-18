@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package smallbiznis.balance.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/balance/v1;balance";
+
+import "smallbiznis/balance/v1/balance_resource.proto";
+import "google/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
+
+message GetBalanceRequest {
+
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message GetBalanceResponse {
+
+  float balance = 1;
+
+}
+
+message CreateTransactionRequest {
+
+  string balance_id = 1;
+
+  TransactionType type = 2;
+
+  string reference_id = 3;
+
+  float total_amount = 4;
+
+}
+
+message ListTransactionRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string balance_id = 5 [(google.api.field_behavior) = REQUIRED];
+
+  string from_date = 6;
+
+  string to_date = 7;
+
+  string reference_id = 8;
+
+  TransactionType type = 9;
+
+}
+
+message ListTransactionResponse {
+
+  repeated Transaction data = 1;
+
+  int32 total_data = 2;
+
+}
+
+message GetTransactionRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+service BalanceService {
+
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
+    option (google.api.http) = {
+      get: "/v1/balances"
+    };
+  }
+
+  rpc CreateTransaction(CreateTransactionRequest) returns (Transaction) {}
+
+  rpc ListTransaction(ListTransactionRequest) returns (ListTransactionResponse) {
+    option (google.api.http) = {
+      get: "/v1/history"
+    };
+  }
+
+  rpc GetTransaction(GetTransactionRequest) returns (Transaction) {
+    option (google.api.http) = {
+      get: "/v1/history/{id}"
+    };
+  }
+
+}

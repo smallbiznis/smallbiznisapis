@@ -21,6 +21,10 @@ message Order {
 
   float total_amount = 6;
 
+  float tax_amount = 7;
+
+  float grand_total = 8;
+
   enum Status {
 
     pending = 0;
@@ -37,13 +41,13 @@ message Order {
 
   }
 
-  Status status = 7;
+  Status status = 9;
 
-  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp created_at = 10;
 
-  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp updated_at = 11;
 
-  repeated OrderItem order_items = 10;
+  repeated OrderItem order_items = 12;
 
 }
 
@@ -57,7 +61,7 @@ message OrderItem {
 
   int32 quantity = 4;
 
-  float price = 5;
+  float unit_price = 5;
 
   float total_price = 6;
 

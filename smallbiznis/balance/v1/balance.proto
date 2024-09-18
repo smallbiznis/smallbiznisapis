@@ -86,7 +86,7 @@ service BalanceService {
 
   rpc CreateBalance(CreateBalanceRequest) returns (Balance);
 
-  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
+  rpc GetBalance(GetBalanceRequest) returns (Balance) {
     option (google.api.http) = {
       get: "/v1/balances"
     };

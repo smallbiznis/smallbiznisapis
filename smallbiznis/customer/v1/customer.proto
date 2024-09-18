@@ -132,12 +132,14 @@ service CustomerService {
   rpc CreateAddress(Address) returns (Address) {
     option (google.api.http) = {
       post: "/v1/address"
+      body: "*"
     };
   }
 
   rpc UpdateAddress(Address) returns (Address) {
     option (google.api.http) = {
       put: "/v1/address/{address_id}"
+      body: "*"
     };
   }
 

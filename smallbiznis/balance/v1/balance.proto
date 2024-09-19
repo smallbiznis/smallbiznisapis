@@ -30,7 +30,7 @@ message GetBalanceResponse {
 
 message CreateTransactionRequest {
 
-  string balance_id = 1;
+  string organization_id = 1;
 
   TransactionType type = 2;
 

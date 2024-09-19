@@ -79,7 +79,7 @@ message ListTransactionResponse {
 }
 
 message GetTransactionRequest {
-  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 service BalanceService {

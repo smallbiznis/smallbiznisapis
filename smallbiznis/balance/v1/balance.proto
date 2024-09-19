@@ -58,7 +58,7 @@ message ListTransactionRequest {
 
   OrderBy order_by = 4;
 
-  string balance_id = 5 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
 
   string from_date = 6;
 
@@ -79,7 +79,7 @@ message ListTransactionResponse {
 }
 
 message GetTransactionRequest {
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 service BalanceService {

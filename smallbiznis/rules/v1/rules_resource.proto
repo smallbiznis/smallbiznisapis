@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package smallbiznis.rules.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/rules/v1;rules";
+
+import "google/protobuf/timestamp.proto";
+
+enum TaxType {
+
+  VAT = 0;
+
+}
+
+message TaxRules {
+
+  string tax_id = 1;
+
+  string country_id = 2;
+
+  string tax_type = 3;
+
+  float rate = 4;
+
+  google.protobuf.Timestamp valid_from = 5;
+
+  google.protobuf.Timestamp valid_until = 6;
+
+  bool is_lifetime = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
+
+}
+
+message ServiceFeeRules {
+
+  string service_fee_id = 1;
+
+  float rate = 2;
+
+  google.protobuf.Timestamp valid_from = 3;
+
+  google.protobuf.Timestamp valid_until = 4;
+
+  bool is_lifetime = 8;
+
+  google.protobuf.Timestamp created_at = 9;
+
+  google.protobuf.Timestamp updated_at = 10;
+
+}

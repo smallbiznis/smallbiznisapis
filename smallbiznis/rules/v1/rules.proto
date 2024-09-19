@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package smallbiznis.rules.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/rules/v1;rules";
+
+import "smallbiznis/rules/v1/rules_resource.proto";
+
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
+
+service Service {
+
+  rpc GetTaxRule(TaxRules) returns (TaxRules) {
+    option (google.api.http) = {
+      get: "/v1/tax/rules"
+    };
+  }
+
+  rpc CreateTaxRule(TaxRules) returns (TaxRules) {
+    option (google.api.http) = {
+      post: "/v1/tax/rules"
+      body: "*"
+    };
+  }
+
+  rpc UpdateTaxRule(TaxRules) returns (TaxRules) {
+    option (google.api.http) = {
+      put: "/v1/tax/rules/{tax_id}"
+      body: "*"
+    };
+  }
+
+  rpc GetServiceFeeRule(ServiceFeeRules) returns (ServiceFeeRules) {
+    option (google.api.http) = {
+      get: "/v1/service_fees"
+    };
+  }
+
+  rpc CreateServiceFeeRule(ServiceFeeRules) returns (ServiceFeeRules) {
+    option (google.api.http) = {
+      post: "/v1/service_fees"
+      body: "*"
+    };
+  }
+
+  rpc UpdateServiceFeeRule(ServiceFeeRules) returns (ServiceFeeRules) {
+    option (google.api.http) = {
+      put: "/v1/service_fees/{service_fee_id}"
+      body: "*"
+    };
+  }
+  
+}

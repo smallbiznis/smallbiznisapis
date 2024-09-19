@@ -72,7 +72,7 @@ message ListTransactionRequest {
 
 message ListTransactionResponse {
 
-  repeated Transaction data = 1;
+  repeated BalanceHistory data = 1;
 
   int32 total_data = 2;
 
@@ -92,17 +92,17 @@ service BalanceService {
     };
   }
 
-  rpc CreateTransaction(CreateTransactionRequest) returns (Transaction) {}
+  rpc CreateTransaction(CreateTransactionRequest) returns (BalanceHistory) {}
 
   rpc ListTransaction(ListTransactionRequest) returns (ListTransactionResponse) {
     option (google.api.http) = {
-      get: "/v1/history"
+      get: "/v1/balance-history"
     };
   }
 
-  rpc GetTransaction(GetTransactionRequest) returns (Transaction) {
+  rpc GetTransaction(GetTransactionRequest) returns (BalanceHistory) {
     option (google.api.http) = {
-      get: "/v1/history/{id}"
+      get: "/v1/balance-history/{id}"
     };
   }
 

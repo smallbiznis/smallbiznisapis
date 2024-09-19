@@ -4,6 +4,8 @@ package smallbiznis.transaction.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/transaction/v1;transaction";
 
+import "smallbiznis/customer/v1/customer_resource.proto";
+
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -13,9 +15,9 @@ message Order {
 
   string organization_id = 2;
 
-  string customer_id = 3;
+  smallbiznis.customer.v1.Customer customer = 3;
 
-  string shipping_address_id = 4;
+  smallbiznis.customer.v1.Address address = 4;
 
   string order_no = 5;
 

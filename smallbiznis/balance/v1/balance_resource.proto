@@ -32,24 +32,22 @@ enum TransactionType {
 
 }
 
-message Transaction {
+message BalanceHistory {
 
   string id = 1;
 
-  string balance_id = 2;
+  string organization_id = 2;
 
   TransactionType type = 3;
 
   string reference_id = 4;
 
-  string transaction_id = 5;
+  float total_amount = 5;
 
-  float total_amount = 6;
+  float previous_balance = 6;
 
-  float balance = 7;
+  google.protobuf.Timestamp created_at = 7;
 
-  google.protobuf.Timestamp created_at = 8;
-
-  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp updated_at = 8;
 
 }

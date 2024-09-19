@@ -36,6 +36,8 @@ message Organization {
 
   google.protobuf.Timestamp updated_at = 8;
 
+  string country_id = 9;
+
 }
 
 message FirstUser {

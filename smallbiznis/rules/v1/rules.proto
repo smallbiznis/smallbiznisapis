@@ -38,7 +38,7 @@ message ListTaxResponse {
 
   int32 total_data = 1;
 
-  repeated TaxRules data = 2;
+  repeated TaxRule data = 2;
 }
 
 message ListServiceFeeRequest {
@@ -68,7 +68,9 @@ message ListServiceFeeRequest {
 }
 
 message ListServiceFeeResponse {
+
   int32 total_data = 1;
+
   repeated ServiceFeeRules data = 2;
 }
 
@@ -80,20 +82,20 @@ service Service {
     };
   }
 
-  rpc GetTaxRule(TaxRules) returns (TaxRules) {
+  rpc GetTaxRule(TaxRule) returns (TaxRule) {
     option (google.api.http) = {
       get: "/v1/tax/{tax_id}"
     };
   }
 
-  rpc CreateTaxRule(TaxRules) returns (TaxRules) {
+  rpc CreateTaxRule(TaxRule) returns (TaxRule) {
     option (google.api.http) = {
       post: "/v1/tax/{tax_id}"
       body: "*"
     };
   }
 
-  rpc UpdateTaxRule(TaxRules) returns (TaxRules) {
+  rpc UpdateTaxRule(TaxRule) returns (TaxRule) {
     option (google.api.http) = {
       put: "/v1/tax/{tax_id}"
       body: "*"

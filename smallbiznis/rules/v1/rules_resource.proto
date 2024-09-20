@@ -14,7 +14,7 @@ enum TaxType {
 
 }
 
-message TaxRules {
+message TaxRule {
 
   string tax_id = 1;
 

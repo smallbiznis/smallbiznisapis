@@ -90,7 +90,7 @@ service Service {
 
   rpc CreateTaxRule(TaxRule) returns (TaxRule) {
     option (google.api.http) = {
-      post: "/v1/tax/{tax_id}"
+      post: "/v1/tax"
       body: "*"
     };
   }

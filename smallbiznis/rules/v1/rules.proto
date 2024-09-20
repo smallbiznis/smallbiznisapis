@@ -71,7 +71,7 @@ message ListServiceFeeResponse {
 
   int32 total_data = 1;
 
-  repeated ServiceFeeRules data = 2;
+  repeated ServiceFeeRule data = 2;
 }
 
 service Service {
@@ -108,20 +108,20 @@ service Service {
     };
   }
 
-  rpc GetServiceFeeRule(ServiceFeeRules) returns (ServiceFeeRules) {
+  rpc GetServiceFeeRule(ServiceFeeRule) returns (ServiceFeeRule) {
     option (google.api.http) = {
       get: "/v1/service_fees/{service_fee_id}"
     };
   }
 
-  rpc CreateServiceFeeRule(ServiceFeeRules) returns (ServiceFeeRules) {
+  rpc CreateServiceFeeRule(ServiceFeeRule) returns (ServiceFeeRule) {
     option (google.api.http) = {
       post: "/v1/service_fees/{service_fee_id}"
       body: "*"
     };
   }
 
-  rpc UpdateServiceFeeRule(ServiceFeeRules) returns (ServiceFeeRules) {
+  rpc UpdateServiceFeeRule(ServiceFeeRule) returns (ServiceFeeRule) {
     option (google.api.http) = {
       put: "/v1/service_fees/{service_fee_id}"
       body: "*"

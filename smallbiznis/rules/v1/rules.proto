@@ -9,37 +9,71 @@ import "smallbiznis/rules/v1/rules_resource.proto";
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
 
+message LisTaxRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string country_id = 5;
+
+}
+
 service Service {
+
+  rpc ListTaxRule() returns () {
+    option (google.api.http) = {
+      get: "/v1/tax"
+    };
+  }
 
   rpc GetTaxRule(TaxRules) returns (TaxRules) {
     option (google.api.http) = {
-      get: "/v1/tax/rules"
+      get: "/v1/tax/{tax_id}"
     };
   }
 
   rpc CreateTaxRule(TaxRules) returns (TaxRules) {
     option (google.api.http) = {
-      post: "/v1/tax/rules"
+      post: "/v1/tax/{tax_id}"
       body: "*"
     };
   }
 
   rpc UpdateTaxRule(TaxRules) returns (TaxRules) {
     option (google.api.http) = {
-      put: "/v1/tax/rules/{tax_id}"
+      put: "/v1/tax/{tax_id}"
       body: "*"
     };
   }
 
-  rpc GetServiceFeeRule(ServiceFeeRules) returns (ServiceFeeRules) {
+  rpc ListServiceFeeRule() returns () {
     option (google.api.http) = {
       get: "/v1/service_fees"
     };
   }
 
+  rpc GetServiceFeeRule(ServiceFeeRules) returns (ServiceFeeRules) {
+    option (google.api.http) = {
+      get: "/v1/service_fees/{service_fee_id}"
+    };
+  }
+
   rpc CreateServiceFeeRule(ServiceFeeRules) returns (ServiceFeeRules) {
     option (google.api.http) = {
-      post: "/v1/service_fees"
+      post: "/v1/service_fees/{service_fee_id}"
       body: "*"
     };
   }

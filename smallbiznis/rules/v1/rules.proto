@@ -7,6 +7,7 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/rules/v1;rul
 import "smallbiznis/rules/v1/rules_resource.proto";
 
 import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
 message LisTaxRequest {
@@ -29,11 +30,51 @@ message LisTaxRequest {
 
   string country_id = 5;
 
+  google.protobuf.Timestamp valid_from = 6;
+
+  google.protobuf.Timestamp valid_until = 7;
+
+}
+
+message ListTaxResponse {
+  int32 total_data = 1;
+  repeated TaxRules data = 2;
+}
+
+message ListServiceFeeRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string country_id = 5;
+
+  google.protobuf.Timestamp valid_from = 6;
+
+  google.protobuf.Timestamp valid_until = 7;
+
+}
+
+message ListServiceFeeResponse {
+  int32 total_data = 1;
+  repeated ServiceFeeRules data = 2;
 }
 
 service Service {
 
-  rpc ListTaxRule() returns () {
+  rpc ListTaxRule(LisTaxRequest) returns (ListTaxResponse) {
     option (google.api.http) = {
       get: "/v1/tax"
     };
@@ -59,7 +100,7 @@ service Service {
     };
   }
 
-  rpc ListServiceFeeRule() returns () {
+  rpc ListServiceFeeRule(ListServiceFeeRequest) returns (ListServiceFeeResponse) {
     option (google.api.http) = {
       get: "/v1/service_fees"
     };

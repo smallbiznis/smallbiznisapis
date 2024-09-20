@@ -28,11 +28,9 @@ message LisTaxRequest {
 
   OrderBy order_by = 4;
 
-  string country_id = 5;
+  string organization_id = 5;
 
-  google.protobuf.Timestamp valid_from = 6;
-
-  google.protobuf.Timestamp valid_until = 7;
+  string country_id = 6;
 
 }
 

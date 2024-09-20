@@ -10,6 +10,8 @@ enum TaxType {
 
   VAT = 0;
 
+  INCOME = 1;
+
 }
 
 message TaxRules {
@@ -20,13 +22,13 @@ message TaxRules {
 
   string country_id = 3;
 
-  string tax_type = 4;
+  TaxType type = 4;
 
-  float rate = 5;
+  float rate = 4;
 
-  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp created_at = 5;
 
-  google.protobuf.Timestamp updated_at = 7;
+  google.protobuf.Timestamp updated_at = 6;
 
 }
 
@@ -38,14 +40,8 @@ message ServiceFeeRules {
 
   float rate = 3;
 
-  google.protobuf.Timestamp valid_from = 4;
+  google.protobuf.Timestamp created_at = 4;
 
-  google.protobuf.Timestamp valid_until = 5;
-
-  bool is_lifetime = 6;
-
-  google.protobuf.Timestamp created_at = 7;
-
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp updated_at = 5;
 
 }

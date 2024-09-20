@@ -91,13 +91,15 @@ message Product {
 
   repeated Option options = 7;
 
-  repeated Variant variants = 8;
+  bool taxable = 8;
 
-  repeated string tags = 9;
+  repeated Variant variants = 9;
 
-  google.protobuf.Timestamp created_at = 10;
+  repeated string tags = 10;
 
-  google.protobuf.Timestamp updated_at = 11;
+  google.protobuf.Timestamp created_at = 11;
+
+  google.protobuf.Timestamp updated_at = 12;
 
 }
 

@@ -96,9 +96,11 @@ message AddProductRequest {
 
   repeated AddOptionRequest options = 7 [(google.api.field_behavior) = OPTIONAL];
 
-  repeated AddVariantRequest variants = 8 [(google.api.field_behavior) = OPTIONAL];
+  bool taxable = 8 [(google.api.field_behavior) = OPTIONAL];
 
-  Status status = 9 [(google.api.field_behavior) = REQUIRED];
+  repeated AddVariantRequest variants = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  Status status = 10 [(google.api.field_behavior) = REQUIRED];
 
 }
 

@@ -35,7 +35,9 @@ message LisTaxRequest {
 }
 
 message ListTaxResponse {
+
   int32 total_data = 1;
+
   repeated TaxRules data = 2;
 }
 

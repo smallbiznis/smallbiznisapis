@@ -74,9 +74,15 @@ message AddVariantRequest {
 
   float cost = 4;
 
-  repeated string attributes = 5;
+  float compare_at_price = 5;
 
-  repeated AddInventoryItemRequest inventory_items = 6;
+  float weight = 6;
+
+  float weight_unit = 7;
+
+  repeated string attributes = 8;
+
+  repeated AddInventoryItemRequest inventory_items = 9;
 
 }
 

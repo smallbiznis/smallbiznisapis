@@ -78,7 +78,7 @@ message AddVariantRequest {
 
   float weight = 6;
 
-  float weight_unit = 7;
+  WeightUnit weight_unit = 7;
 
   repeated string attributes = 8;
 

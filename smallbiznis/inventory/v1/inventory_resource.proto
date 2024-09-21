@@ -103,6 +103,14 @@ message Product {
 
 }
 
+enum WeightUnit {
+
+  kg = 0;
+
+  g = 1;
+
+}
+
 message Variant {
 
   string variant_id = 1 [(google.api.field_behavior) = REQUIRED];
@@ -117,14 +125,24 @@ message Variant {
 
   float price = 6;
 
-  float cost = 7;
+  float compare_at_price = 7;
 
-  repeated string attributes = 8;
+  float cost = 8;
 
-  repeated InventoryItem inventory_items = 9;
+  float profit = 9;
 
-  google.protobuf.Timestamp created_at = 10;
+  float margin = 10;
 
-  google.protobuf.Timestamp updated_at = 11;
+  float weight = 11;
+
+  WeightUnit weight_unit = 12;
+
+  repeated string attributes = 13;
+
+  repeated InventoryItem inventory_items = 14;
+
+  google.protobuf.Timestamp created_at = 15;
+
+  google.protobuf.Timestamp updated_at = 16;
 
 }

@@ -76,13 +76,17 @@ message AddVariantRequest {
 
   float compare_at_price = 5;
 
-  float weight = 6;
+  float profit = 6;
 
-  WeightUnit weight_unit = 7;
+  float margin = 7;
 
-  repeated string attributes = 8;
+  float weight = 8;
 
-  repeated AddInventoryItemRequest inventory_items = 9;
+  WeightUnit weight_unit = 9;
+
+  repeated string attributes = 10;
+
+  repeated AddInventoryItemRequest inventory_items = 11;
 
 }
 

@@ -66,7 +66,7 @@ message AddItemRequest {
 
   string title = 2 [(google.api.field_behavior) = REQUIRED];
 
-  int32 quantity = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 quantity = 3 [(google.api.field_behavior) = REQUIRED];
 
 }
 

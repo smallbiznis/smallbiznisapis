@@ -67,13 +67,13 @@ message Order {
 
   }
 
-  Status status = 10;
+  Status status = 11;
 
-  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp created_at = 12;
 
-  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
 
-  repeated OrderItem order_items = 13;
+  repeated OrderItem order_items = 14;
 
 }
 

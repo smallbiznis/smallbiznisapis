@@ -291,7 +291,7 @@ message ListShippingRateResponse {
 
 service Service {
 
-  rpc ListShippingRate(ListShippingRateRequest) returns (ListLocationResponse) {
+  rpc ListShippingRate(ListShippingRateRequest) returns (ListShippingRateResponse) {
     option (google.api.http) = {
       get: "/v1/shipping_rate"
     };

@@ -182,7 +182,160 @@ message DeleteLocationRequest {
   string location_id = 1;
 }
 
+
+enum TaxType {
+
+  VAT = 0;
+
+  INCOME = 1;
+
+}
+
+message TaxRule {
+
+  string tax_id = 1;
+
+  string organization_id = 2;
+
+  string country_id = 3;
+
+  TaxType type = 4;
+
+  float rate = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+}
+
+
+message LisTaxRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string organization_id = 5;
+
+  string country_id = 6;
+
+}
+
+message ListTaxResponse {
+
+  int32 total_data = 1;
+
+  repeated TaxRule data = 2;
+}
+
+message ShippingRate {
+
+  string shipping_rate_id = 1;
+
+  string organization_id = 2;
+
+  enum RateType {
+
+    flat = 0;
+
+    app = 1;
+
+  }
+
+  RateType type = 3;
+
+  string name = 4;
+
+  string description = 5;
+
+  float price = 6;
+
+}
+
+message ListShippingRateRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+    ASC = 0;
+    DESC = 1;
+  }
+
+  OrderBy order_by = 4;
+
+  string organization_id = 5;
+
+}
+
+message ListShippingRateResponse {
+  int32 total_data = 1;
+  repeated ShippingRate data = 2;
+}
+
 service Service {
+
+  rpc ListShippingRate(ListShippingRateRequest) returns (ListLocationResponse) {
+    option (google.api.http) = {
+      get: "/v1/shipping_rate"
+    };
+  }
+
+  rpc GetShippingRate(ShippingRate) returns (ShippingRate) {
+    option (google.api.http) = {
+      get: "/v1/shipping_rate/{shipping_rate_id}"
+    };
+  }
+
+  rpc CreateShippingRate(ShippingRate) returns (ShippingRate) {
+    option (google.api.http) = {
+      post: "/v1/shipping_rate"
+      body: "*"
+    };
+  }
+
+
+  rpc ListTaxRule(LisTaxRequest) returns (ListTaxResponse) {
+    option (google.api.http) = {
+      get: "/v1/tax"
+    };
+  }
+
+  rpc GetTaxRule(TaxRule) returns (TaxRule) {
+    option (google.api.http) = {
+      get: "/v1/tax/{tax_id}"
+    };
+  }
+
+  rpc CreateTaxRule(TaxRule) returns (TaxRule) {
+    option (google.api.http) = {
+      post: "/v1/tax"
+      body: "*"
+    };
+  }
+
+  rpc UpdateTaxRule(TaxRule) returns (TaxRule) {
+    option (google.api.http) = {
+      put: "/v1/tax/{tax_id}"
+      body: "*"
+    };
+  }
 
   rpc ListOrg(ListOrganizationRequest) returns (ListOrganizationResponse) {
     option (google.api.http) = {

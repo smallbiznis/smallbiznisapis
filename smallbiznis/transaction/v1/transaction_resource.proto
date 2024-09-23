@@ -9,6 +9,32 @@ import "smallbiznis/customer/v1/customer_resource.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
+message OrderFulfillment {
+
+  string status = 1;
+
+}
+
+message OrderShipping {
+
+  string shipping_rate_id = 1;
+
+}
+
+message OrderPayment {
+
+  string payment_method = 1;
+
+}
+
+message OrderTax {
+
+  float tax_rate_id = 1;
+
+  float tax_amount = 2;
+
+}
+
 message Order {
 
   string order_id = 1;
@@ -21,35 +47,49 @@ message Order {
 
   string order_no = 5;
 
-  float total_amount = 6;
+  float sub_total = 6;
 
-  float tax_amount = 7;
+  OrderShipping shipping = 7;
 
-  float grand_total = 8;
+  OrderTax tax = 8;
+
+  float grand_total = 9;
+
+  OrderPayment payment = 10;
 
   enum Status {
 
-    pending = 0;
+    open = 0;
 
-    processing = 1;
+    completed = 1;
 
-    shipped = 2;
-
-    completed = 3;
-
-    refunded = 4;
-
-    canceled = 5;
+    canceled = 2;
 
   }
 
-  Status status = 9;
+  Status status = 10;
 
-  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp created_at = 11;
 
-  google.protobuf.Timestamp updated_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
 
-  repeated OrderItem order_items = 12;
+  repeated OrderItem order_items = 13;
+
+}
+
+message Item {
+
+  string item_id = 1;
+
+  string image_url = 2;
+
+  string title = 3;
+
+  int32 quantity = 4;
+
+  float unit_price = 5;
+
+  float total_price = 6;
 
 }
 
@@ -59,16 +99,10 @@ message OrderItem {
 
   string order_id = 2;
 
-  string variant_id = 3;
+  Item item = 3;
 
-  int32 quantity = 4;
+  google.protobuf.Timestamp created_at = 4;
 
-  float unit_price = 5;
-
-  float total_price = 6;
-
-  google.protobuf.Timestamp created_at = 7;
-
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp updated_at = 5;
 
 }

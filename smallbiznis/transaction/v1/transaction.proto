@@ -42,17 +42,79 @@ message ListOrderResponse {
 
 }
 
+message AddCustomerRequest {
+
+  string email = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string phone = 2 [(google.api.field_behavior) = REQUIRED];
+
+  enum CustomerType {
+
+    guest = 0;
+
+    customer = 1;
+
+  }
+
+  CustomerType type = 3 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message AddItemRequest {
+
+  string item_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string title = 2 [(google.api.field_behavior) = REQUIRED];
+
+  int32 quantity = 2 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message AddShippingAddressRequest {
+
+  string country = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string contact_name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  string contact_phone = 3 [(google.api.field_behavior) = REQUIRED];
+
+  string street = 4 [(google.api.field_behavior) = REQUIRED];
+
+  string note = 5;
+
+  string province = 6 [(google.api.field_behavior) = REQUIRED];
+
+  string district = 7 [(google.api.field_behavior) = REQUIRED];
+
+  string sub_district = 8 [(google.api.field_behavior) = REQUIRED];
+
+  string postal_code = 9 [(google.api.field_behavior) = REQUIRED];
+
+  enum ShippingType {
+
+    guest = 0;
+
+    customer = 1;
+
+  }
+
+  ShippingType type = 10 [(google.api.field_behavior) = REQUIRED];
+
+}
+
 message CreateOrderRequest {
 
   string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  string customer_id = 2 [(google.api.field_behavior) = REQUIRED];
+  AddCustomerRequest customer = 2 [(google.api.field_behavior) = REQUIRED];
 
-  string shipping_address_id = 3 [(google.api.field_behavior) = REQUIRED];
+  AddShippingAddressRequest shipping_address = 3 [(google.api.field_behavior) = REQUIRED];
 
-  repeated OrderItem order_items = 4;
+  repeated AddItemRequest order_items = 4 [(google.api.field_behavior) = REQUIRED];
 
-  string payment_method = 5;
+  string shipping_method = 5;
+
+  string payment_method = 6;
 
 }
 
@@ -63,6 +125,7 @@ message GetOrderRequest {
 }
 
 service TransactionService {
+
   rpc ListOrder(ListOrderRequest) returns (ListOrderResponse) {
     option (google.api.http) = {
       get: "/v1/orders"

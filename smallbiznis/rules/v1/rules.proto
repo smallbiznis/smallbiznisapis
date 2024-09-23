@@ -10,37 +10,6 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 
-message LisTaxRequest {
-
-  int32 page = 1;
-
-  int32 size = 2;
-
-  string sort_by = 3;
-
-  enum OrderBy {
-
-    ASC = 0;
-
-    DESC = 1;
-
-  }
-
-  OrderBy order_by = 4;
-
-  string organization_id = 5;
-
-  string country_id = 6;
-
-}
-
-message ListTaxResponse {
-
-  int32 total_data = 1;
-
-  repeated TaxRule data = 2;
-}
-
 message ListServiceFeeRequest {
 
   int32 page = 1;
@@ -75,32 +44,6 @@ message ListServiceFeeResponse {
 }
 
 service Service {
-
-  rpc ListTaxRule(LisTaxRequest) returns (ListTaxResponse) {
-    option (google.api.http) = {
-      get: "/v1/tax"
-    };
-  }
-
-  rpc GetTaxRule(TaxRule) returns (TaxRule) {
-    option (google.api.http) = {
-      get: "/v1/tax/{tax_id}"
-    };
-  }
-
-  rpc CreateTaxRule(TaxRule) returns (TaxRule) {
-    option (google.api.http) = {
-      post: "/v1/tax"
-      body: "*"
-    };
-  }
-
-  rpc UpdateTaxRule(TaxRule) returns (TaxRule) {
-    option (google.api.http) = {
-      put: "/v1/tax/{tax_id}"
-      body: "*"
-    };
-  }
 
   rpc ListServiceFeeRule(ListServiceFeeRequest) returns (ListServiceFeeResponse) {
     option (google.api.http) = {

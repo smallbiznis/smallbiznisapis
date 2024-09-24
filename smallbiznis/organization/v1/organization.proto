@@ -57,6 +57,8 @@ message CreateOrganizationRequest {
 
   string organization_id = 2 [(google.api.field_behavior) = OPTIONAL];
 
+  string country_id = 3 [(google.api.field_behavior) = REQUIRED];
+
   FirstUser first_user = 3 [(google.api.field_behavior) = OPTIONAL];
 
 }

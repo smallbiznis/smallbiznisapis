@@ -44,19 +44,29 @@ message ListOrderResponse {
 
 message AddCustomerRequest {
 
-  string email = 1 [(google.api.field_behavior) = REQUIRED];
+  string email = 1;
 
-  string phone = 2 [(google.api.field_behavior) = REQUIRED];
+}
 
-  enum CustomerType {
+message AddShippingAddressRequest {
 
-    guest = 0;
+  string country_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-    customer = 1;
+  string contact_name = 2 [(google.api.field_behavior) = REQUIRED];
 
-  }
+  string contact_phone = 3 [(google.api.field_behavior) = REQUIRED];
 
-  CustomerType type = 3 [(google.api.field_behavior) = REQUIRED];
+  string street = 4 [(google.api.field_behavior) = REQUIRED];
+
+  string note = 5;
+
+  string province_id = 6 [(google.api.field_behavior) = REQUIRED];
+
+  string district_id = 7 [(google.api.field_behavior) = REQUIRED];
+
+  string sub_district_id = 8 [(google.api.field_behavior) = REQUIRED];
+
+  string postal_code = 9 [(google.api.field_behavior) = REQUIRED];
 
 }
 
@@ -70,51 +80,23 @@ message AddItemRequest {
 
 }
 
-message AddShippingAddressRequest {
-
-  string country = 1 [(google.api.field_behavior) = REQUIRED];
-
-  string contact_name = 2 [(google.api.field_behavior) = REQUIRED];
-
-  string contact_phone = 3 [(google.api.field_behavior) = REQUIRED];
-
-  string street = 4 [(google.api.field_behavior) = REQUIRED];
-
-  string note = 5;
-
-  string province = 6 [(google.api.field_behavior) = REQUIRED];
-
-  string district = 7 [(google.api.field_behavior) = REQUIRED];
-
-  string sub_district = 8 [(google.api.field_behavior) = REQUIRED];
-
-  string postal_code = 9 [(google.api.field_behavior) = REQUIRED];
-
-  enum ShippingType {
-
-    guest = 0;
-
-    customer = 1;
-
-  }
-
-  ShippingType type = 10 [(google.api.field_behavior) = REQUIRED];
-
-}
-
 message CreateOrderRequest {
 
   string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
 
-  AddCustomerRequest customer = 2 [(google.api.field_behavior) = REQUIRED];
+  string customer_id = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  AddShippingAddressRequest shipping_address = 3 [(google.api.field_behavior) = REQUIRED];
+  AddCustomerRequest customer = 3 [(google.api.field_behavior) = OPTIONAL];
 
-  repeated AddItemRequest order_items = 4 [(google.api.field_behavior) = REQUIRED];
+  string shipping_address_id = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  string shipping_method = 5;
+  AddShippingAddressRequest shipping_address = 5 [(google.api.field_behavior) = OPTIONAL];
 
-  string payment_method = 6;
+  repeated AddItemRequest order_items = 6 [(google.api.field_behavior) = REQUIRED];
+
+  string shipping_method_id =7;
+
+  string payment_method = 8;
 
 }
 

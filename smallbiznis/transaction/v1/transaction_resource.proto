@@ -81,29 +81,15 @@ message Order {
 
 }
 
-message Item {
-
-  string item_id = 1;
-
-  string image_url = 2;
-
-  string title = 3;
-
-  int32 quantity = 4;
-
-  float unit_price = 5;
-
-  float total_price = 6;
-
-}
-
 message OrderItem {
 
   string order_item_id = 1;
 
   string order_id = 2;
 
-  Item item = 3;
+  string variant_id = 3;
+
+  int32 quantity = 4;
 
   google.protobuf.Timestamp created_at = 4;
 

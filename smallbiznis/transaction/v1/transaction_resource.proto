@@ -9,12 +9,6 @@ import "smallbiznis/customer/v1/customer_resource.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
-message OrderFulfillment {
-
-  string status = 1;
-
-}
-
 message OrderShipping {
 
   string shipping_rate_id = 1;
@@ -37,9 +31,9 @@ message OrderTax {
 
 message OrderFulfillment {
 
-  string tracking_number = 0;
+  string tracking_number = 1;
 
-  string status = 1;
+  string status = 2;
 
 }
 

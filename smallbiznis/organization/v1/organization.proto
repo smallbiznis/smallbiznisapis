@@ -20,6 +20,8 @@ message Organization {
 
   string title = 4;
 
+  Country country = 5;
+
   enum Status {
 
     INACTIVE = 0;
@@ -28,15 +30,15 @@ message Organization {
 
   }
 
-  bool is_default = 5;
+  bool is_default = 6;
 
-  Status status = 6;
+  Status status = 7;
 
-  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp created_at = 8;
 
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 
-  string country_id = 9;
+  string country_id = 10;
 
 }
 
@@ -59,7 +61,7 @@ message CreateOrganizationRequest {
 
   string country_id = 3 [(google.api.field_behavior) = REQUIRED];
 
-  FirstUser first_user = 3 [(google.api.field_behavior) = OPTIONAL];
+  FirstUser first_user = 4 [(google.api.field_behavior) = OPTIONAL];
 
 }
 
@@ -107,6 +109,8 @@ message Country {
   string county_name = 2;
 
   string continent = 3;
+
+  string currency_code = 4;
 
 }
 

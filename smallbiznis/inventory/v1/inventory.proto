@@ -70,23 +70,25 @@ message AddVariantRequest {
 
   string title = 2;
 
-  float price = 3;
+  bool taxable = 3;
 
-  float cost = 4;
+  float price = 4;
 
-  float compare_at_price = 5;
+  float cost = 5;
 
-  float profit = 6;
+  float compare_at_price = 6;
 
-  float margin = 7;
+  float profit = 7;
 
-  float weight = 8;
+  float margin = 8;
 
-  WeightUnit weight_unit = 9;
+  float weight = 9;
 
-  repeated string attributes = 10;
+  WeightUnit weight_unit = 10;
 
-  repeated AddInventoryItemRequest inventory_items = 11;
+  repeated string attributes = 11;
+
+  repeated AddInventoryItemRequest inventory_items = 12;
 
 }
 
@@ -106,11 +108,9 @@ message AddProductRequest {
 
   repeated AddOptionRequest options = 7 [(google.api.field_behavior) = OPTIONAL];
 
-  bool taxable = 8 [(google.api.field_behavior) = OPTIONAL];
+  repeated AddVariantRequest variants = 8 [(google.api.field_behavior) = OPTIONAL];
 
-  repeated AddVariantRequest variants = 9 [(google.api.field_behavior) = OPTIONAL];
-
-  Status status = 10 [(google.api.field_behavior) = REQUIRED];
+  Status status = 9 [(google.api.field_behavior) = REQUIRED];
 
 }
 

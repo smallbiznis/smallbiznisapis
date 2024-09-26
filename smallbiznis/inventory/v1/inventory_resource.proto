@@ -91,15 +91,13 @@ message Product {
 
   repeated Option options = 7;
 
-  bool taxable = 8;
+  repeated Variant variants = 8;
 
-  repeated Variant variants = 9;
+  repeated string tags = 9;
 
-  repeated string tags = 10;
+  google.protobuf.Timestamp created_at = 10;
 
-  google.protobuf.Timestamp created_at = 11;
-
-  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp updated_at = 11;
 
 }
 
@@ -123,26 +121,28 @@ message Variant {
 
   string title = 5;
 
-  float price = 6;
+  bool taxable = 6;
 
-  float compare_at_price = 7;
+  float price = 7;
 
-  float cost = 8;
+  float compare_at_price = 8;
 
-  float profit = 9;
+  float cost = 9;
 
-  float margin = 10;
+  float profit = 10;
 
-  float weight = 11;
+  float margin = 12;
 
-  WeightUnit weight_unit = 12;
+  float weight = 13;
 
-  repeated string attributes = 13;
+  WeightUnit weight_unit = 14;
 
-  repeated InventoryItem inventory_items = 14;
+  repeated string attributes = 15;
 
-  google.protobuf.Timestamp created_at = 15;
+  repeated InventoryItem inventory_items = 16;
 
-  google.protobuf.Timestamp updated_at = 16;
+  google.protobuf.Timestamp created_at = 17;
+
+  google.protobuf.Timestamp updated_at = 18;
 
 }

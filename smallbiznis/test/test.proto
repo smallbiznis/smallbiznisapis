@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package smallbiznis.test.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/test/v1;test";
+
+message Hello {
+  string message = 1;
+}
+
+service TestService {
+  
+  rpc Hello(Hello) returns (Hello);
+
+}

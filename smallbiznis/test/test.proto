@@ -4,12 +4,18 @@ package smallbiznis.test.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/test/v1;test";
 
+import "google/api/annotations.proto";
+
 message Message {
   string message = 1;
 }
 
 service TestService {
   
-  rpc Hello(Message) returns (Message);
+  rpc Hello(Message) returns (Message) {
+    option (google.api.http) = {
+      get: "/v1/message"
+    };
+  };
 
 }

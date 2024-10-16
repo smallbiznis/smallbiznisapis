@@ -51,7 +51,7 @@ message Plan {
 
   string id = 1;
 
-  Product Product = 2;
+  Product product = 2;
 
   string interval = 3;
 

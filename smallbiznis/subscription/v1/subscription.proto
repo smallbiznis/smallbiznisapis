@@ -121,6 +121,12 @@ service SubscriptionService {
     };
   }
 
+  rpc GetSubscription(Subscription) returns (Subscription) {
+    option (google.api.http) = {
+      get: "/v1/stripe/subscriptions/{id}"
+    };
+  }
+
   rpc UpdateSubscription(Subscription) returns (Subscription) {
     option (google.api.http) = {
       put: "/v1/stripe/subscriptions/{id}"

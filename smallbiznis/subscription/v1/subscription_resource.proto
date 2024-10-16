@@ -69,6 +69,8 @@ message Subscription {
 
   string customer_id = 2;
 
+  string plan_id = 3;
+
   google.protobuf.Timestamp start_date = 4;
 
   google.protobuf.Timestamp end_date = 5;

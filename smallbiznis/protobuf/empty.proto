@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package smallbiznis.protobuf;
-
-option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/protobuf";
-
-message Empty {}

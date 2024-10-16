@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+package smallbiznis.subscription.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subscription/v1;subscription";
+
+import "smallbiznis/subscription/v1/subscription_resource.proto";
+import "google/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
+
+message ListProductRequest {
+
+  int32 limit = 1;
+
+  string starting_at = 2;
+
+}
+
+message ListProductResponse {
+  repeated Product data = 1;
+}
+
+message ListPlanRequest {
+
+  int32 limit = 1;
+
+  string starting_at = 2;
+
+}
+
+message ListPlanResponse {
+  repeated Plan data = 1;
+}
+
+
+message ListSubscriptionRequest {
+
+  int32 limit = 1;
+
+  string starting_at = 2;
+
+}
+
+message ListSubscriptionResponse {
+  repeated Subcription data = 1;
+}
+
+service SubscriptionService {
+
+  rpc CreateCustomer(Customer) returns (Customer) {
+    option (google.api.http) = {
+      post: "/v1/stripe/customers"
+      body: "*"
+    };
+  };
+
+  rpc ListProduct(ListProductRequest) returns (ListProductResponse) {
+    option (google.api.http) = {
+      get: "/v1/stripe/products"
+    };
+  };
+
+  rpc CreateProduct(Product) returns (Product) {
+    option (google.api.http) = {
+      post: "/v1/stripe/products"
+      body: "*"
+    };
+  };
+
+  rpc GetProduct(Product) returns (Product) {
+    option (google.api.http) = {
+      get: "/v1/stripe/products/{id}"
+    };
+  };
+
+  rpc UpdateProduct(Product) returns (Product) {
+    option (google.api.http) = {
+      put: "/v1/stripe/products/{id}"
+      body: "*"
+    };
+  };
+
+  rpc ListPlan(ListPlanRequest) returns (ListPlanResponse) {
+    option (google.api.http) = {
+      get: "/v1/stripe/plans"
+    };
+  }
+
+  rpc CreatePlan(Plan) returns (Plan) {
+    option (google.api.http) = {
+      post: "/v1/stripe/plans"
+      body: "*"
+    };
+  }
+
+  rpc GetPlan(Plan) returns (Plan) {
+    option (google.api.http) = {
+      get: "/v1/stripe/plans/{id}"
+    };
+  }
+
+  rpc UpdatePlan(Plan) returns (Plan) {
+    option (google.api.http) = {
+      put: "/v1/stripe/plans/{id}"
+      body: "*"
+    };
+  }
+
+  rpc ListSubscription(ListSubscriptionRequest) returns (ListSubscriptionResponse) {
+    option (google.api.http) = {
+      get: "/v1/stripe/subscriptions"
+    };
+  }
+
+  rpc CreateSubscription(Subscription) returns (Subscription) {
+    option (google.api.http) = {
+      post: "/v1/stripe/subscriptions"
+      body: "*"
+    };
+  }
+
+  rpc UpdateSubscription(Subscription) returns (Subscription) {
+    option (google.api.http) = {
+      put: "/v1/stripe/subscriptions/{id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteSubscription(Subscription) returns (Subscription) {
+    option (google.api.http) = {
+      delete: "/v1/stripe/subscriptions/{id}"
+    };
+  }
+
+}

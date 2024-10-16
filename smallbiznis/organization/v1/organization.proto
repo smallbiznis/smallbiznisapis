@@ -40,6 +40,8 @@ message Organization {
 
   string country_id = 10;
 
+  string customer_id = 11;
+
 }
 
 message FirstUser {

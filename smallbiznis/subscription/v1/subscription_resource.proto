@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package smallbiznis.subsctipion.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subsctipion/v1;subsctipion";
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+message Customer {
+
+  string id = 1;
+
+  string name = 2;
+
+  string email = 3;
+
+}
+
+message Product {
+
+  string id = 1;
+
+  repeated string images = 2;
+
+  string name = 3;
+
+  string description = 4;
+
+  bool active = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
+
+}
+
+enum PlanInterval {
+
+  day = 0;
+
+  week = 1;
+
+  month = 2;
+
+  year = 3;
+
+}
+
+message Plan {
+
+  string id = 1;
+
+  Product Product = 2;
+
+  PlanInterval interval = 3;
+
+  int32 interval_count = 4;
+
+  float amount = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+}
+
+enum SubscriptionState {
+
+  active = 0;
+
+  expired = 1;
+
+  cancelled = 2;
+
+}
+
+message Subscription {
+
+  string id = 1;
+
+  string customer_id = 2;
+
+  google.protobuf.Timestamp start_date = 4;
+
+  google.protobuf.Timestamp end_date = 5;
+
+  SubscriptionState status = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+}

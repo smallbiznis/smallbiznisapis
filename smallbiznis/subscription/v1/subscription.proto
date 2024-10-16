@@ -44,7 +44,7 @@ message ListSubscriptionRequest {
 }
 
 message ListSubscriptionResponse {
-  repeated Subcription data = 1;
+  repeated Subscription data = 1;
 }
 
 service SubscriptionService {

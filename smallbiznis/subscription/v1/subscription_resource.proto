@@ -53,23 +53,13 @@ message Plan {
 
   Product Product = 2;
 
-  PlanInterval interval = 3;
+  string interval = 3;
 
   int32 interval_count = 4;
 
   float amount = 5;
 
   google.protobuf.Timestamp created_at = 6;
-
-}
-
-enum SubscriptionState {
-
-  active = 0;
-
-  expired = 1;
-
-  cancelled = 2;
 
 }
 
@@ -83,7 +73,7 @@ message Subscription {
 
   google.protobuf.Timestamp end_date = 5;
 
-  SubscriptionState status = 6;
+  string status = 6;
 
   google.protobuf.Timestamp created_at = 7;
 

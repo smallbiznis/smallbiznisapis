@@ -7,8 +7,10 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subscription
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
-message CheckoutSession {
-  string client_secret = 1;
+message Session {
+  string id = 1;
+  string client_secret = 2;
+  string currency = 3;
 }
 
 message Customer {

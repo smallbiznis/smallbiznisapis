@@ -47,7 +47,7 @@ message ListSubscriptionResponse {
   repeated Subscription data = 1;
 }
 
-message CheckoutSessionRequest {
+message SessionRequest {
   string currency = 1;
   string mode = 2;
   string return_url = 3;
@@ -56,10 +56,16 @@ message CheckoutSessionRequest {
 
 service SubscriptionService {
 
-  rpc CreateCheckoutSession(CheckoutSessionRequest) returns (CheckoutSession) {
+  rpc CreateSession(SessionRequest) returns (Session) {
     option (google.api.http) = {
       post: "/v1/stripe/checkout/session"
       body: "*"
+    };
+  }
+
+  rpc GetSession(Session) returns (Session) {
+    option (google.api.http) = {
+      get: "/v1/stripe/checkout/session/{id}"
     };
   }
 

@@ -23,6 +23,46 @@ message Customer {
 
 }
 
+message Address {
+  string city = 1;
+  string country = 2;
+  string line1 = 3;
+  string line2 = 4;
+  string postal_code = 5;
+  string state = 6;
+}
+
+message BillingDetail {
+
+  Address address = 1;
+
+  string email = 2;
+
+  string name = 3;
+
+  string phone = 4;
+
+}
+
+message CardDetail {
+
+  string number = 1;
+
+  int32 exp_month = 2;
+
+  int32 exp_year = 3;
+
+  string cvv = 4;
+
+}
+
+message PaymentMethod {
+  string customer_id = 1;
+  BillingDetail billing_detail = 2;
+  CardDetail card = 3;
+  string token = 4;
+}
+
 message Product {
 
   string id = 1;

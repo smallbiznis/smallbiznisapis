@@ -56,6 +56,13 @@ message SessionRequest {
 
 service SubscriptionService {
 
+  rpc CreatePaymentMethod(PaymentMethod) returns (PaymentMethod) {
+    option (google.api.http) = {
+      post: "/v1/stripe/customer/{customer_id}/paymentMethod",
+      body: "*"
+    };
+  }
+
   rpc CreateSession(SessionRequest) returns (Session) {
     option (google.api.http) = {
       post: "/v1/stripe/checkout/session"

@@ -60,7 +60,6 @@ message PaymentMethod {
   string customer_id = 1;
   BillingDetail billing_detail = 2;
   CardDetail card = 3;
-  string token = 4;
 }
 
 message Product {

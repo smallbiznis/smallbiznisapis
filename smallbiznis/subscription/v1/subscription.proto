@@ -58,7 +58,7 @@ service SubscriptionService {
 
   rpc CreatePaymentMethod(PaymentMethod) returns (PaymentMethod) {
     option (google.api.http) = {
-      post: "/v1/stripe/customer/{customer_id}/paymentMethod",
+      post: "/v1/stripe/customer/{customer_id}/paymentmethod",
       body: "*"
     };
   }

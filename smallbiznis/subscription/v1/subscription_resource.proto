@@ -48,9 +48,9 @@ message CardDetail {
 
   string number = 1;
 
-  int32 exp_month = 2;
+  string exp_month = 2;
 
-  int32 exp_year = 3;
+  string exp_year = 3;
 
   string cvv = 4;
 

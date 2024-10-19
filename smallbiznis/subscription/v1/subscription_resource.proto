@@ -13,53 +13,22 @@ message Session {
   string currency = 3;
 }
 
-message Customer {
-
-  string id = 1;
-
-  string name = 2;
-
-  string email = 3;
-
-}
-
-message Address {
-  string city = 1;
-  string country = 2;
-  string line1 = 3;
-  string line2 = 4;
-  string postal_code = 5;
-  string state = 6;
-}
-
-message BillingDetail {
-
-  Address address = 1;
-
-  string email = 2;
-
-  string name = 3;
-
-  string phone = 4;
-
-}
-
-message CardDetail {
-
-  string number = 1;
-
-  string exp_month = 2;
-
-  string exp_year = 3;
-
-  string cvv = 4;
-
+message Card {
+  string brand = 1;
+  string last4 = 2;
+  int64 exp_month = 3;
+  int64 exp_year = 4;
 }
 
 message PaymentMethod {
-  string customer_id = 1;
-  BillingDetail billing_detail = 2;
-  CardDetail card = 3;
+  string id = 1;
+  Card card = 2;
+}
+
+message Customer {
+  string id = 1;
+  string name = 2;
+  string email = 3;
 }
 
 message Product {

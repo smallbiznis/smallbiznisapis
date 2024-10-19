@@ -56,13 +56,6 @@ message SessionRequest {
 
 service SubscriptionService {
 
-  rpc CreatePaymentMethod(PaymentMethod) returns (PaymentMethod) {
-    option (google.api.http) = {
-      post: "/v1/stripe/customer/{customer_id}/paymentmethod",
-      body: "*"
-    };
-  }
-
   rpc CreateSession(SessionRequest) returns (Session) {
     option (google.api.http) = {
       post: "/v1/stripe/checkout/session"
@@ -70,7 +63,7 @@ service SubscriptionService {
     };
   }
 
-  rpc GetSession(Session) returns (Session) {
+  rpc ConfirmationSession(Session) returns (PaymentMethod) {
     option (google.api.http) = {
       get: "/v1/stripe/checkout/session/{id}"
     };
@@ -80,6 +73,12 @@ service SubscriptionService {
     option (google.api.http) = {
       post: "/v1/stripe/customers"
       body: "*"
+    };
+  };
+
+  rpc GetCustomer(Customer) returns (Customer) {
+    option (google.api.http) = {
+      get: "/v1/stripe/customers/{id}"
     };
   };
 

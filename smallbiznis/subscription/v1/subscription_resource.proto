@@ -32,21 +32,39 @@ message Customer {
 }
 
 message Product {
-
   string id = 1;
+  bool active = 2;
+  int64 created = 3;
+  string default_price = 4;  // ID price jika ada
+  string description = 5;
+  repeated string images = 6;
+  bool livemode = 7;
+  map<string, string> metadata = 8;
+  string name = 9;
+  int64 updated = 10;
+  string url = 11;
+}
 
-  repeated string images = 2;
+message Price {
+  string id = 1;
+  bool active = 2;
+  string billing_scheme = 3;  // "per_unit" atau "tiered"
+  int64 created = 4;
+  string currency = 5;
+  string product = 6;
+  Recurring recurring = 7;
+  string tax_behavior = 8;  // "inclusive", "exclusive", atau "unspecified"
+  string type = 9;  // "one_time" atau "recurring"
+  int64 unit_amount = 10;
+  string unit_amount_decimal = 11;
+  bool livemode = 12;
+  map<string, string> metadata = 13;
+}
 
-  string name = 3;
-
-  string description = 4;
-
-  bool active = 5;
-
-  google.protobuf.Timestamp created_at = 6;
-
-  google.protobuf.Timestamp updated_at = 7;
-
+message Recurring {
+  string interval = 1;  // "day", "week", "month", atau "year"
+  int32 interval_count = 2;
+  string usage_type = 3;  // "licensed" atau "metered"
 }
 
 enum PlanInterval {
@@ -77,20 +95,46 @@ message Plan {
 
 }
 
+enum SubscriptionStatus {
+  INCOMPLETE = 0;
+  ACTIVE = 1;
+  PAST_DUE = 2;
+  CANCELED = 3;
+  UNPAID = 4;
+  TRIALING = 5;
+  INCOMPLETE_EXPIRED = 6;
+}
+
+
+enum CollectionMethod {
+  CHARGE_AUTOMATICALLY = 0;
+  SEND_INVOICE = 1;
+}
+
 message Subscription {
-
   string id = 1;
+  int64 created = 2;
+  string customer = 3;
+  SubscriptionStatus status = 4;
+  int64 current_period_start = 5;
+  int64 current_period_end = 6;
+  int64 start_date = 7;
+  int64 billing_cycle_anchor = 8;
+  bool cancel_at_period_end = 9;
+  int64 canceled_at = 10;
+  int64 trial_start = 11;
+  int64 trial_end = 12;
+  string currency = 13;
+  string latest_invoice = 14;
+  bool livemode = 15;
+  CollectionMethod collection_method = 16;
+  repeated SubscriptionItem items = 17;
+}
 
-  string customer_id = 2;
-
-  string plan_id = 3;
-
-  google.protobuf.Timestamp start_date = 4;
-
-  google.protobuf.Timestamp end_date = 5;
-
-  string status = 6;
-
-  google.protobuf.Timestamp created_at = 7;
-
+message SubscriptionItem {
+  string id = 1;
+  string subscription = 2;
+  int64 created = 3;
+  int32 quantity = 4;
+  Price price = 5;
 }

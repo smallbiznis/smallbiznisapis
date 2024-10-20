@@ -50,6 +50,14 @@ message SessionRequest {
   string customer_id = 4;
 }
 
+message ListInvoiceRequest {
+  string customer_id = 1;
+}
+
+message ListInvoiceResponse {
+  repeated Invoice data = 1;
+}
+
 service SubscriptionService {
 
   rpc CreateSession(SessionRequest) returns (Session) {
@@ -159,6 +167,18 @@ service SubscriptionService {
   rpc DeleteSubscription(Subscription) returns (Subscription) {
     option (google.api.http) = {
       delete: "/v1/stripe/subscriptions/{id}"
+    };
+  }
+
+  rpc ListInvoice(ListInvoiceRequest) returns (ListInvoiceResponse) {
+    option (google.api.http) = {
+      get: "/v1/stripe/invoices"
+    };
+  }
+
+  rpc GetInvoice(Invoice) returns (Invoice) {
+    option (google.api.http) = {
+      get: "/v1/stripe/invoices/{id}"
     };
   }
 

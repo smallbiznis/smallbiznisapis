@@ -42,7 +42,9 @@ message Organization {
 
   string customer_id = 11;
 
-  string payment_method_id = 12;
+  string subscription_id = 12;
+
+  string payment_method_id = 13;
 
 }
 

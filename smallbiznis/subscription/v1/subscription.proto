@@ -22,16 +22,12 @@ message ListProductResponse {
   repeated Product data = 1;
 }
 
-message ListPlanRequest {
-
-  int32 limit = 1;
-
-  string starting_at = 2;
-
+message ListPriceRequest {
+  string product_id = 1;
 }
 
-message ListPlanResponse {
-  repeated Plan data = 1;
+message ListPriceResponse {
+  repeated Price data = 1;
 }
 
 
@@ -108,28 +104,28 @@ service SubscriptionService {
     };
   };
 
-  rpc ListPlan(ListPlanRequest) returns (ListPlanResponse) {
+  rpc ListPrice(ListPriceRequest) returns (ListPriceResponse) {
     option (google.api.http) = {
-      get: "/v1/stripe/plans"
+      get: "/v1/stripe/prices"
     };
   }
 
-  rpc CreatePlan(Plan) returns (Plan) {
+  rpc CreatePrice(Price) returns (Price) {
     option (google.api.http) = {
-      post: "/v1/stripe/plans"
+      post: "/v1/stripe/prices"
       body: "*"
     };
   }
 
-  rpc GetPlan(Plan) returns (Plan) {
+  rpc GetPrice(Price) returns (Price) {
     option (google.api.http) = {
-      get: "/v1/stripe/plans/{id}"
+      get: "/v1/stripe/prices/{id}"
     };
   }
 
-  rpc UpdatePlan(Plan) returns (Plan) {
+  rpc UpdatePlan(Price) returns (Price) {
     option (google.api.http) = {
-      put: "/v1/stripe/plans/{id}"
+      put: "/v1/stripe/prices/{id}"
       body: "*"
     };
   }

@@ -66,6 +66,10 @@ message CreateBillingRequest {
 
   string return_url = 3;
 
+  string locale = 4;
+
+  string configuration_id = 5;
+
 }
 
 service SubscriptionService {

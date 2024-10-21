@@ -58,7 +58,24 @@ message ListInvoiceResponse {
   repeated Invoice data = 1;
 }
 
+message CreateBillingRequest {
+
+  string customer_id = 1;
+
+  Flow flow = 2;
+
+  string return_url = 3;
+
+}
+
 service SubscriptionService {
+
+  rpc CreateBillingPortal(CreateBillingRequest) returns (BillingPortalSession) {
+    option (google.api.http) = {
+      post: "/v1/stripe/billing",
+      body: "*"
+    };
+  }
 
   rpc CreateSession(SessionRequest) returns (Session) {
     option (google.api.http) = {
@@ -92,13 +109,6 @@ service SubscriptionService {
     };
   };
 
-  rpc CreateProduct(Product) returns (Product) {
-    option (google.api.http) = {
-      post: "/v1/stripe/products"
-      body: "*"
-    };
-  };
-
   rpc GetProduct(Product) returns (Product) {
     option (google.api.http) = {
       get: "/v1/stripe/products/{id}"
@@ -118,23 +128,9 @@ service SubscriptionService {
     };
   }
 
-  rpc CreatePrice(Price) returns (Price) {
-    option (google.api.http) = {
-      post: "/v1/stripe/prices"
-      body: "*"
-    };
-  }
-
   rpc GetPrice(Price) returns (Price) {
     option (google.api.http) = {
       get: "/v1/stripe/prices/{id}"
-    };
-  }
-
-  rpc UpdatePlan(Price) returns (Price) {
-    option (google.api.http) = {
-      put: "/v1/stripe/prices/{id}"
-      body: "*"
     };
   }
 

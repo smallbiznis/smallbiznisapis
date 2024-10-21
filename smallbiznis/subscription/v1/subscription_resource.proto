@@ -7,6 +7,80 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subscription
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
+enum FlowType {
+
+  payment_method_update = 0;
+
+  subscription_cancel = 1;
+
+  subscription_update = 2;
+
+  subscription_update_confirm = 3;
+
+}
+
+message FlowSubscriptionCancel {
+
+  string subscription_id = 1;
+
+}
+
+message FlowSubscriptionUpdate {
+
+  string subscription_id = 1;
+  
+}
+
+message FlowSubscriptionUpdateConfirmItem {
+
+  string id = 1;
+
+  string price_id = 3;
+
+  int32 quantity = 4;
+
+}
+
+message FlowSubscriptionUpdateConfirm {
+
+  string subscription_id = 1;
+
+  repeated FlowSubscriptionUpdateConfirmItem items = 2;
+
+}
+
+message Flow {
+
+  FlowType type = 1;
+
+  FlowSubscriptionCancel subscription_cancel = 2;
+
+  FlowSubscriptionUpdate subscription_update = 3;
+
+  FlowSubscriptionUpdateConfirm subscription_update_confirm = 4;
+
+}
+
+message BillingPortalSession {
+
+  string id = 1;
+
+  string customer_id = 2;
+
+  string configuration = 3;
+
+  int32 created = 4;
+
+  Flow flow = 5;
+
+  bool livemode = 6;
+
+  string locale = 7;
+
+  string returl_url = 8;
+
+}
+
 message Session {
   string id = 1;
   string client_secret = 2;

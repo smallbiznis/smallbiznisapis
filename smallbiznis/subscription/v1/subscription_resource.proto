@@ -79,6 +79,8 @@ message BillingPortalSession {
 
   string returl_url = 8;
 
+  string url = 9;
+
 }
 
 message Session {

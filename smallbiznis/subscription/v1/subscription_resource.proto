@@ -165,6 +165,7 @@ message Subscription {
   string latest_invoice = 12;
   bool livemode = 13;
   repeated SubscriptionItem items = 14;
+  int64 trialPeriodDays = 15;
 }
 
 // ==================== Invoice ====================

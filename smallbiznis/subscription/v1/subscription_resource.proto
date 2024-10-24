@@ -116,56 +116,167 @@ message Product {
   string url = 11;
 }
 
-// ==================== Recurring ====================
-message Recurring {
-  string interval = 1;
-  int32 interval_count = 2;
-  string usage_type = 3;
+message AutomaticTax {
+  bool enabled = 1;
+  string liability = 2;
 }
 
-// ==================== Price ====================
+message CancellationDetails {
+  string comment = 1;
+  string feedback = 2;
+  string reason = 3;
+}
+
+message InvoiceSettings {
+  Issuer issuer = 1;
+
+  message Issuer {
+    string type = 1;
+  }
+}
+
+message Plan {
+  string id = 1;
+  string object = 2;
+  bool active = 3;
+  string aggregate_usage = 4;
+  int64 amount = 5;
+  string amount_decimal = 6;
+  string billing_scheme = 7;
+  int64 created = 8;
+  string currency = 9;
+  string discounts = 10;
+  string interval = 11;
+  int32 interval_count = 12;
+  bool livemode = 13;
+  map<string, string> metadata = 14;
+  string nickname = 15;
+  string product = 16;
+  string tiers_mode = 17;
+  string transform_usage = 18;
+  int32 trial_period_days = 19;
+  string usage_type = 20;
+}
+
 message Price {
   string id = 1;
-  bool active = 2;
-  string billing_scheme = 3;
-  int64 created = 4;
-  string currency = 5;
-  string product = 6;
-  Recurring recurring = 7;
-  string tax_behavior = 8;
-  string type = 9;
-  int64 unit_amount = 10;
-  string unit_amount_decimal = 11;
-  bool livemode = 12;
-  map<string, string> metadata = 13;
+  string object = 2;
+  bool active = 3;
+  string billing_scheme = 4;
+  int64 created = 5;
+  string currency = 6;
+  string custom_unit_amount = 7;
+  bool livemode = 8;
+  string lookup_key = 9;
+  map<string, string> metadata = 10;
+  string nickname = 11;
+  string product = 12;
+
+  Recurring recurring = 13;
+  message Recurring {
+    string aggregate_usage = 1;
+    string interval = 2;
+    int32 interval_count = 3;
+    int32 trial_period_days = 4;
+    string usage_type = 5;
+  }
+
+  string tax_behavior = 14;
+  string tiers_mode = 15;
+  string transform_quantity = 16;
+  string type = 17;
+  int64 unit_amount = 18;
+  string unit_amount_decimal = 19;
 }
 
-// ==================== SubscriptionItem ====================
 message SubscriptionItem {
   string id = 1;
-  string subscription = 2;
-  int64 created = 3;
-  int32 quantity = 4;
-  Price price = 5;
+  string object = 2;
+  string billing_thresholds = 3;
+  int64 created = 4;
+  map<string, string> metadata = 5;
+
+  Plan plan = 6;
+  Price price = 7;
+  int32 quantity = 8;
+  string subscription = 9;
+  repeated string tax_rates = 10;
 }
 
-// ==================== Subscription ====================
+message SubscriptionItems {
+  string object = 1;
+  repeated SubscriptionItem data = 2;
+  bool has_more = 3;
+  int32 total_count = 4;
+  string url = 5;
+}
+
+message TrialEndBehavior {
+  string missing_payment_method = 1;
+}
+
+message TrialSettings {
+  TrialEndBehavior end_behavior = 1;
+}
+
+message PaymentSettings {
+  string payment_method_options = 1;
+  string payment_method_types = 2;
+  string save_default_payment_method = 3;
+}
+
 message Subscription {
   string id = 1;
-  int64 created = 2;
-  string customer = 3;
-  int64 current_period_start = 4;
-  int64 current_period_end = 5;
-  int64 start_date = 6;
-  int64 billing_cycle_anchor = 7;
-  bool cancel_at_period_end = 8;
-  int64 canceled_at = 9;
-  string status = 10;
-  string currency = 11;
-  string latest_invoice = 12;
-  bool livemode = 13;
-  repeated SubscriptionItem items = 14;
-  int64 trialPeriodDays = 15;
+  string object = 2;
+  string application = 3;
+  double application_fee_percent = 4;
+
+  AutomaticTax automatic_tax = 5;
+
+  int64 billing_cycle_anchor = 6;
+  string billing_thresholds = 7;
+  int64 cancel_at = 8;
+  bool cancel_at_period_end = 9;
+  int64 canceled_at = 10;
+
+  CancellationDetails cancellation_details = 11;
+
+  string collection_method = 12;
+  int64 created = 13;
+  string currency = 14;
+  int64 current_period_end = 15;
+  int64 current_period_start = 16;
+  string customer = 17;
+  int32 days_until_due = 18;
+  string default_payment_method = 19;
+  string default_source = 20;
+  repeated string default_tax_rates = 21;
+  string description = 22;
+  string discount = 23;
+  string discounts = 24;
+  int64 ended_at = 25;
+
+  InvoiceSettings invoice_settings = 26;
+  SubscriptionItems items = 27;
+  string latest_invoice = 28;
+  bool livemode = 29;
+  map<string, string> metadata = 30;
+  string next_pending_invoice_item_invoice = 31;
+  string on_behalf_of = 32;
+  string pause_collection = 33;
+
+  PaymentSettings payment_settings = 34;
+  string pending_invoice_item_interval = 35;
+  string pending_setup_intent = 36;
+  string pending_update = 37;
+  string schedule = 38;
+  int64 start_date = 39;
+  string status = 40;
+  string test_clock = 41;
+  string transfer_data = 42;
+  int64 trial_end = 43;
+  TrialSettings trial_settings = 44;
+  int64 trial_start = 45;
 }
 
 // ==================== Invoice ====================

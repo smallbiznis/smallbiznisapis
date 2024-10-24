@@ -4,6 +4,8 @@ package smallbiznis.organization.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/organization/v1;organization";
 
+import "smallbiznis/subscription/v1/subscription_resource.proto";
+
 import "google/protobuf/empty.proto";
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
@@ -301,6 +303,20 @@ message ListShippingRateResponse {
   repeated ShippingRate data = 2;
 }
 
+message CreateBillingRequest {
+
+  string customer_id = 1;
+
+  smallbiznis.subscription.v1.Flow flow = 2;
+
+  string return_url = 3;
+
+  string locale = 4;
+
+  string configuration_id = 5;
+
+}
+
 service Service {
 
   rpc ListShippingRate(ListShippingRateRequest) returns (ListShippingRateResponse) {
@@ -403,6 +419,19 @@ service Service {
   rpc UpdateLocation(Location) returns (Location) {
     option (google.api.http) = {
       put: "/v1/organizations/{location_id}"
+      body: "*"
+    };
+  }
+
+  rpc GetSubscription(smallbiznis.subscription.v1.Subscription) returns (smallbiznis.subscription.v1.Subscription) {
+    option (google.api.http) = {
+      get: "/v1/subscription/{id}"
+    };
+  }
+
+  rpc CreateBillingPortal(CreateBillingRequest) returns (smallbiznis.subscription.v1.BillingPortalSession) {
+    option (google.api.http) = {
+      post: "/v1/billingportal"
       body: "*"
     };
   }

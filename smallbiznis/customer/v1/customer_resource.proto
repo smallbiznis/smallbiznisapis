@@ -25,6 +25,8 @@ message Customer {
 
   google.protobuf.Timestamp updated_at = 8;
 
+  string account_id = 9;
+
 }
 
 message Address {

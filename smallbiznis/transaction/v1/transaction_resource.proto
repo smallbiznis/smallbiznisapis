@@ -87,7 +87,7 @@ message OrderItem {
 
   string order_id = 2;
 
-  string variant_id = 3;
+  string item_id = 3;
 
   int32 quantity = 4;
 

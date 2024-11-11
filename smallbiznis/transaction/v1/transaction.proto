@@ -50,6 +50,10 @@ message AddCustomerRequest {
 
   string last_name = 3;
 
+  string country_id = 4;
+
+  bool email_subscription = 5;
+
 }
 
 message AddShippingAddressRequest {

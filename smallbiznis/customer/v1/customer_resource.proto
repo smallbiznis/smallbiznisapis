@@ -27,6 +27,8 @@ message Customer {
 
   string account_id = 9;
 
+  bool email_subscription = 10;
+
 }
 
 message Address {

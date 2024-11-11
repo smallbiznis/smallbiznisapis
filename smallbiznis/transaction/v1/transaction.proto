@@ -64,11 +64,11 @@ message AddShippingAddressRequest {
 
   string note = 5;
 
-  string province = 6 [(google.api.field_behavior) = REQUIRED];
+  string province_id = 6 [(google.api.field_behavior) = REQUIRED];
 
-  string district = 7 [(google.api.field_behavior) = REQUIRED];
+  string district_id = 7 [(google.api.field_behavior) = REQUIRED];
 
-  string sub_district = 8 [(google.api.field_behavior) = REQUIRED];
+  string sub_district_id = 8 [(google.api.field_behavior) = REQUIRED];
 
   string postal_code = 9 [(google.api.field_behavior) = REQUIRED];
 

@@ -64,13 +64,33 @@ message AddShippingAddressRequest {
 
   string note = 5;
 
-  string province_id = 6 [(google.api.field_behavior) = REQUIRED];
+  string province = 6 [(google.api.field_behavior) = REQUIRED];
 
-  string district_id = 7 [(google.api.field_behavior) = REQUIRED];
+  string district = 7 [(google.api.field_behavior) = REQUIRED];
 
-  string sub_district_id = 8 [(google.api.field_behavior) = REQUIRED];
+  string sub_district = 8 [(google.api.field_behavior) = REQUIRED];
 
   string postal_code = 9 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message AddShippingMethod {
+
+  string shipping_method_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message CardMethod {
+
+  string card_no = 1;
+
+}
+
+message BankTransferMethod {}
+
+message AddPaymentProvider {
+
+  string payment_provider_id = 1 [(google.api.field_behavior) = REQUIRED];
 
 }
 
@@ -98,9 +118,9 @@ message CreateOrderRequest {
 
   repeated AddItemRequest order_items = 6 [(google.api.field_behavior) = REQUIRED];
 
-  string shipping_method_id =7;
+  AddShippingMethod shipping_provider = 7;
 
-  string payment_method = 8;
+  AddPaymentProvider payment_provider = 8;
 
 }
 

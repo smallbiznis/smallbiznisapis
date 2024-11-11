@@ -15,9 +15,23 @@ message OrderShipping {
 
 }
 
+enum PaymentStatus {
+
+  Pending = 0;
+
+  Unpaid = 1;
+
+  Paid = 2;
+
+  Expired = 3;
+
+}
+
 message OrderPayment {
 
   string payment_method = 1;
+
+  PaymentStatus status = 2;
 
 }
 
@@ -29,11 +43,21 @@ message OrderTax {
 
 }
 
+enum FulfilmentStatus {
+
+  Fulfilled = 0;
+
+  Unfulfilled = 1;
+
+  OnHold = 2;
+
+}
+
 message OrderFulfillment {
 
   string tracking_number = 1;
 
-  string status = 2;
+  FulfilmentStatus status = 2;
 
 }
 
@@ -63,11 +87,13 @@ message Order {
 
   enum Status {
 
-    open = 0;
+    draft = 0;
 
-    completed = 1;
+    open = 1;
 
     canceled = 2;
+
+    archived = 3;
 
   }
 

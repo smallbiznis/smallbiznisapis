@@ -58,13 +58,15 @@ message AppPlan {
 
   int32 interval_count = 4;
 
-  int32 trial_period_day = 5;
+  int32 trial_period_days = 5;
 
-  bool active = 6;
+  int32 amount = 6;
 
-  google.protobuf.Timestamp created_at = 7;
+  bool active = 7;
 
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
 
 }
 

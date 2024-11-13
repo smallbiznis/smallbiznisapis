@@ -30,7 +30,7 @@ message ListAppRequest {
 }
 
 message ListAppResponse {
-  repeated Application data = 1;
+  repeated App data = 1;
   int32 total_data = 2;
 }
 
@@ -38,30 +38,30 @@ message GetAppRequest {
   string app_id = 1;
 }
 
-service ApplicationService {
+service Service {
 
   rpc ListApp(ListAppRequest) returns (ListAppResponse) {
     option (google.api.http) = {
-      get: "/v1/applications"
+      get: "/v1/apps"
     };
   }
 
-  rpc GetApp(GetAppRequest) returns (Application) {
+  rpc GetApp(GetAppRequest) returns (App) {
     option (google.api.http) = {
-      get: "/v1/applications/{app_id}"
+      get: "/v1/apps/{app_id}"
     };
   }
 
-  rpc CreateApp(Application) returns (Application) {
+  rpc CreateApp(App) returns (App) {
     option (google.api.http) = {
-      post: "/v1/applications"
+      post: "/v1/apps"
       body: "*"
     };
   }
 
-  rpc UpdateApp(Application) returns (Application) {
+  rpc UpdateApp(App) returns (App) {
     option (google.api.http) = {
-      put: "/v1/applications/{app_id}"
+      put: "/v1/apps/{app_id}"
       body: "*"
     };
   }

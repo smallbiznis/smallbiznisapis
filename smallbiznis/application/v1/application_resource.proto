@@ -6,13 +6,15 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/application/
 
 import "google/protobuf/timestamp.proto";
 
-message Application {
+message App {
+
+  string id = 1;
 
   string app_id = 2;
 
-  string organization_id = 3;
+  string developer_id = 3;
 
-  string logo_uri = 4;
+  repeated string images = 4;
 
   string title = 5;
 
@@ -23,5 +25,63 @@ message Application {
   google.protobuf.Timestamp created_at = 8;
 
   google.protobuf.Timestamp updated_at = 9;
+
+  string product_id = 10;
+
+  bool active = 11;
+
+  bool published = 12;
+
+  google.protobuf.Timestamp published_at = 13;
+
+}
+
+enum Interval {
+
+  day = 0;
+
+  week = 1;
+
+  month = 2;
+
+  year = 3;
+
+}
+
+message AppPlan {
+
+  string app_plan_id = 1;
+
+  string app_id = 2;
+
+  Interval interval = 3;
+
+  int32 interval_count = 4;
+
+  int32 trial_period_day = 5;
+
+  bool active = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
+
+}
+
+message AppInstallation {
+
+  string app_installation_id = 1;
+
+  string organization_id = 2;
+
+  string app_id = 3;
+
+  string subscription_id = 4;
+
+  string status = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
 
 }

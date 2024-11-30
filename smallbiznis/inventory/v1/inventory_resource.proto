@@ -145,4 +145,6 @@ message Variant {
 
   google.protobuf.Timestamp updated_at = 18;
 
+  string barcode = 19;
+
 }

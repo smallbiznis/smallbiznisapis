@@ -90,6 +90,8 @@ message AddVariantRequest {
 
   repeated AddInventoryItemRequest inventory_items = 12;
 
+  string barcode = 13;
+
 }
 
 message AddProductRequest {

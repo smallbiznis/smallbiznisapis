@@ -46,12 +46,16 @@ message GetStaffRequest {
 message AddStaffRequest {
   string user_id = 1;
   string organizatin_id = 2;
-  repeated Role roles = 3;
+  bool is_all_location = 3;
+  repeated string location_ids = 4;
+  repeated Role roles = 5;
 }
 
 message UpdateStaffRequest {
   string staff_id = 1;
-  repeated Role roles = 2;
+  bool is_all_location = 2;
+  repeated string location_ids = 3;
+  repeated Role roles = 4;
 }
 
 message DeleteStaffRequest {

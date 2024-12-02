@@ -25,16 +25,18 @@ message Staff {
 
   smallbiznis.user.v1.User user = 3;
 
-  repeated string location_ids = 4;
+  bool is_all_location = 4;
 
-  repeated Role roles = 5;
+  repeated string location_ids = 5;
+
+  repeated Role roles = 6;
   
-  string passcode = 6;
+  string passcode = 7;
 
-  google.protobuf.Timestamp last_update_passcode = 7;
+  google.protobuf.Timestamp last_update_passcode = 8;
 
-  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp created_at = 9;
 
-  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
 
 }

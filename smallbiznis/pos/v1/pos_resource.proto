@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package smallbiznis.pos.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/pos/v1;pos";
+
+import "smallbiznis/organization/v1/organization.proto";
+import "smallbiznis/user/v1/user.proto";
+
+import "google/protobuf/timestamp.proto";
+
+enum Role {
+  ROLE_ADMIN = 0;
+  
+  ROLE_MANAGER = 1;
+
+  ROLE_STAFF = 2;
+}
+
+message Staff {
+
+  string staff_id = 1;
+
+  smallbiznis.organization.v1.Organization organization = 2;
+
+  smallbiznis.user.v1.User user = 3;
+
+  repeated string location_ids = 4;
+
+  repeated Role roles = 5;
+  
+  string passcode = 6;
+
+  google.protobuf.Timestamp last_update_passcode = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
+
+}

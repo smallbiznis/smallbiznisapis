@@ -30,13 +30,9 @@ message Staff {
   repeated string location_ids = 5;
 
   repeated Role roles = 6;
-  
-  string passcode = 7;
 
-  google.protobuf.Timestamp last_update_passcode = 8;
+  google.protobuf.Timestamp created_at = 7;
 
-  google.protobuf.Timestamp created_at = 9;
-
-  google.protobuf.Timestamp updated_at = 10;
+  google.protobuf.Timestamp updated_at = 8;
 
 }

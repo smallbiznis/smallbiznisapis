@@ -56,9 +56,29 @@ message UpdateStaffRequest {
   bool is_all_location = 2;
   repeated string location_ids = 3;
   repeated Role roles = 4;
-}
+} 
 
 message DeleteStaffRequest {
+  string staff_id = 1;
+}
+
+message LookupPasscodeRequest {
+  string staff_id = 1;
+}
+
+message LookupPasscodeResponse {
+  bool hasPasscode = 1;
+}
+
+message VerifyPasscodeRequest {
+  string staff_id = 1;
+}
+
+message VerifyPasscodeResponse {
+  bool isPasscodeValid = 1;
+}
+
+message RegisterPasscodeRequest {
   string staff_id = 1;
 }
 
@@ -93,6 +113,24 @@ service Service {
   rpc DeleteMember(DeleteStaffRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/v1/staffs/{staff_id}"
+    };
+  }
+
+  rpc LookupPasscode(LookupPasscodeRequest) returns (LookupPasscodeResponse) {
+    option (google.api.http) = {
+      get: "/v1/staffs/{staff_id}/passcode/lookup"
+    };
+  }
+
+  rpc VerifyPasscode(VerifyPasscodeRequest) returns (VerifyPasscodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/staffs/{staff_id}/passcode/verify"
+    };
+  }
+
+  rpc RegisterPasscode(RegisterPasscodeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/staffs/{staff_id}/passcode/register"
     };
   }
 

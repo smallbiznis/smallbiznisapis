@@ -63,7 +63,8 @@ message DeleteStaffRequest {
 }
 
 message LookupPasscodeRequest {
-  string staff_id = 1;
+  string organization_id = 1;
+  string user_id = 2;
 }
 
 message LookupPasscodeResponse {
@@ -71,8 +72,9 @@ message LookupPasscodeResponse {
 }
 
 message VerifyPasscodeRequest {
-  string staff_id = 1;
-  string passcode = 2;
+  string organization_id = 1;
+  string user_id = 2;
+  string passcode = 3;
 }
 
 message VerifyPasscodeResponse {
@@ -80,8 +82,9 @@ message VerifyPasscodeResponse {
 }
 
 message RegisterPasscodeRequest {
-  string staff_id = 1;
-  string passcode = 2;
+  string organization_id = 1;
+  string user_id = 2;
+  string passcode = 3;
 }
 
 service Service {
@@ -120,19 +123,19 @@ service Service {
 
   rpc LookupPasscode(LookupPasscodeRequest) returns (LookupPasscodeResponse) {
     option (google.api.http) = {
-      get: "/v1/staffs/{staff_id}/passcode/lookup"
+      get: "/v1/passcode/lookup"
     };
   }
 
   rpc VerifyPasscode(VerifyPasscodeRequest) returns (VerifyPasscodeResponse) {
     option (google.api.http) = {
-      post: "/v1/staffs/{staff_id}/passcode/verify"
+      post: "/v1/passcode/verify"
     };
   }
 
   rpc RegisterPasscode(RegisterPasscodeRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/v1/staffs/{staff_id}/passcode/register"
+      post: "/v1/passcode/register"
     };
   }
 

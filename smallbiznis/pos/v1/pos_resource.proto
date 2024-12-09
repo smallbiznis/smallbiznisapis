@@ -21,9 +21,9 @@ message Staff {
 
   string staff_id = 1;
 
-  smallbiznis.organization.v1.Organization organization = 2;
+  string organization_id = 2;
 
-  smallbiznis.user.v1.User user = 3;
+  string user_id = 3;
 
   bool is_all_location = 4;
 

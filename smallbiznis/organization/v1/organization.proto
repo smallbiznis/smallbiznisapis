@@ -177,6 +177,10 @@ message ListLocationRequest {
 
   string organization_id = 5;
 
+  string location_id = 6;
+
+  string location_ids = 7;
+
 }
 
 message ListLocationResponse {

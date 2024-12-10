@@ -130,12 +130,14 @@ service Service {
   rpc VerifyPasscode(VerifyPasscodeRequest) returns (VerifyPasscodeResponse) {
     option (google.api.http) = {
       post: "/v1/passcode/verify"
+      body: "*"
     };
   }
 
   rpc RegisterPasscode(RegisterPasscodeRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/v1/passcode/register"
+      body: "*"
     };
   }
 

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package smallbiznis.payment.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/payment/v1;payment";
+
+import "smallbiznis/payment/v1/payment_resource.proto";
+import "google/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";

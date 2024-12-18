@@ -9,6 +9,28 @@ import "google/protobuf/empty.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
+message Token {
+
+  string organization_id = 1;
+
+  string location_id = 2;
+
+  string user_id = 3;
+
+  string token = 4;
+
+}
+
+enum ResourceType {
+  Image = 0;
+  Video = 1;
+}
+
+message Resource {
+  ResourceType type = 1;
+  string url = 2;
+}
+
 message Notification {
 
   string notification_id = 1;
@@ -17,14 +39,16 @@ message Notification {
 
   string organization_id = 3 [(google.api.field_behavior) = REQUIRED];
 
-  string title = 4 [(google.api.field_behavior) = REQUIRED];
+  string location_id = 4 [(google.api.field_behavior) = REQUIRED];
 
-  string body_html = 5 [(google.api.field_behavior) = REQUIRED];
+  string title = 5 [(google.api.field_behavior) = REQUIRED];
 
-  bool unread = 6;
+  string body_html = 6 [(google.api.field_behavior) = REQUIRED];
 
-  google.protobuf.Timestamp created_at = 7;
+  bool unread = 7;
 
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
 
 }

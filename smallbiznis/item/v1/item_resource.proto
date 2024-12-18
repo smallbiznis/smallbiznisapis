@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package smallbiznis.item.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/item/v1;item";
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+message Category {
+
+  string category_id = 1;
+
+  string organization_id = 2;
+
+  string parent_id = 3;
+
+  string name = 4;
+
+  repeated Category children = 5;
+
+}
+
+enum Type {
+
+  physic = 0;
+
+  menu = 1;
+
+}
+
+enum Status {
+
+  active = 0;
+
+  draft = 1;
+
+  archived = 2;
+
+}
+
+message Option {
+
+  string option_id = 1;
+
+  string organization_id = 2;
+
+  string option_name = 3;
+
+  repeated string option_values = 4;
+
+}
+
+message Tag {
+
+  string tag_id = 1;
+
+  string organization_id = 2;
+
+  string value = 3;
+
+}
+
+message Item {
+
+  string item_id = 1;
+
+  string organization_id = 2;
+
+  Type type = 3;
+
+  string slug = 4;
+
+  string title = 5;
+
+  string body_html = 6;
+
+  Status status = 7;
+
+  message Option {
+
+    string option_id = 1;
+
+    string option_name = 2;
+
+    int32 position = 3;
+
+    repeated string values = 4;
+
+  }
+
+  repeated Option options = 8;
+
+  repeated Variant variants = 9;
+
+  repeated string tags = 10;
+
+  google.protobuf.Timestamp created_at = 11;
+
+  google.protobuf.Timestamp updated_at = 12;
+
+}
+
+enum WeightUnit {
+
+  kg = 0;
+
+  g = 1;
+
+}
+
+message Variant {
+
+  string variant_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string item_id = 2;
+
+  string sku = 4;
+
+  string title = 5;
+
+  bool taxable = 6;
+
+  float price = 7;
+
+  float compare_at_price = 8;
+
+  float cost = 9;
+
+  float profit = 10;
+
+  float margin = 12;
+
+  float weight = 13;
+
+  WeightUnit weight_unit = 14;
+
+  repeated string attributes = 15;
+
+  google.protobuf.Timestamp created_at = 17;
+
+  google.protobuf.Timestamp updated_at = 18;
+
+  string barcode = 19;
+
+}

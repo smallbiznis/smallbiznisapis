@@ -7,7 +7,7 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
-message InventoryItem {
+message Inventory {
 
   string inventory_item_id = 1;
 
@@ -15,15 +15,45 @@ message InventoryItem {
 
   string location_id = 3;
 
-  string variant_id = 4;
+  string item_id = 4;
 
-  Variant variant = 5;
+  int32 quantity = 6;
 
-  int32 total_stock = 6;
+  int32 reserved_quantity = 7;
 
-  int32 reserved_stock = 7;
+  google.protobuf.Timestamp created_at = 8;
 
-  int32 reorder_level = 8;
+  google.protobuf.Timestamp updated_at = 9;
+
+}
+
+enum MovemenType {
+  
+  inbound = 0;
+
+  outbound = 1;
+
+  transfer = 2;
+
+}
+
+message StockMovement {
+
+  string stock_movement_id = 1;
+
+  string organization_id = 2;
+
+  string item_id = 3;
+
+  string location_id = 4;
+
+  MovemenType movement_type = 5;
+
+  int32 quantity = 6;
+
+  string related_order_id = 7;
+
+  string note = 8;
 
   google.protobuf.Timestamp created_at = 9;
 
@@ -31,120 +61,84 @@ message InventoryItem {
 
 }
 
-enum Status {
+enum FulfilmentStatus {
 
-  active = 0;
+  not_fulfilled = 0;
 
-  draft = 1;
+  partially_fulfilled = 1;
 
-  archived = 2;
+  fulfilled = 2;
+
+  failed = 3;
 
 }
 
-message Option {
+message FulfillmentOrder {
 
-  string option_id = 1;
+  string fulfillment_order_id = 1;
 
   string organization_id = 2;
 
-  string option_name = 3;
+  string order_id = 3;
 
-  repeated string option_values = 4;
+  string location_id = 4;
+
+  FulfilmentStatus status = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+
+  google.protobuf.Timestamp updated_at = 7;
 
 }
 
-message Tag {
+message FulfilmentItem {
 
-  string tag_id = 1;
+  string fulfillment_item_id = 1;
 
   string organization_id = 2;
 
-  string name = 3;
+  string fulfillment_order_id = 3;
+
+  string item_id = 4;
+
+  int32 quantity = 5;
+
+  int32 shipped_quantity = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
 
 }
 
-message Product {
+enum ChangeType {
 
-  string product_id = 1;
+  increment = 0;
+
+  decrement = 1;
+
+  adjustment = 2;
+
+}
+
+message InventoryLog {
+
+  string id = 1;
 
   string organization_id = 2;
 
-  string slug = 3;
+  string item_id = 3;
 
-  string title = 4;
+  string location_id = 4;
 
-  string body_html = 5;
+  ChangeType change_type = 5;
 
-  Status status = 6;
+  int32 quantity_change = 6;
 
-  message Option {
+  string reason = 7;
 
-    string option_id = 1;
+  google.protobuf.Timestamp created_at = 8;
 
-    string option_name = 2;
-
-    int32 position = 3;
-
-    repeated string values = 4;
-
-  }
-
-  repeated Option options = 7;
-
-  repeated Variant variants = 8;
-
-  repeated string tags = 9;
-
-  google.protobuf.Timestamp created_at = 10;
-
-  google.protobuf.Timestamp updated_at = 11;
-
-}
-
-enum WeightUnit {
-
-  kg = 0;
-
-  g = 1;
-
-}
-
-message Variant {
-
-  string variant_id = 1 [(google.api.field_behavior) = REQUIRED];
-
-  string product_id = 2;
-
-  Product product = 3;
-
-  string sku = 4;
-
-  string title = 5;
-
-  bool taxable = 6;
-
-  float price = 7;
-
-  float compare_at_price = 8;
-
-  float cost = 9;
-
-  float profit = 10;
-
-  float margin = 12;
-
-  float weight = 13;
-
-  WeightUnit weight_unit = 14;
-
-  repeated string attributes = 15;
-
-  repeated InventoryItem inventory_items = 16;
-
-  google.protobuf.Timestamp created_at = 17;
-
-  google.protobuf.Timestamp updated_at = 18;
-
-  string barcode = 19;
+  google.protobuf.Timestamp updated_at = 9;
 
 }

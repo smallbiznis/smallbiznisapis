@@ -1,0 +1,220 @@
+syntax = "proto3";
+
+package smallbiznis.item.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/item/v1;item";
+
+import "smallbiznis/item/v1/item_resource.proto";
+import "google/protobuf/empty.proto";
+
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
+
+// Product
+message ListItemRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
+
+  string status = 6 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message ListItemResponse {
+  repeated Item data = 1;
+  int32 total_data = 2;
+}
+
+message AddOptionRequest {
+
+  string option_id = 1;
+
+  string option_key = 2;
+
+  string option_name = 3;
+
+  int32 position = 4;
+
+  repeated string values = 5;
+
+}
+
+message AddInventoryItemRequest {
+
+  string location_id = 1;
+
+  int32 total_stock = 2;
+
+  int32 reorder_level = 3;
+
+}
+
+message AddVariantRequest {
+
+  string sku = 1;
+
+  string title = 2;
+
+  bool taxable = 3;
+
+  float price = 4;
+
+  float cost = 5;
+
+  float compare_at_price = 6;
+
+  float profit = 7;
+
+  float margin = 8;
+
+  float weight = 9;
+
+  WeightUnit weight_unit = 10;
+
+  repeated string attributes = 11;
+
+  repeated AddInventoryItemRequest inventory_items = 12;
+
+  string barcode = 13;
+
+}
+
+message AddItemRequest {
+
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string title = 2 [(google.api.field_behavior) = REQUIRED];
+
+  string slug = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  string body_html = 4 [(google.api.field_behavior) = REQUIRED];
+
+  float price = 5 [(google.api.field_behavior) = REQUIRED];
+
+  float cost = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  repeated AddOptionRequest options = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  repeated AddVariantRequest variants = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  Status status = 9 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+message GetItemRequest {
+  string item_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DeleteItemrequest {
+  string item_id = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// Variant
+message ListVariantRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
+
+  repeated string location_ids = 6 [(google.api.field_behavior) = OPTIONAL];
+
+}
+
+message ListVariantResponse {
+
+  repeated Variant data = 1;
+
+  int32 total_data = 2;
+
+}
+
+message GetVariantRequest {
+
+  string variant_id = 1 [(google.api.field_behavior) = REQUIRED];
+
+}
+
+service Service {
+
+  rpc ListItem(ListItemRequest) returns (ListItemResponse) {
+    option (google.api.http) = {
+      get: "/v1/items"
+    };
+  }
+
+  rpc GetItem(GetItemRequest) returns (Item) {
+    option (google.api.http) = {
+      get: "/v1/items/{item_id}"
+    };
+  }
+
+  rpc AddItem(AddItemRequest) returns (Item) {
+    option (google.api.http) = {
+      post: "/v1/items",
+      body: "*"
+    };
+  }
+
+  rpc UpdateItem(Item) returns (Item) {
+    option (google.api.http) = {
+      put: "/v1/items/{item_id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteItem(DeleteItemrequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/items/{item_id}"
+    };
+  }
+
+  rpc ListVariant(ListVariantRequest) returns (ListVariantResponse) {
+    option (google.api.http) = {
+      get: "/v1/variants"
+    };
+  }
+
+  // Variant
+  rpc GetVariant(GetVariantRequest) returns (Variant) {
+    option (google.api.http) = {
+      get: "/v1/variants/{variant_id}"
+    };
+  }
+
+  rpc UpdateVariant(Variant) returns (Variant) {
+    option (google.api.http) = {
+      put: "/v1/variants/{variant_id}"
+      body: "*"
+    };
+  }
+
+}

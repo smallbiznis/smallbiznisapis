@@ -10,161 +10,8 @@ import "google/protobuf/empty.proto";
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
 
-// Product
-message ListProductRequest {
-
-  int32 page = 1;
-
-  int32 size = 2;
-
-  string sort_by = 3;
-
-  enum OrderBy {
-
-    ASC = 0;
-
-    DESC = 1;
-
-  }
-
-  OrderBy order_by = 4;
-
-  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
-
-  string status = 6 [(google.api.field_behavior) = REQUIRED];
-
-}
-
-message ListProductResponse {
-  repeated Product data = 1;
-  int32 total_data = 2;
-}
-
-message AddOptionRequest {
-
-  string option_id = 1;
-
-  string option_key = 2;
-
-  string option_name = 3;
-
-  int32 position = 4;
-
-  repeated string values = 5;
-
-}
-
-message AddInventoryItemRequest {
-
-  string location_id = 1;
-
-  int32 total_stock = 2;
-
-  int32 reorder_level = 3;
-
-}
-
-message AddVariantRequest {
-
-  string sku = 1;
-
-  string title = 2;
-
-  bool taxable = 3;
-
-  float price = 4;
-
-  float cost = 5;
-
-  float compare_at_price = 6;
-
-  float profit = 7;
-
-  float margin = 8;
-
-  float weight = 9;
-
-  WeightUnit weight_unit = 10;
-
-  repeated string attributes = 11;
-
-  repeated AddInventoryItemRequest inventory_items = 12;
-
-  string barcode = 13;
-
-}
-
-message AddProductRequest {
-
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
-
-  string title = 2 [(google.api.field_behavior) = REQUIRED];
-
-  string slug = 3 [(google.api.field_behavior) = OPTIONAL];
-
-  string body_html = 4 [(google.api.field_behavior) = REQUIRED];
-
-  float price = 5 [(google.api.field_behavior) = REQUIRED];
-
-  float cost = 6 [(google.api.field_behavior) = OPTIONAL];
-
-  repeated AddOptionRequest options = 7 [(google.api.field_behavior) = OPTIONAL];
-
-  repeated AddVariantRequest variants = 8 [(google.api.field_behavior) = OPTIONAL];
-
-  Status status = 9 [(google.api.field_behavior) = REQUIRED];
-
-}
-
-message GetProductRequest {
-  string product_id = 1 [(google.api.field_behavior) = REQUIRED];
-}
-
-message DeleteProductrequest {
-  string product_id = 1 [(google.api.field_behavior) = REQUIRED];
-}
-
-// Variant
-message ListVariantRequest {
-
-  int32 page = 1;
-
-  int32 size = 2;
-
-  string sort_by = 3;
-
-  enum OrderBy {
-
-    ASC = 0;
-
-    DESC = 1;
-
-  }
-
-  OrderBy order_by = 4;
-
-  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
-
-  repeated string location_ids = 6 [(google.api.field_behavior) = OPTIONAL];
-
-}
-
-message ListVariantResponse {
-
-  repeated Variant data = 1;
-
-  int32 total_data = 2;
-
-}
-
-message GetVariantRequest {
-
-  string variant_id = 1 [(google.api.field_behavior) = REQUIRED];
-
-}
-
 // Inventory
-message ListInventoryItemRequest {
+message ListInventoryRequest {
 
   int32 page = 1;
 
@@ -188,8 +35,8 @@ message ListInventoryItemRequest {
 
 }
 
-message ListInventoryItemResponse {
-  repeated InventoryItem data = 1;
+message ListInventoryResponse {
+  repeated Inventory data = 1;
   int32 total_data = 2;
 }
 
@@ -237,80 +84,27 @@ message ReleaseStockRequest {
 
 service Service {
 
-  // Product
-  rpc ListProduct(ListProductRequest) returns (ListProductResponse) {
-    option (google.api.http) = {
-      get: "/v1/products"
-    };
-  }
-
-  rpc GetProduct(GetProductRequest) returns (Product) {
-    option (google.api.http) = {
-      get: "/v1/products/{product_id}"
-    };
-  }
-
-  rpc AddProduct(AddProductRequest) returns (Product) {
-    option (google.api.http) = {
-      post: "/v1/products",
-      body: "*"
-    };
-  }
-
-  rpc UpdateProduct(Product) returns (Product) {
-    option (google.api.http) = {
-      put: "/v1/products/{product_id}"
-      body: "*"
-    };
-  }
-
-  rpc DeleteProduct(DeleteProductrequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/products/{product_id}"
-    };
-  }
-
-  rpc ListVariant(ListVariantRequest) returns (ListVariantResponse) {
-    option (google.api.http) = {
-      get: "/v1/variants"
-    };
-  }
-
-  // Variant
-  rpc GetVariant(GetVariantRequest) returns (Variant) {
-    option (google.api.http) = {
-      get: "/v1/variants/{variant_id}"
-    };
-  }
-
-  rpc UpdateVariant(Variant) returns (Variant) {
-    option (google.api.http) = {
-      put: "/v1/variants/{variant_id}"
-      body: "*"
-    };
-  }
-
   // Inventory
-  rpc ListInventoryItem(ListInventoryItemRequest) returns (ListInventoryItemResponse) {
+  rpc ListInventory(ListInventoryRequest) returns (ListInventoryResponse) {
     option (google.api.http) = {
       get: "/v1/inventories"
     };
   }
 
-  rpc GetInventoryItem(GetInventoryRequest) returns (InventoryItem) {
+  rpc GetInventory(GetInventoryRequest) returns (Inventory) {
     option (google.api.http) = {
       get: "/v1/inventories/{inventory_item_id}"
     };
   }
 
-  rpc CreateInventoryItem(InventoryItem) returns (InventoryItem) {
+  rpc CreateInventory(Inventory) returns (Inventory) {
     option (google.api.http) = {
       post: "/v1/inventories"
       body: "*"
     };
   }
 
-  rpc UpdateInventoryItem(InventoryItem) returns (InventoryItem) {
+  rpc UpdateInventory(Inventory) returns (Inventory) {
     option (google.api.http) = {
       put: "/v1/inventories/{inventory_item_id}"
       body: "*"

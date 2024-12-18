@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package smallbiznis.inventory.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1;inventory";
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+
+enum PaymentMethod {
+
+  credit_card = 0;
+
+  cash = 1;
+
+}
+
+enum PaymentStatus {
+
+  unpaid = 0;
+
+  paid = 1;
+
+  refunded = 2;
+
+}
+
+message Payment {
+
+  string payment_id = 1;
+
+  string order_id = 2;
+
+  PaymentMethod payment_method = 3;
+
+  float amount = 4;
+
+  PaymentStatus status = 5;
+
+  map<string, google.protobuf.Any> metadata = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
+
+}

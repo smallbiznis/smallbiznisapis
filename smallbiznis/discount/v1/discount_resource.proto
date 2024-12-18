@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package smallbiznis.discount.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/discount/v1;discount";
+
+import "google/type/date.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+enum Type {
+
+  fixed = 0;
+
+  percentage = 1;
+
+}
+
+enum Status {
+
+  active = 0;
+
+  draft = 1;
+
+  archived = 2;
+
+}
+
+message Discount {
+
+  string discount_id = 1;
+
+  string organization_id = 2;
+
+  string name = 3;
+
+  Type type = 4;
+
+  float value = 5;
+
+  Status status = 6;
+
+  google.type.Date start_date = 7;
+
+  google.type.Date end_date = 8;
+
+  repeated DiscountRule rules = 9;
+
+  google.protobuf.Timestamp created_at = 10;
+
+  google.protobuf.Timestamp updated_at = 11;
+
+}
+
+message DiscountRule {
+
+  string discount_rule_id = 1;
+
+  string parent_id = 2;
+
+  string rule_type = 3;
+
+  string rule_value = 4;
+
+  string operator = 5;
+
+  string additional_info = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
+
+  repeated DiscountConditions conditions = 9;
+
+}
+
+message DiscountConditions {
+
+  string discount_condition_id = 1;
+
+  string rule_id = 2;
+
+  string condition_key = 3;
+
+  string condition_value = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+
+  google.protobuf.Timestamp updated_at = 6;
+
+}

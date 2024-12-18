@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package smallbiznis.discount.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/discount/v1;discount";
+
+import "smallbiznis/discount/v1/discount_resource.proto";
+import "google/protobuf/empty.proto";
+
+import "google/type/date.proto";
+import "google/api/field_behavior.proto";
+import "google/api/annotations.proto";
+
+message ListDiscountRequest {
+
+  int32 page = 1;
+
+  int32 size = 2;
+
+  string sort_by = 3;
+
+
+  enum OrderBy {
+
+    ASC = 0;
+
+    DESC = 1;
+
+  }
+
+  OrderBy order_by = 4;
+
+  string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
+
+  string status = 6;
+
+}
+
+message ListDiscountResponse {
+
+  repeated Discount data = 1;
+
+  int32 total_data = 2;
+
+}
+
+message GetDiscountRequest {
+  string discount_id = 1;
+}
+
+message CreateDiscountRequest {
+
+  string organization_id = 1;
+
+  string name = 2;
+
+  Type type = 3;
+
+  float value = 4;
+
+  Status status = 5;
+
+  google.type.Date start_date = 6;
+
+  google.type.Date end_date = 7;
+
+  repeated CreateDiscountRule rules = 8;
+
+}
+
+message CreateDiscountRule {
+
+  string rule_type = 1;
+
+  string rule_value = 2;
+
+  string operator = 3;
+
+  string additional_info = 4;
+
+  repeated CreateDiscountCondition conditions = 5;
+
+}
+
+message CreateDiscountCondition {
+
+  string condition_key = 1;
+
+  string condition_value = 2;
+
+}
+
+service Service {
+  
+  rpc ListDiscount(ListDiscountRequest) returns (ListDiscountResponse) {
+    option (google.api.http) = {
+      get: "/v1/discounts"
+    };
+  }
+
+  rpc GetDiscount(GetDiscountRequest) returns (Discount) {
+    option (google.api.http) = {
+      get: "/v1/discounts/{discount_id}"
+    };
+  }
+
+  rpc CreateDiscount(CreateDiscountRequest) returns (Discount) {
+    option (google.api.http) = {
+      post: "/v1/discounts"
+      body: "*"
+    };
+  }
+
+  rpc UpdateDiscount(Discount) returns (Discount) {
+    option (google.api.http) = {
+      put: "/v1/discounts/{discount_id}"
+      body: "*"
+    };
+  }
+
+}

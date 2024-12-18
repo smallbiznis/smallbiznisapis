@@ -4,60 +4,33 @@ package smallbiznis.transaction.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/transaction/v1;transaction";
 
-import "smallbiznis/customer/v1/customer_resource.proto";
-
+import "google/type/date.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
-message OrderShipping {
+enum OrderStatus {
 
-  string shipping_rate_id = 1;
+  draft = 0;
 
-}
+  created = 1;
 
-enum PaymentStatus {
+  confirmed = 2;
 
-  Pending = 0;
+  cancelled = 3;
 
-  Unpaid = 1;
-
-  Paid = 2;
-
-  Expired = 3;
+  completed = 4;
 
 }
 
-message OrderPayment {
+enum FulfillmentStatus {
 
-  string payment_method = 1;
+  not_fulfilled = 0;
 
-  PaymentStatus status = 2;
+  partial_fulfilled = 1;
 
-}
+  fulfilled = 2;
 
-message OrderTax {
-
-  float tax_rate_id = 1;
-
-  float tax_amount = 2;
-
-}
-
-enum FulfilmentStatus {
-
-  Fulfilled = 0;
-
-  Unfulfilled = 1;
-
-  OnHold = 2;
-
-}
-
-message OrderFulfillment {
-
-  string tracking_number = 1;
-
-  FulfilmentStatus status = 2;
+  failed = 3;
 
 }
 
@@ -67,37 +40,19 @@ message Order {
 
   string organization_id = 2;
 
-  smallbiznis.customer.v1.Customer customer = 3;
+  string customer_id = 3;
 
-  smallbiznis.customer.v1.Address address = 4;
+  string sales_channel_id = 4;
 
   string order_no = 5;
 
   float sub_total = 6;
 
-  OrderTax tax = 7;
+  float tax_amount = 7;
 
-  float grand_total = 8;
+  float total_amount = 8;
 
-  OrderPayment payment = 9;
-
-  OrderShipping shipping = 10;
-
-  OrderFulfillment fulfillment = 11;
-
-  enum Status {
-
-    draft = 0;
-
-    open = 1;
-
-    canceled = 2;
-
-    archived = 3;
-
-  }
-
-  Status status = 12;
+  OrderStatus status = 12;
 
   google.protobuf.Timestamp created_at = 13;
 
@@ -115,16 +70,18 @@ message OrderItem {
 
   string item_id = 3;
 
-  int32 quantity = 4;
+  string item_name = 4;
 
-  float unit_price = 5;
+  int32 quantity = 5;
 
-  float tax_amount = 6;
+  float unit_price = 6;
 
-  float total_price = 7;
+  float tax_amount = 7;
 
-  google.protobuf.Timestamp created_at = 8;
+  float total_price = 8;
 
-  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp created_at = 9;
+
+  google.protobuf.Timestamp updated_at = 10;
 
 }

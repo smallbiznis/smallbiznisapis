@@ -33,6 +33,8 @@ message ListInventoryRequest {
 
   repeated string location_ids = 6 [(google.api.field_behavior) = OPTIONAL];
 
+  string item_id = 7;
+
 }
 
 message ListInventoryResponse {

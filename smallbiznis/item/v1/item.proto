@@ -4,6 +4,7 @@ package smallbiznis.item.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/item/v1;item";
 
+import "smallbiznis/inventory/v1/inventory_resource.proto";
 import "smallbiznis/item/v1/item_resource.proto";
 import "google/protobuf/empty.proto";
 
@@ -88,7 +89,7 @@ message AddVariantRequest {
 
   repeated string attributes = 11;
 
-  repeated AddInventoryItemRequest inventory_items = 12;
+  repeated smallbiznis.inventory.v1.Inventory inventory_items = 12;
 
   string barcode = 13;
 

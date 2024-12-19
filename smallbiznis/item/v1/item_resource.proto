@@ -4,6 +4,7 @@ package smallbiznis.item.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/item/v1;item";
 
+import "smallbiznis/inventory/v1/inventory_resource.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -144,5 +145,7 @@ message Variant {
   string barcode = 19;
 
   int32 preparation_time = 20;
+
+  repeated smallbiznis.inventory.v1.Inventory inventories = 21;
 
 }

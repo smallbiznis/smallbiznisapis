@@ -32,7 +32,7 @@ message ListItemRequest {
 
   string organization_id = 5 [(google.api.field_behavior) = REQUIRED];
 
-  string status = 6 [(google.api.field_behavior) = REQUIRED];
+  Type status = 6 [(google.api.field_behavior) = REQUIRED];
 
 }
 
@@ -114,6 +114,8 @@ message AddItemRequest {
   repeated AddVariantRequest variants = 8 [(google.api.field_behavior) = OPTIONAL];
 
   Status status = 9 [(google.api.field_behavior) = REQUIRED];
+
+  Type type = 10 [(google.api.field_behavior) = REQUIRED];
 
 }
 

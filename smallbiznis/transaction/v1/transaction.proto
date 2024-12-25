@@ -5,8 +5,8 @@ package smallbiznis.transaction.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/transaction/v1;transaction";
 
 import "smallbiznis/transaction/v1/transaction_resource.proto";
-import "google/protobuf/empty.proto";
 
+import "google/protobuf/empty.proto";
 import "google/api/field_behavior.proto";
 import "google/api/annotations.proto";
 
@@ -125,6 +125,12 @@ message CreateOrderRequest {
   AddShippingMethod shipping_provider = 7;
 
   AddPaymentProvider payment_provider = 8;
+
+  int32 sub_total = 9;
+
+  int32 tax_amount = 10;
+
+  int32 total_amount = 11;
 
 }
 

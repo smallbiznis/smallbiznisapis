@@ -44,21 +44,25 @@ message Order {
 
   string sales_channel_id = 4;
 
-  string order_no = 5;
+  string billing_address_id = 5;
 
-  float sub_total = 6;
+  string shipping_payment_id = 6;
 
-  float tax_amount = 7;
+  string order_no = 7;
 
-  float total_amount = 8;
+  float sub_total = 8;
 
-  OrderStatus status = 12;
+  float tax_amount = 9;
 
-  google.protobuf.Timestamp created_at = 13;
+  float total_amount = 10;
 
-  google.protobuf.Timestamp updated_at = 14;
+  OrderStatus status = 11;
 
-  repeated OrderItem order_items = 15;
+  google.protobuf.Timestamp created_at = 12;
+
+  google.protobuf.Timestamp updated_at = 13;
+
+  repeated OrderItem order_items = 14;
 
 }
 

@@ -89,7 +89,7 @@ message AddVariantRequest {
 
   repeated string attributes = 11;
 
-  repeated smallbiznis.inventory.v1.Inventory inventory_items = 12;
+  repeated smallbiznis.inventory.v1.Inventory inventories = 12;
 
   string barcode = 13;
 

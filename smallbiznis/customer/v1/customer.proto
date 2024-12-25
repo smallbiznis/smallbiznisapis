@@ -71,7 +71,9 @@ message ListAddressRequest {
 
   OrderBy order_by = 4;
 
-  string customer_id = 5 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 5;
+
+  string customer_id = 6;
 
 }
 

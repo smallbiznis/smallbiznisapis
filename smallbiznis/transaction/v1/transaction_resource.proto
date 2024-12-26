@@ -46,7 +46,7 @@ message Order {
 
   string billing_address_id = 5;
 
-  string shipping_payment_id = 6;
+  string shipping_address_id = 6;
 
   string order_no = 7;
 

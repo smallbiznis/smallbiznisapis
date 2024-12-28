@@ -50,7 +50,7 @@ enum Interval {
 
 message AppPlan {
 
-  string app_plan_id = 1;
+  string id = 1;
 
   string app_id = 2;
 
@@ -72,7 +72,7 @@ message AppPlan {
 
 message AppInstallation {
 
-  string app_installation_id = 1;
+  string id = 1;
 
   string organization_id = 2;
 

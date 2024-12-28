@@ -116,21 +116,25 @@ message CreateOrderRequest {
 
   AddCustomerRequest customer = 3 [(google.api.field_behavior) = OPTIONAL];
 
-  string shipping_address_id = 4 [(google.api.field_behavior) = OPTIONAL];
+  string billing_address_id = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  AddShippingAddressRequest shipping_address = 5 [(google.api.field_behavior) = OPTIONAL];
+  AddShippingAddressRequest billing_address = 5 [(google.api.field_behavior) = OPTIONAL];
 
-  repeated AddItemRequest order_items = 6 [(google.api.field_behavior) = REQUIRED];
+  string shipping_address_id = 6 [(google.api.field_behavior) = OPTIONAL];
 
-  AddShippingMethod shipping_provider = 7;
+  AddShippingAddressRequest shipping_address = 7 [(google.api.field_behavior) = OPTIONAL];
 
-  AddPaymentProvider payment_provider = 8;
+  repeated AddItemRequest order_items = 8 [(google.api.field_behavior) = REQUIRED];
 
-  int32 sub_total = 9;
+  AddShippingMethod shipping_provider = 9;
 
-  int32 tax_amount = 10;
+  AddPaymentProvider payment_provider = 10;
 
-  int32 total_amount = 11;
+  int32 sub_total = 11;
+
+  int32 tax_amount = 12;
+
+  int32 total_amount = 13;
 
 }
 

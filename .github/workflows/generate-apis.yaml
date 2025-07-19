@@ -1,0 +1,59 @@
+name: Generate APIs
+on:
+  push:
+    branches:
+      - "main"
+permissions:
+  deployments: write
+  contents: write
+  statuses: write
+  actions: write
+  packages: write
+  checks: read
+jobs:
+  build-go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+      - name: Setup Go 1.21.x
+        uses: actions/setup-go@v5
+        with:
+          # Semantic version range syntax or exact version of Go
+          go-version: '1.21.x'
+      - name: Checkout go-genproto
+        uses: actions/checkout@v4
+        with:
+          repository: smallbiznis/go-genproto
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: gen
+      - name: Generate APIs
+        run: |
+          go install \
+          github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway \
+          google.golang.org/grpc/cmd/protoc-gen-go-grpc
+          go install \
+          google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1
+          make LANGUAGE=go OUTPUT=gen 
+      - name: Check for changes
+        id: check_changes
+        run: |
+          cd gen
+          CHANGES=$(git status --porcelain)
+          echo "changes=$(git status --porcelain | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "Detected changes or untracked files:"
+          echo "$CHANGES"
+      - name: No changes detected
+        if: steps.check_changes.outputs.changes == ''
+        run: echo "No changes or untracked files detected, skipping further steps."
+      - name: Commit changes
+        if: steps.check_changes.outputs.changes != ''
+        run: |
+          echo "There are changes or untracked files, proceeding with the next steps."
+          cd gen
+          git config --global user.email "taufiktriantono4@gmail.com"
+          git config --global user.name "Taufik Triantono"
+          git add .
+          git commit -m "regenerate API"
+          git push

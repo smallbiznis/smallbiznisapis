@@ -13,6 +13,7 @@ service Service {
   rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse);
   rpc GetEntry(GetEntryRequest) returns (LedgerEntry);
   rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
 }
 
 message LedgerEntry {
@@ -67,4 +68,14 @@ message VerifyChainRequest {
 message VerifyChainResponse {
   bool valid = 1;
   string message = 2;
+}
+
+message GetBalanceRequest {
+  string user_id = 1;
+  string organization_id = 2;
+}
+
+message GetBalanceResponse {
+  int64 balance = 1;
+  google.protobuf.Timestamp last_updated_at = 2;
 }

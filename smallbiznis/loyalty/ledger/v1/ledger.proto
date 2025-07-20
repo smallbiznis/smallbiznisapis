@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package smallbiznis.loyalty.ledger.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/ledger/v1;ledgerv1";
+
+import "google/protobuf/timestamp.proto";
+import "smallbiznis/common/types.proto";
+
+service Service {
+  rpc AddEntry(AddEntryRequest) returns (LedgerEntry);
+  rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
+  rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse);
+  rpc GetEntry(GetEntryRequest) returns (LedgerEntry);
+  rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
+}
+
+message LedgerEntry {
+  string id = 1;
+  string organization_id = 2;
+  string user_id = 3;
+  smallbiznis.common.TransactionType type = 4;
+  string reference_id = 5;
+  int64 amount = 6;
+  google.protobuf.Timestamp created_at = 7;
+  string prev_hash = 8;
+  string hash = 9;
+  string description = 10;
+  string sub_type = 11; // e.g., "signup_bonus", "manual_adjust", etc.
+  map<string, string> metadata = 12; // optional future-proofing
+}
+
+message AddEntryRequest {
+  string organization_id = 1;
+  string user_id = 2;
+  smallbiznis.common.TransactionType type = 3; // fixed: was undefined type
+  int64 amount = 4;
+  string description = 5;
+  string reference_id = 6;
+  string sub_type = 7;
+  map<string, string> metadata = 8;
+}
+
+message RevertEntryRequest {
+  string entry_id = 1;
+  string reason = 2;
+}
+
+message ListEntriesRequest {
+  string organization_id = 1;
+  string user_id = 2;
+}
+
+message ListEntriesResponse {
+  repeated LedgerEntry data = 1;
+}
+
+message GetEntryRequest {
+  string id = 1;
+}
+
+message VerifyChainRequest {
+  string organization_id = 1;
+  string user_id = 2;
+}
+
+message VerifyChainResponse {
+  bool valid = 1;
+  string message = 2;
+}

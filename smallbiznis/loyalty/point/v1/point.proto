@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package smallbiznis.loyalty.point.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/point/v1;pointv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "smallbiznis/common/types.proto";
+
+message PointTransaction {
+  string id = 1;
+  string user_id = 2;
+  string organization_id = 3;
+  smallbiznis.common.TransactionType type = 4;
+  string reference_id = 5; // e.g., order ID, redeem ID, etc
+  string earning_rule_id = 6;
+  google.protobuf.Struct attributes = 7; // flexible payload (e.g., item list, order info)
+  int64 value = 8; // in point unit, can be negative for deduction
+  smallbiznis.common.RewardType reward_type = 9;
+  double reward_value = 10;
+  string source = 11; // e.g., "order-service", "redeem-service"
+  string reason = 12; // e.g., "Refund Order #123", "Promo", "Manual Adjustment"
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
+}

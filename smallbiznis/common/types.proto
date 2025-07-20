@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package smallbiznis.common;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/common;common";
+
+enum TransactionType {
+  CATEGORY_UNSPECIFIED = 0;
+  EARN = 1;
+  REDEEM = 2;
+  ADJUST = 3;
+  EXPIRATION = 4;
+  REFUND = 5;
+}
+
+enum EarnRuleType {
+  EARN_RULE_TYPE_UNSPECIFIED = 0;
+  TRANSACTION = 1; // default belanja
+  SIGNUP = 2;
+  REFERRAL = 3;
+  BIRTHDAY = 4;
+  CUSTOM_EVENT = 5;
+}
+
+enum RewardType {
+  REWARD_TYPE_UNSPECIFIED = 0;
+  FIXED_POINT = 1;    // Mendapatkan point tetap
+  MULTIPLIER = 2;     // Dikalikan dengan amount (misal: 0.01 * 100_000)
+}
+
+enum RewardUnit {
+  REWARD_UNIT_UNSPECIFIED = 0;
+  POINT = 1;         // Default, satuan poin tetap
+  PERCENTAGE = 2;    // Digunakan untuk multiplier berbasis persen (misal: 1% = 0.01)
+}

@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package smallbiznis.loyalty.rule.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/rule/v1;rulev1";
+
+import "smallbiznis/common/types.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+service EarnRuleService {
+  rpc CreateEarnRules(CreateEarnRuleRequest) returns (EarnRule) {
+    option (google.api.http) = {
+      post: "/v1/earn_rules"
+      body: "*"
+    };
+  };
+
+  rpc ListEarnRules(ListEarnRulesRequest) returns (ListEarnRulesResponse) {
+    option (google.api.http) = {
+      get: "/v1/earn_rules"
+    };
+  };
+
+  rpc UpdateEarnRules(UpdateEarnRuleRequest) returns (EarnRule) {
+    option (google.api.http) = {
+      put: "/v1/earn_rules/{id}"
+      body: "*"
+    };
+  }
+
+  rpc EvaluateEarnRuleS(EvaluateEarnRulesRequest) returns (EvaluateEarnRulesResponse);
+}
+
+message EarnRule {
+  string id = 1;
+  string organization_id = 2;
+  smallbiznis.common.EarnRuleType rule_type = 3;
+  string name = 4;
+  string status = 5;
+  int32 priority = 6; // Semakin kecil semakin tinggi prioritas
+  google.protobuf.Struct expression = 7; // Contoh: "amount >= 100000 && category == 'fashion'"
+  smallbiznis.common.RewardType reward_type = 8;
+  double reward_value = 9; // Bisa 100.0 (FIXED) atau 0.01 (MULTIPLIER)
+  google.protobuf.Timestamp valid_from = 10;
+  google.protobuf.Timestamp valid_until = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+  smallbiznis.common.RewardUnit reward_unit = 14;
+  string code = 15;
+  string is_default = 16;
+}
+
+message CreateEarnRuleRequest {
+  string organization_id = 2;
+  smallbiznis.common.EarnRuleType rule_type = 3;
+  string name = 4;
+  bool active = 5;
+  int32 priority = 6;
+  google.protobuf.Struct expression = 7;
+  smallbiznis.common.RewardType reward_type = 8;
+  double reward_value = 9;
+  google.protobuf.Timestamp valid_from = 10;
+  google.protobuf.Timestamp valid_until = 11;
+  smallbiznis.common.RewardUnit reward_unit = 12;
+}
+
+message UpdateEarnRuleRequest {
+  string id = 1;
+}
+
+message EvaluateEarnRulesRequest {
+  string organization_id = 1;
+  string user_id = 2;
+
+  // Context untuk evaluasi (diparsing sebagai CEL environment)
+  google.protobuf.Struct attributes = 3; // Misal: {"amount": "150000", "category": "fashion", "day_of_week": "FRIDAY"}
+}
+
+message EvaluateEarnRulesResponse {
+  repeated EarnRule matched_rule = 1;
+  int64 total_earned_points = 2;
+}
+
+message ListEarnRulesRequest {
+  string organization_id = 1;
+}
+
+message ListEarnRulesResponse {
+  repeated EarnRule data = 1;
+}

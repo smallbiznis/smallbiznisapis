@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+package smallbiznis.loyalty.reward.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/reward/v1;rewardv1";

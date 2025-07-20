@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package smallbiznis.organization.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/organization/v1;orgv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+service Service {
+
+  rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {
+      post: "/v1/organizations"
+      body: "*"
+    };
+  };
+
+  rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {
+      get: "/v1/organizations/{id}"
+    };
+  }
+
+  rpc ListOrganization(ListOrganizationRequest) returns (ListOrganizationResponse) {
+    option (google.api.http) = {
+      get: "/v1/organizations"
+    };
+  }
+
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {
+      put: "/v1/organizations/{id}",
+      body: "*"
+    };
+  }
+
+}
+
+message Organization {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+  string logo_url = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message CreateOrganizationRequest {
+  string name = 1;
+  string logo_url = 2;
+}
+
+message ListOrganizationRequest {}
+
+message ListOrganizationResponse {
+  repeated Organization data = 1;
+}
+
+message GetOrganizationRequest {
+  string id = 1;
+}
+
+message UpdateOrganizationRequest {
+  string id = 1;
+}

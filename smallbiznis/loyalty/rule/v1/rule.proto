@@ -4,7 +4,7 @@ package smallbiznis.loyalty.rule.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/rule/v1;rulev1";
 
-import "smallbiznis/common/types.proto";
+import "smallbiznis/common/tyenumspes.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";

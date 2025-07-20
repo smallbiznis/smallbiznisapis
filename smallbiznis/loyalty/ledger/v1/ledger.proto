@@ -5,7 +5,7 @@ package smallbiznis.loyalty.ledger.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/ledger/v1;ledgerv1";
 
 import "google/protobuf/timestamp.proto";
-import "smallbiznis/common/types.proto";
+import "smallbiznis/common/enums.proto";
 
 service Service {
   rpc AddEntry(AddEntryRequest) returns (LedgerEntry);

@@ -6,7 +6,7 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/point/v1;poi
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
-import "smallbiznis/common/types.proto";
+import "smallbiznis/common/enums.proto";
 
 message PointTransaction {
   string id = 1;

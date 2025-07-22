@@ -49,7 +49,7 @@ message EarnRule {
   google.protobuf.Timestamp updated_at = 13;
   smallbiznis.common.RewardUnit reward_unit = 14;
   string code = 15;
-  string is_default = 16;
+  bool is_default = 16;
 }
 
 message CreateEarnRuleRequest {

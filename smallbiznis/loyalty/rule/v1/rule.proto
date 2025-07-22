@@ -9,7 +9,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
-service EarnRuleService {
+service Service {
   rpc CreateEarnRules(CreateEarnRuleRequest) returns (EarnRule) {
     option (google.api.http) = {
       post: "/v1/earn_rules"

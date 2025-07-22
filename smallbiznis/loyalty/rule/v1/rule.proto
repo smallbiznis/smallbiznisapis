@@ -43,8 +43,8 @@ message EarnRule {
   google.protobuf.Struct expression = 7; // Contoh: "amount >= 100000 && category == 'fashion'"
   smallbiznis.common.RewardType reward_type = 8;
   double reward_value = 9; // Bisa 100.0 (FIXED) atau 0.01 (MULTIPLIER)
-  google.protobuf.Timestamp valid_from = 10;
-  google.protobuf.Timestamp valid_until = 11;
+  string valid_from = 10;
+  string valid_until = 11;
   google.protobuf.Timestamp created_at = 12;
   google.protobuf.Timestamp updated_at = 13;
   smallbiznis.common.RewardUnit reward_unit = 14;

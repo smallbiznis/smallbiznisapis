@@ -6,16 +6,49 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/point/v1;poi
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
 import "smallbiznis/common/enums.proto";
 
 service Service {
-  rpc PreviewEarning(EarningPreviewRequest) returns (EarningPreviewResponse);
-  rpc CreateEarning(EarningRequest) returns (EarningResponse);
-  rpc GetEarningStatus(StatusEarningRequest) returns (StatusEarningResponse);
+  rpc PreviewEarning(EarningPreviewRequest) returns (EarningPreviewResponse) {
+    option (google.api.http) = {
+      post: "/v1/earning/preview"
+      body: "*"
+    };
+  };
 
-  rpc ValidateRedeem(RedeemValidationRequest) returns (RedeemValidationResponse);
-  rpc RedeemPoint(RedeemRequest) returns (RedeemResponse);
-  rpc GetRedeemStatus(StatusRedeemRequest) returns (StatusRedeemResponse);
+  rpc CreateEarning(EarningRequest) returns (EarningResponse) {
+    option (google.api.http) = {
+      post: "/v1/earning"
+      body: "*"
+    };
+  };
+
+  rpc GetEarningStatus(StatusEarningRequest) returns (StatusEarningResponse) {
+    option (google.api.http) = {
+      get: "/v1/earning/{transaction_id}"
+    };
+  };
+
+  rpc ValidateRedeem(RedeemValidationRequest) returns (RedeemValidationResponse) {
+    option (google.api.http) = {
+      post: "/v1/redeem/validate"
+      body: "*"
+    };
+  };
+
+  rpc RedeemPoint(RedeemRequest) returns (RedeemResponse) {
+    option (google.api.http) = {
+      post: "/v1/redeem"
+      body: "*"
+    };
+  };
+
+  rpc GetRedeemStatus(StatusRedeemRequest) returns (StatusRedeemResponse) {
+    option (google.api.http) = {
+      get: "/v1/redeem/{transaction_id}"
+    };
+  };
 }
 
 enum Status {

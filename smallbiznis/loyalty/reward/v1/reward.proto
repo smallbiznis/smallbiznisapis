@@ -3,3 +3,23 @@ syntax = "proto3";
 package smallbiznis.loyalty.reward.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/reward/v1;rewardv1";
+
+import "google/protobuf/timestamp.proto";
+
+service Service {}
+
+message VoucherReward {
+  string code = 1;
+  string provider = 2;
+  string value_currency = 3;
+  double value_amount = 4;
+  google.protobuf.Timestamp expired_at = 5;
+}
+
+message PhysicalReward {
+  string product_id = 1;
+  string name = 2;
+  string image_url = 3;
+  string shipping_address_id = 4;
+  string tracking_number = 5;
+}

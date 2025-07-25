@@ -8,19 +8,105 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "smallbiznis/common/enums.proto";
 
-message PointTransaction {
-  string id = 1;
+service Service {
+  rpc PreviewEarning(EarningPreviewRequest) returns (EarningPreviewResponse);
+  rpc CreateEarning(EarningRequest) returns (EarningResponse);
+  rpc GetEarningStatus(StatusEarningRequest) returns (StatusEarningResponse);
+
+  rpc ValidateRedeem(RedeemValidationRequest) returns (RedeemValidationResponse);
+  rpc RedeemPoint(RedeemRequest) returns (RedeemResponse);
+  rpc GetRedeemStatus(StatusRedeemRequest) returns (StatusRedeemResponse);
+}
+
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_PENDING = 1;
+  STATUS_SUCCESS = 2;
+  STATUS_FAILED = 3;
+}
+
+enum RewardType {
+  REWARD_TYPE_UNSPECIFIED = 0;
+  REWARD_TYPE_VOUCHER = 1;
+  REWARD_TYPE_PHYSICAL = 2;
+}
+
+message EarningPreviewRequest {
+  string user_id = 1;
+  string organization_id = 2;
+  google.protobuf.Struct attributes = 3; // flexible payload (e.g., item list, order info)
+}
+
+message EarningPreviewResponse {
+  int64 estimated_point = 1;
+}
+
+message EarningRequest {
+  string user_id = 1;
+  string organization_id = 2;
+  string reference_id = 3;
+  google.protobuf.Struct attributes = 4;
+}
+
+message EarningResponse {
+  string transaction_id = 1;
+  Status status = 2;
+  google.protobuf.Timestamp created_at = 3;
+}
+
+message StatusEarningRequest {
+  string transaction_id = 1;
+}
+
+message StatusEarningResponse {
+  string transaction_id = 1;
+  int64 earned_point = 2;
+  Status status = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message RedeemValidationRequest {
+  string organization_id = 1;
   string user_id = 2;
-  string organization_id = 3;
-  smallbiznis.common.TransactionType type = 4;
-  string reference_id = 5; // e.g., order ID, redeem ID, etc
-  string earning_rule_id = 6;
-  google.protobuf.Struct attributes = 7; // flexible payload (e.g., item list, order info)
-  int64 value = 8; // in point unit, can be negative for deduction
-  smallbiznis.common.RewardType reward_type = 9;
-  double reward_value = 10;
-  string source = 11; // e.g., "order-service", "redeem-service"
-  string reason = 12; // e.g., "Refund Order #123", "Promo", "Manual Adjustment"
-  google.protobuf.Timestamp created_at = 13;
-  google.protobuf.Timestamp updated_at = 14;
+  string reward_id = 3;
+  google.protobuf.Struct attributes = 4; // flexible payload (e.g., item list, order info)
+}
+
+message RedeemValidationResponse {
+  bool is_valid = 1;
+  string message = 2; // misal "Insufficient point" atau "Reward not available"
+  int64 point_required = 3;
+  double reward_value = 4;
+}
+
+message RedeemRequest {
+  string organization_id = 1;
+  string user_id = 2;
+  RewardType reward_type = 3;
+  string reward_id = 4;
+  string reference_id = 5;
+  google.protobuf.Struct attributes = 6;
+}
+
+message RedeemResponse {
+  string reference_id = 1;
+  string transaction_id = 2;
+  Status status = 3;
+  google.protobuf.Timestamp redeemed_at = 4;
+}
+
+message StatusRedeemRequest {
+  string transaction_id = 1;
+}
+
+message StatusRedeemResponse {
+  string reference_id = 1;
+  string transaction_id = 2;
+  Status status = 3;
+  string reward_id = 4;
+  RewardType reward_type = 5;
+  double reward_value = 6;
+  int64 point_deducted = 7;
+  google.protobuf.Timestamp redeemed_at = 8;
+  google.protobuf.Struct data = 9;
 }

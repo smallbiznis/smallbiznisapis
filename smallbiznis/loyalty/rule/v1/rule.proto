@@ -78,9 +78,10 @@ message UpdateEarnRuleRequest {
 message EvaluateEarnRulesRequest {
   string organization_id = 1;
   string user_id = 2;
+  smallbiznis.common.EarnRuleType type = 3;
 
   // Context untuk evaluasi (diparsing sebagai CEL environment)
-  google.protobuf.Struct attributes = 3; // Misal: {"amount": "150000", "category": "fashion", "day_of_week": "FRIDAY"}
+  google.protobuf.Struct attributes = 4; // Misal: {"amount": "150000", "category": "fashion", "day_of_week": "FRIDAY"}
 }
 
 message EvaluateEarnRulesResponse {

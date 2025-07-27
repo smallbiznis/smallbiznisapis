@@ -86,7 +86,7 @@ message EvaluateEarnRulesRequest {
 
 message EvaluateEarnRulesResponse {
   repeated EarnRule matched_rule = 1;
-  int64 total_earned_points = 2;
+  double total_earned_points = 2;
 }
 
 message ListEarnRulesRequest {

@@ -30,7 +30,12 @@ service Service {
     };
   }
 
-  rpc EvaluateEarnRuleS(EvaluateEarnRulesRequest) returns (EvaluateEarnRulesResponse);
+  rpc EvaluateEarnRuleS(EvaluateEarnRulesRequest) returns (EvaluateEarnRulesResponse) {
+    option (google.api.http) = {
+      post: "/v1/earn_rules/evaluate"
+      body: "*"
+    };
+  };
 }
 
 message EarnRule {

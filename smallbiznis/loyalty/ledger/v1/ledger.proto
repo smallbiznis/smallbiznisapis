@@ -16,11 +16,11 @@ service Service {
     };
   };
 
-  rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
+  rpc RevertEntry(RevertEntryRequest) returns (AddEntryResponse);
 
   rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse);
 
-  rpc GetEntry(GetEntryRequest) returns (LedgerEntry);
+  rpc GetEntry(GetEntryRequest) returns (AddEntryResponse);
 
   rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
 

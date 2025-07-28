@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 import "smallbiznis/common/enums.proto";
+import "smallbiznis/loyalty/rule/v1/rule.proto";
 
 service Service {
   rpc PreviewEarning(EarningPreviewRequest) returns (EarningPreviewResponse) {
@@ -80,39 +81,9 @@ message EarningRequest {
   string reference_id = 3;
 
   oneof attributes {
-    TransactionAttributes transaction = 4;
+    smallbiznis.loyalty.rule.v1.TransactionAttributes transaction = 4;
   }
 
-}
-
-// Attributes for point-earning transactions across various industries
-message TransactionAttributes {
-  string category = 1;               // Required: must be "transaction"
-  double amount = 2;                 // Total transaction amount (after discount)
-  string currency = 3;               // Currency code, e.g., "IDR", "USD"
-  string source_id = 4;              // Unique transaction/order/invoice ID
-  string reward_name = 5;            // Human-friendly reward name for history display
-  string item_category = 6;          // Main product category, e.g., "food", "digital"
-  string sub_category = 7;           // Optional subcategory
-  string payment_method = 8;         // Payment method, e.g., "gopay", "credit_card"
-  string channel = 9;                // Channel of transaction, e.g., "mobile", "web", "offline"
-  string brand_id = 10;              // Brand ID, e.g., "KFC", "Starbucks"
-  string merchant_id = 11;           // Merchant ID (useful for franchise/multi-tenant)
-  string outlet_id = 12;             // Outlet/store/branch ID
-  string promo_id = 13;              // Promo or campaign ID
-
-  repeated TransactionItem items = 14;          // List of purchased items
-  map<string, string> custom = 15;              // Custom key-value data for extensibility
-}
-
-// Individual purchased item
-message TransactionItem {
-  string sku = 1;                    // Product SKU code
-  string name = 2;                   // Product name (optional)
-  string category = 3;               // Product category
-  int32 qty = 4;                     // Quantity purchased
-  double price = 5;                  // Price per unit
-  double total = 6;                  // Total price (qty * price)
 }
 
 message EarningResponse {

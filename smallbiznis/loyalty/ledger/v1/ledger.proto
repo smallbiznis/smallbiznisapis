@@ -42,6 +42,7 @@ message LedgerEntry {
   map<string, string> metadata = 12; // optional future-proofing
   string expires_at = 13;
   int64 remaining_amount = 14;
+  string transaction_id = 15;
 }
 
 message AddEntryRequest {
@@ -53,6 +54,10 @@ message AddEntryRequest {
   string reference_id = 6;
   smallbiznis.common.TransactionSubType sub_type = 7;
   map<string, string> metadata = 8;
+}
+
+message AddEntryResponse {
+  repeated LedgerEntry entries = 1;
 }
 
 message RevertEntryRequest {

@@ -5,10 +5,16 @@ package smallbiznis.loyalty.ledger.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/ledger/v1;ledgerv1";
 
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
 import "smallbiznis/common/enums.proto";
 
 service Service {
-  rpc AddEntry(AddEntryRequest) returns (LedgerEntry);
+  rpc AddEntry(AddEntryRequest) returns (LedgerEntry) {
+    option (google.api.http) = {
+      post: "/v1/ledgers"
+      body: "*"
+    };
+  };
   rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
   rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse);
   rpc GetEntry(GetEntryRequest) returns (LedgerEntry);

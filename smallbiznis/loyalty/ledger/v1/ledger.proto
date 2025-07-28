@@ -9,14 +9,14 @@ import "google/api/annotations.proto";
 import "smallbiznis/common/enums.proto";
 
 service Service {
-  rpc AddEntry(AddEntryRequest) returns (LedgerEntry) {
+  rpc AddEntry(AddEntryRequest) returns (AddEntryResponse) {
     option (google.api.http) = {
       post: "/v1/ledgers"
       body: "*"
     };
   };
 
-  rpc RevertEntry(RevertEntryRequest) returns (AddEntryResponse);
+  rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
 
   rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse);
 

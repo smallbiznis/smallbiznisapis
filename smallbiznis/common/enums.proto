@@ -5,12 +5,19 @@ package smallbiznis.common;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/common;common";
 
 enum TransactionType {
-  CATEGORY_UNSPECIFIED = 0;
-  EARN = 1;
+  TRANSACTION_TYPE_UNSPECIFIED = 0;
+  CREDIT = 1;
+  DEBIT = 2;
+}
+
+enum TransactionSubType {
+  TRANSACTION_SUB_TYPE_UNSPECIFIED = 0;
+  EARNING = 1;
   REDEEM = 2;
-  ADJUST = 3;
-  EXPIRATION = 4;
-  REFUND = 5;
+  EXPIRY = 3;
+  ADJUSTMENT = 4;
+  TRANSFER_IN = 5;
+  TRANSFER_OUT = 6;
 }
 
 enum EarnRuleType {

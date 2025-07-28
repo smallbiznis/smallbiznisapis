@@ -15,10 +15,15 @@ service Service {
       body: "*"
     };
   };
+
   rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
+
   rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse);
+
   rpc GetEntry(GetEntryRequest) returns (LedgerEntry);
+
   rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
+
   rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
 }
 
@@ -33,8 +38,10 @@ message LedgerEntry {
   string prev_hash = 8;
   string hash = 9;
   string description = 10;
-  string sub_type = 11; // e.g., "signup_bonus", "manual_adjust", etc.
+  smallbiznis.common.TransactionSubType sub_type = 11; // e.g., "signup_bonus", "manual_adjust", etc.
   map<string, string> metadata = 12; // optional future-proofing
+  string expires_at = 13;
+  int64 remaining_amount = 14;
 }
 
 message AddEntryRequest {
@@ -44,7 +51,7 @@ message AddEntryRequest {
   int64 amount = 4;
   string description = 5;
   string reference_id = 6;
-  string sub_type = 7;
+  smallbiznis.common.TransactionSubType sub_type = 7;
   map<string, string> metadata = 8;
 }
 

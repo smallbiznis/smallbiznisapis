@@ -62,6 +62,7 @@ message GetFlowTemplateRequest {
 
 message ListFlowsRequest {
   string organization_id = 1;
+  string trigger = 2;
 }
 
 message ListFlowsResponse {
@@ -227,7 +228,6 @@ message Node {
   Position position = 6;
 
 }
-
 
 message Edge {
 

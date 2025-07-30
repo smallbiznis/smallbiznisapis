@@ -177,13 +177,21 @@ message NodeTrigger {
 
 }
 
+message Condition {
+
+  string field = 1;
+  
+  string operator = 2;
+
+  google.protobuf.Value value = 3;
+
+}
+
 message NodeCondition {
 
   string id = 1;
 
-  string expression = 2; // CEL expression
-  
-  string label = 3; // Optional display name
+  repeated Condition condition = 2;
 
 }
 

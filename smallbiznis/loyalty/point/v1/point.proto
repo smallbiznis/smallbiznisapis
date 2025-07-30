@@ -79,9 +79,11 @@ message EarningRequest {
   string user_id = 1;
   string organization_id = 2;
   string reference_id = 3;
+  string ip_address = 4;
+  string user_agent = 5;
 
   oneof attributes {
-    smallbiznis.loyalty.rule.v1.TransactionAttributes transaction = 4;
+    smallbiznis.loyalty.rule.v1.TransactionAttributes transaction = 6;
   }
 
 }

@@ -99,7 +99,6 @@ message UpdateFlowRequest {
   Flow flow = 2;
 }
 
-
 // --- RESOURCE ---
 enum FlowStatus {
   FLOW_STATUS_UNSPECIFIED = 0;
@@ -163,21 +162,17 @@ enum NodeType {
 
 enum TriggerType {
 
-  TRIGGER_TYPE_UNSPECIFIED = 0;
+  TRIGGER_TYPE_LOGIN = 0;
 
-  TRIGGER_TYPE_LOGIN = 1;
+  TRIGGER_TYPE_REGISTER = 1;
 
-  TRIGGER_TYPE_REGISTER = 2;
-
-  TRIGGER_TYPE_TRANSACTION = 3;
+  TRIGGER_TYPE_TRANSACTION = 2;
 
 }
 
 message NodeTrigger {
 
-  string id = 1;
-
-  TriggerType type = 2;
+  TriggerType trigger = 1;
 
 }
 
@@ -219,7 +214,7 @@ message Node {
 
   NodeType node_type = 2;
 
-  oneof type {
+  oneof metadata {
 
     NodeTrigger trigger = 3;
 

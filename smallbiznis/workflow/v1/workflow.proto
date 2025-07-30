@@ -1,0 +1,263 @@
+syntax = "proto3";
+
+package smallbiznis.workflow.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/workflow/v1;orgv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+service Service {
+
+  rpc ListFlowTemplates(ListFlowTemplatesRequest) returns (ListFlowTemplatesResponse) {
+    option (google.api.http) = {
+      get: "/v1/flow-templates"
+    };
+  }
+
+  rpc GetFlowTemplate(GetFlowTemplateRequest) returns (FlowTemplate) {
+    option (google.api.http) = {
+      get: "/v1/flow-templates/{id}"
+    };
+  }
+
+  rpc ListFlows(ListFlowsRequest) returns (ListFlowsResponse) {
+    option (google.api.http) = {
+      get: "/v1/flows"
+    };
+  }
+
+  rpc CreateFlow(CreateFlowRequest) returns (Flow) {
+    option (google.api.http) = {
+      post: "/v1/flows"
+      body: "*"
+    };
+  }
+
+  rpc GetFlow(GetFlowRequest) returns (Flow) {
+    option (google.api.http) = {
+      get: "/v1/flows/{id}"
+    };
+  }
+
+  rpc UpdateFlow(UpdateFlowRequest) returns (Flow) {
+    option (google.api.http) = {
+      patch: "/v1/flows/{id}"
+      body: "*"
+    };
+  }
+
+}
+
+message ListFlowTemplatesRequest {}
+
+message ListFlowTemplatesResponse {
+  repeated FlowTemplate templates = 1;
+}
+
+message GetFlowTemplateRequest {
+  string id = 1;
+}
+
+message ListFlowsRequest {
+  string organization_id = 1;
+}
+
+message ListFlowsResponse {
+  repeated Flow data = 1;
+}
+
+message CreateFlowRequest {
+
+  string organization_id = 1;
+
+  string name = 2;
+
+  string description = 3;
+
+  FlowStatus status = 4;
+
+  repeated Node nodes = 5;
+
+  repeated Edge edges = 6;
+
+  Overflow overflow = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
+
+}
+
+message GetFlowRequest {
+  string id = 1;
+}
+
+message UpdateFlowRequest {
+  string id = 1;
+  Flow flow = 2;
+}
+
+
+// --- RESOURCE ---
+enum FlowStatus {
+  FLOW_STATUS_UNSPECIFIED = 0;
+  FLOW_STATUS_ACTIVE = 1;
+  FLOW_STATUS_INACTIVE = 2;
+  FLOW_STATUS_ARCHIVED = 3;
+}
+
+message FlowTemplate {
+
+  string id = 1;
+
+  string name = 2;
+
+  string description = 3;
+
+  FlowStatus status = 4;
+
+  repeated Node nodes = 5;
+
+  repeated Edge edges = 6;
+
+  Overflow overflow = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+
+  google.protobuf.Timestamp updated_at = 9;
+
+}
+
+message Flow {
+
+  string id = 1;
+
+  string organization_id = 2;
+
+  string name = 3;
+
+  string description = 4;
+
+  FlowStatus status = 5;
+
+  repeated Node nodes = 6;
+
+  repeated Edge edges = 7;
+
+  Overflow overflow = 8;
+
+  google.protobuf.Timestamp created_at = 9;
+
+  google.protobuf.Timestamp updated_at = 10;
+
+}
+
+enum NodeType {
+  NODE_TYPE_UNSPECIFIED = 0;
+  NODE_TYPE_TRIGGER = 1;
+  NODE_TYPE_CONDITION = 2;
+  NODE_TYPE_ACTION = 3;
+}
+
+enum TriggerType {
+
+  TRIGGER_TYPE_UNSPECIFIED = 0;
+
+  TRIGGER_TYPE_LOGIN = 1;
+
+  TRIGGER_TYPE_REGISTER = 2;
+
+  TRIGGER_TYPE_TRANSACTION = 3;
+
+}
+
+message NodeTrigger {
+
+  string id = 1;
+
+  TriggerType type = 2;
+
+}
+
+message NodeCondition {
+
+  string id = 1;
+
+  string expression = 2; // CEL expression
+  
+  string label = 3; // Optional display name
+
+}
+
+enum ActionType {
+
+  ACTION_TYPE_UNSPECIFIED = 0;
+
+  ACTION_TYPE_REWARD = 1;
+
+  ACTION_TYPE_SEND_NOTIFICATION = 2;
+
+  ACTION_TYPE_WEBHOOK = 3;
+
+}
+
+message NodeAction {
+
+  string id = 1;
+
+  ActionType type = 2;
+
+  google.protobuf.Struct parameters = 3;
+
+}
+
+message Node {
+
+  string id = 1;
+
+  NodeType node_type = 2;
+
+  oneof type {
+
+    NodeTrigger trigger = 3;
+
+    NodeCondition condition = 4;
+
+    NodeAction action = 5;
+
+  }
+
+  Position position = 6;
+
+}
+
+
+message Edge {
+
+  string id = 1;
+
+  string source = 2;
+
+  string target = 3;
+
+}
+
+message Position {
+
+  float x = 1;
+
+  float y = 2;
+
+}
+
+message Overflow {
+
+  float x = 1;
+
+  float y = 2;
+
+  float zoom = 3;
+  
+}

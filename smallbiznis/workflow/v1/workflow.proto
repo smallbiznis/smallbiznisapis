@@ -191,7 +191,7 @@ message NodeCondition {
 
   string id = 1;
 
-  repeated Condition condition = 2;
+  repeated Condition conditions = 2;
 
 }
 
@@ -221,9 +221,9 @@ message Node {
 
   string id = 1;
 
-  NodeType node_type = 2;
+  NodeType type = 2;
 
-  oneof metadata {
+  oneof data {
 
     NodeTrigger trigger = 3;
 

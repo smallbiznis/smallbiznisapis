@@ -173,7 +173,11 @@ enum TriggerType {
 
 message NodeTrigger {
 
-  TriggerType trigger = 1;
+  TriggerType key = 1;
+
+  string label = 2;
+
+  string description = 3;
 
 }
 
@@ -189,9 +193,7 @@ message Condition {
 
 message NodeCondition {
 
-  string id = 1;
-
-  repeated Condition conditions = 2;
+  repeated Condition conditions = 1;
 
 }
 

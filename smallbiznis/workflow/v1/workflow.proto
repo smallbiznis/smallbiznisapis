@@ -225,15 +225,17 @@ message Node {
 
   NodeType type = 2;
 
-  oneof data {
+  google.protobuf.Struct data = 3;
 
-    NodeTrigger trigger = 3;
+  // oneof data {
 
-    NodeCondition condition = 4;
+  //   NodeTrigger trigger = 3;
 
-    NodeAction action = 5;
+  //   NodeCondition condition = 4;
 
-  }
+  //   NodeAction action = 5;
+
+  // }
 
   Position position = 6;
 

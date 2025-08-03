@@ -201,19 +201,21 @@ enum ActionType {
 
   ACTION_TYPE_UNSPECIFIED = 0;
 
-  ACTION_TYPE_REWARD = 1;
+  ACTION_TYPE_REWARD_POINT = 1;
 
-  ACTION_TYPE_SEND_NOTIFICATION = 2;
+  ACTION_TYPE_REWARD_VOUCHER = 2;
 
-  ACTION_TYPE_WEBHOOK = 3;
+  ACTION_TYPE_REWARD_ITEM = 3;
+
+  ACTION_TYPE_SEND_NOTIFICATION = 4;
+
+  ACTION_TYPE_WEBHOOK = 5;
 
 }
 
 message NodeAction {
 
-  string id = 1;
-
-  ActionType type = 2;
+  ActionType type = 1;
 
   google.protobuf.Struct parameters = 3;
 

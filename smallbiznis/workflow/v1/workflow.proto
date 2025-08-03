@@ -50,10 +50,14 @@ service Service {
 
 }
 
-message ListFlowTemplatesRequest {}
+message ListFlowTemplatesRequest {
+  string organization_id = 1;
+  FlowStatus status = 2;
+  string trigger = 3;
+}
 
 message ListFlowTemplatesResponse {
-  repeated FlowTemplate templates = 1;
+  repeated FlowTemplate data = 1;
 }
 
 message GetFlowTemplateRequest {
@@ -62,7 +66,8 @@ message GetFlowTemplateRequest {
 
 message ListFlowsRequest {
   string organization_id = 1;
-  string trigger = 2;
+  FlowStatus status = 2;
+  string trigger = 3;
 }
 
 message ListFlowsResponse {
@@ -127,6 +132,8 @@ message FlowTemplate {
   google.protobuf.Timestamp created_at = 8;
 
   google.protobuf.Timestamp updated_at = 9;
+
+  string trigger = 10;
 
 }
 

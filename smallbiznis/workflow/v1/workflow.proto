@@ -246,8 +246,9 @@ message RewardPointCap {
 message RewardPoint {
   RewardPointType reward_point_type = 1;
   double reward_point_value = 2;
-  int64 expiry_days = 3; // 1 s/d 365
-  RewardPointCap cap = 4;
+  int64 unit_amount = 3;
+  int64 expiry_days = 4; // 1 s/d 365
+  RewardPointCap cap = 5;
 }
 
 message NodeAction {

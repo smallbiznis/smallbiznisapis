@@ -9,18 +9,13 @@ import "google/api/annotations.proto";
 import "smallbiznis/common/enums.proto";
 
 service Service {
-  rpc AddEntry(AddEntryRequest) returns (AddEntryResponse) {
-    option (google.api.http) = {
-      post: "/v1/ledgers"
-      body: "*"
-    };
-  };
+  rpc AddEntry(AddEntryRequest) returns (LedgerEntry);
 
   rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
 
   rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse);
 
-  rpc GetEntry(GetEntryRequest) returns (AddEntryResponse);
+  rpc GetEntry(GetEntryRequest) returns (LedgerEntry);
 
   rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
 
@@ -32,17 +27,12 @@ message LedgerEntry {
   string organization_id = 2;
   string user_id = 3;
   smallbiznis.common.TransactionType type = 4;
-  string reference_id = 5;
-  int64 amount = 6;
-  google.protobuf.Timestamp created_at = 7;
-  string prev_hash = 8;
-  string hash = 9;
-  string description = 10;
-  smallbiznis.common.TransactionSubType sub_type = 11; // e.g., "signup_bonus", "manual_adjust", etc.
-  map<string, string> metadata = 12; // optional future-proofing
-  string expires_at = 13;
-  int64 remaining_amount = 14;
-  string transaction_id = 15;
+  string transaction_id = 5;
+  string reference_id = 6;
+  int64 amount = 7;
+  string description = 8;
+  map<string, string> metadata = 9;
+  google.protobuf.Timestamp created_at = 10;
 }
 
 message AddEntryRequest {
@@ -52,12 +42,7 @@ message AddEntryRequest {
   int64 amount = 4;
   string description = 5;
   string reference_id = 6;
-  smallbiznis.common.TransactionSubType sub_type = 7;
-  map<string, string> metadata = 8;
-}
-
-message AddEntryResponse {
-  repeated LedgerEntry entries = 1;
+  map<string, string> metadata = 7;
 }
 
 message RevertEntryRequest {

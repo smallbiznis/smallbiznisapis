@@ -220,17 +220,35 @@ enum ActionType {
 
 }
 
-message RewardPoint {
-  int64 value = 1;
+enum RewardPointType {
+
+  REWARD_POINT_UNSPECIFIED = 0;
+  REWARD_POINT_FIXED       = 1; // grant N points
+  REWARD_POINT_MULTIPLE    = 2; // generic multiply
+  REWARD_POINT_PERCENT_BPS = 3; // points = amount * (bps/10000)
+  REWARD_POINT_PER_UNIT    = 4; // points = floor(amount / unit_amount) * points_per_unit
+
 }
 
-message RewardVoucher {}
+enum CapPeriod {
+  CAP_PERIOD_UNSPECIFIED = 0;
+  CAP_PERIOD_DAY = 1;
+  CAP_PERIOD_MONTH = 2;
+  CAP_PERIOD_YEAR = 3;
+}
 
-message RewardItem {}
+message RewardPointCap {
+  CapPeriod period = 1; // day, month, year
+  int64 value = 2; // max points per period
+  string timezone = 3; // Asia/Jakarata or tz from org
+}
 
-message SendNotification {}
-
-message Webhook {}
+message RewardPoint {
+  RewardPointType reward_point_type = 1;
+  double reward_point_value = 2;
+  int64 expiry_days = 3; // 1 s/d 365
+  RewardPointCap cap = 4;
+}
 
 message NodeAction {
 
@@ -264,7 +282,7 @@ message Edge {
 
   string id = 1;
 
-  EdgeType type = 2;
+  string type = 2;
 
   string source = 3;
 

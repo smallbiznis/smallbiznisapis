@@ -5,7 +5,6 @@ package smallbiznis.ledger.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/ledger/v1;ledgerv1";
 
 import "google/protobuf/timestamp.proto";
-import "common/enums.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 
@@ -76,11 +75,17 @@ service LedgerService {
   rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
 }
 
+enum EntryType {
+  ENTRY_TYPE_UNSPECIFIED = 0;
+  CREDIT = 1;
+  DEBIT = 2;
+}
+
 message LedgerEntry {
   string id = 1;
   string organization_id = 2;
   string user_id = 3;
-  smallbiznis.common.TransactionType type = 4;
+  EntryType type = 4;
   string transaction_id = 5;
   string reference_id = 6;
   int64 amount = 7;
@@ -92,7 +97,7 @@ message LedgerEntry {
 message AddEntryRequest {
   string organization_id = 1;
   string user_id = 2;
-  smallbiznis.common.TransactionType type = 3; // fixed: was undefined type
+  EntryType type = 3; // fixed: was undefined type
   int64 amount = 4;
   string description = 5;
   string reference_id = 6;

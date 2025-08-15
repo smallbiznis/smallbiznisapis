@@ -18,6 +18,8 @@ GRPCPLUGIN ?= /usr/local/bin/grpc_$(LANGUAGE)_plugin
 # Choose the proto include directory.
 PROTOINCLUDE ?= /usr/local/include
 
+GATEWAY_DIR ?= $(shell go list -f '{{.Dir}}' -m github.com/grpc-ecosystem/grpc-gateway/v2 2>/dev/null)
+
 # Choose protoc binary
 PROTOC ?= protoc -I .
 
@@ -31,7 +33,7 @@ GOOGLEAPIS ?= ./googleapis
 # NOTE: if "protoc" command is not in the PATH, you need to modify this file.
 #
 
-FLAGS+= -I $(GOOGLEAPIS)
+FLAGS+= -I $(GOOGLEAPIS) -I $(GATEWAY_DIR)
 FLAGS+= --$(LANGUAGE)_out=$(OUTPUT) --$(LANGUAGE)_opt=paths=source_relative
 FLAGS+= --$(LANGUAGE)-grpc_out=$(OUTPUT) --$(LANGUAGE)-grpc_opt=paths=source_relative
 FLAGS+= --grpc-gateway_out=$(OUTPUT) --grpc-gateway_opt paths=source_relative
@@ -39,8 +41,9 @@ FLAGS+=	--plugin=protoc-gen-grpc=$(GRPCPLUGIN)
 
 # OpenAPI specific flags
 OPENAPI_FLAGS+= -I .
-OPENAPI_FLAGS+= -I $(GOOGLEAPIS)
+OPENAPI_FLAGS+= -I $(GOOGLEAPIS) -I $(GATEWAY_DIR)
 OPENAPI_FLAGS+= --openapiv2_opt use_go_templates=true
+OPENAPI_FLAGS+= --openapiv2_opt=allow_merge=true,merge_file_name=smallbiznis,logtostderr=true,use_go_templates=true
 
 # FLAGS+= --go_gapic_out=$(GAPIC_OUT) --go_gapic_opt 'go-gapic-package=github.com/smallbiznis/smallbiznis-api-go-client;smallbiznis'
 
@@ -57,12 +60,15 @@ all: $(DEPS)
 PROTO_FILES := $(shell find smallbiznis -type f -name '*.proto')
 OPENAPI_OUT := $(OUTPUT)/api-specs
 
-gen_openapi:
-	mkdir -p $(OUTPUT)/api-specs
-	@for proto in $(PROTO_FILES); do \
-		echo "Generating OpenAPI for $$proto..."; \
-		$(PROTOC) $(OPENAPI_FLAGS) --openapiv2_out=$(OPENAPI_OUT) $$proto; \
-	done
+openapi:
+	mkdir -p $(OPENAPI_OUT)
+	$(PROTOC) $(OPENAPI_FLAGS) --openapiv2_out=$(OPENAPI_OUT) $(PROTO_FILES)
+
+convertopenapiv3:
+	swagger2openapi -o ./gen/api-specs/smallbiznis.oas3.json ./gen/api-specs/smallbiznis.swagger.json
+
+build-docs:
+	redocly build-docs ./gen/api-specs/smallbiznis.swagger.json -o ./gen/docs/index.html
 
 clean:
 	rm $(patsubst %,$(OUTPUT)/%,$(DEPS)) 2> /dev/null

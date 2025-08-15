@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package smallbiznis.subdomain.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subdomain/v1;subdomainv1";
+
+import "google/protobuf/timestamp.proto";
+
+message Domain {
+  string domain_id = 1; // Unique identifier for the domain
+  string name = 2; // The domain name, e.g., "example.com"
+  string organization_id = 3; // The ID of the organization this domain belongs to
+  google.protobuf.Timestamp created_at = 4; // Creation timestamp
+  google.protobuf.Timestamp updated_at = 5; // Last update timestamp
+}

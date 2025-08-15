@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package smallbiznis.subdomain.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subdomain/v1;subdomainv1";
+
+import "smallbiznis/subdomain/v1/resource.proto";
+import "google/api/annotations.proto";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+// OpenAPI (Swagger v2) top-level config
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "SmallBiznis API";
+    version: "1.0";
+    description: "";
+    contact: {
+      name: "SmallBiznis project";
+      url: "https://github.com/smallbiznis";
+      email: "taufiktriantono4@gmail.com";
+    };
+  };
+  host: "api.smallbiznis.test"
+  schemes: HTTPS;
+  base_path: "/";
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+service SubdomainService {
+
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Subdomain"
+    description: "APIs for manage subdomain (create, update, list, delete)"
+  };
+
+  rpc CreateSubdomain(CreateSubdomainRequest) returns (Domain) {
+    option (google.api.http) = {
+      post: "/v1/subdomains"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Subdomain"
+      operation_id: "Subdoomain_Create"
+      summary: "Create an subdomain"
+      description: "Creates a new subdomain with the provided attributes. Returns the created subdomain on success."
+      // Uncomment if you use JWT/Bearer
+      // security: { security_requirement: { key: "BearerAuth" } }
+    };
+  };
+
+  rpc GetSubdomain(GetSubdomainRequest) returns (Domain) {
+    option (google.api.http) = {
+      get: "/v1/subdomains/{id}"
+    };
+
+     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Subdomain"
+      operation_id: "Subdomain_Get"
+      summary: "Get subdomain details"
+      description: "Retrieves an subdomain by its unique identifier. Returns 404 if the subdomain does not exist."
+      // security: { security_requirement: { key: "BearerAuth" } }
+    };
+  };
+
+  rpc ListSubdomains(ListSubdomainsRequest) returns (ListSubdomainsResponse) {
+    option (google.api.http) = {
+      get: "/v1/subdomains"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Subdomain"
+      operation_id: "Subdomain_List"
+      summary: "List subdomain"
+      description: "Returns a paginated list of subdomain. Use query parameters such as `cursor` and `limit` when available."
+      // security: { security_requirement: { key: "BearerAuth" } }
+    };
+  };
+
+  rpc UpdateSubdomain(UpdateSubdomainRequest) returns (Domain) {
+    option (google.api.http) = {
+      put: "/v1/subdomains/{id}",
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Subdomain"
+      operation_id: "Subdomain_Update"
+      summary: "Update an subdomain"
+      description: "Updates mutable fields of an existing subdomain. Returns the updated resource on success."
+      // security: { security_requirement: { key: "BearerAuth" } }
+    };
+  };
+  
+}
+
+message CreateSubdomainRequest {
+  string name = 1; // The subdomain name, e.g., "myapp"
+  string organization_id = 2; // The ID of the organization this subdomain belongs to
+}
+
+message GetSubdomainRequest {
+  string id = 1; // The ID of the subdomain
+}
+
+message ListSubdomainsRequest {
+  string organization_id = 1; // Filter by organization ID
+}
+
+message ListSubdomainsResponse {
+  repeated Domain data = 1; // List of subdomains
+}
+
+message UpdateSubdomainRequest {
+  string id = 1; // The ID of the subdomain to update
+  string name = 2; // The new name for the subdomain
+}

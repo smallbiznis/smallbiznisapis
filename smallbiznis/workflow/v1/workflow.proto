@@ -8,11 +8,45 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
-service Service {
+import "protoc-gen-openapiv2/options/annotations.proto";
 
-  rpc ListFlowTemplates(ListFlowTemplatesRequest) returns (ListFlowTemplatesResponse) {
+// OpenAPI (Swagger v2) top-level config
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "SmallBiznis API";
+    version: "1.0";
+    description: "";
+    contact: {
+      name: "SmallBiznis project";
+      url: "https://github.com/smallbiznis";
+      email: "taufiktriantono4@gmail.com";
+    };
+  };
+  host: "api.smallbiznis.test"
+  schemes: HTTPS;
+  base_path: "/";
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+service WorkflowService {
+
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Workflow"
+    description: "APIs for manage workflow (create, update, list, delete)"
+  };
+
+  rpc ListFlowTemplate(ListFlowTemplatesRequest) returns (ListFlowTemplatesResponse) {
     option (google.api.http) = {
       get: "/v1/flow-templates"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      operation_id: "Workflow_List_Template"
+      summary: "List workflow templates"
+      description: "Returns a paginated list of workflow templates. Use query parameters such as `cursor` and `limit` when available."
+      // security: { security_requirement: { key: "BearerAuth" } }
     };
   }
 
@@ -20,11 +54,28 @@ service Service {
     option (google.api.http) = {
       get: "/v1/flow-templates/{id}"
     };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      operation_id: "Workflow_Get_Flow_Template"
+      summary: "Get flow template details"
+      description: "Retrieves an workflow by its unique identifier. Returns 404 if the workflow does not exist."
+      // security: { security_requirement: { key: "BearerAuth" } }
+    };
   }
 
-  rpc ListFlows(ListFlowsRequest) returns (ListFlowsResponse) {
+  rpc ListFlow(ListFlowsRequest) returns (ListFlowsResponse) {
     option (google.api.http) = {
       get: "/v1/flows"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      operation_id: "Workflow_ListFlowTemplate"
+      summary: "Create an workflow"
+      description: "Creates a new workflow with the provided attributes. Returns the created workflow on success."
+      // Uncomment if you use JWT/Bearer
+      // security: { security_requirement: { key: "BearerAuth" } }
     };
   }
 
@@ -33,11 +84,28 @@ service Service {
       post: "/v1/flows"
       body: "*"
     };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      operation_id: "Workflow_Create"
+      summary: "Create an workflow"
+      description: "Creates a new workflow with the provided attributes. Returns the created workflow on success."
+      // Uncomment if you use JWT/Bearer
+      // security: { security_requirement: { key: "BearerAuth" } }
+    };
   }
 
   rpc GetFlow(GetFlowRequest) returns (Flow) {
     option (google.api.http) = {
       get: "/v1/flows/{id}"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      operation_id: "Workflow_Get"
+      summary: "Get workflow details"
+      description: "Retrieves an workflow by its unique identifier. Returns 404 if the workflow does not exist."
+      // security: { security_requirement: { key: "BearerAuth" } }
     };
   }
 
@@ -45,6 +113,14 @@ service Service {
     option (google.api.http) = {
       patch: "/v1/flows/{id}"
       body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      operation_id: "Workflow_Update"
+      summary: "Update an workflow"
+      description: "Updates mutable fields of an existing workflow. Returns the updated resource on success."
+      // security: { security_requirement: { key: "BearerAuth" } }
     };
   }
 
@@ -107,10 +183,10 @@ message UpdateFlowRequest {
 
 // --- RESOURCE ---
 enum FlowStatus {
-  FLOW_STATUS_UNSPECIFIED = 0;
-  FLOW_STATUS_ACTIVE = 1;
-  FLOW_STATUS_INACTIVE = 2;
-  FLOW_STATUS_ARCHIVED = 3;
+  UNSPECIFIED = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+  ARCHIVED = 3;
 }
 
 message FlowTemplate {
@@ -163,18 +239,18 @@ message Flow {
 
 enum NodeType {
   NODE_TYPE_UNSPECIFIED = 0;
-  NODE_TYPE_TRIGGER = 1;
-  NODE_TYPE_CONDITION = 2;
-  NODE_TYPE_ACTION = 3;
+  TRIGGER = 1;
+  CONDITION = 2;
+  ACTION = 3;
 }
 
 enum TriggerType {
 
-  TRIGGER_TYPE_LOGIN = 0;
+  LOGIN = 0;
 
-  TRIGGER_TYPE_REGISTER = 1;
+  REGISTER = 1;
 
-  TRIGGER_TYPE_TRANSACTION = 2;
+  TRANSACTION = 2;
 
 }
 
@@ -208,33 +284,33 @@ enum ActionType {
 
   ACTION_TYPE_UNSPECIFIED = 0;
 
-  ACTION_TYPE_REWARD_POINT = 1;
+  REWARD_POINT = 1;
 
-  ACTION_TYPE_REWARD_VOUCHER = 2;
+  REWARD_VOUCHER = 2;
 
-  ACTION_TYPE_REWARD_ITEM = 3;
+  REWARD_ITEM = 3;
 
-  ACTION_TYPE_SEND_NOTIFICATION = 4;
+  SEND_NOTIFICATION = 4;
 
-  ACTION_TYPE_WEBHOOK = 5;
+  WEBHOOK = 5;
 
 }
 
 enum RewardPointType {
 
-  REWARD_POINT_UNSPECIFIED = 0;
-  REWARD_POINT_FIXED       = 1; // grant N points
-  REWARD_POINT_MULTIPLE    = 2; // generic multiply
-  REWARD_POINT_PERCENT_BPS = 3; // points = amount * (bps/10000)
-  REWARD_POINT_PER_UNIT    = 4; // points = floor(amount / unit_amount) * points_per_unit
+  REWARD_POINT_TYPE_UNSPECIFIED = 0;
+  FIXED       = 1; // grant N points
+  MULTIPLE    = 2; // generic multiply
+  PERCENT_BPS = 3; // points = amount * (bps/10000)
+  PER_UNIT    = 4; // points = floor(amount / unit_amount) * points_per_unit
 
 }
 
 enum CapPeriod {
   CAP_PERIOD_UNSPECIFIED = 0;
-  CAP_PERIOD_DAY = 1;
-  CAP_PERIOD_MONTH = 2;
-  CAP_PERIOD_YEAR = 3;
+  DAY = 1;
+  MONTH = 2;
+  YEAR = 3;
 }
 
 message RewardPointCap {

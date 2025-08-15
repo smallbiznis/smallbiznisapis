@@ -7,21 +7,48 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/point/v1;poi
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
-import "smallbiznis/common/enums.proto";
-import "smallbiznis/loyalty/rule/v1/rule.proto";
 
-service Service {
-  rpc PreviewEarning(EarningPreviewRequest) returns (EarningPreviewResponse) {
-    option (google.api.http) = {
-      post: "/v1/earning/preview"
-      body: "*"
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+// OpenAPI (Swagger v2) top-level config
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "SmallBiznis API";
+    version: "1.0";
+    description: "";
+    contact: {
+      name: "SmallBiznis project";
+      url: "https://github.com/smallbiznis";
+      email: "taufiktriantono4@gmail.com";
     };
   };
+  host: "api.smallbiznis.test"
+  schemes: HTTPS;
+  base_path: "/";
+  consumes: "application/json";
+  produces: "application/json";
+};
 
-  rpc CreateEarning(EarningRequest) returns (EarningResponse) {
+service PointService {
+
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Loyalty"
+    description: "APIs for manage loyalty earn and redeemption (create, update, list, delete)"
+  };
+
+  rpc Earning(EarningRequest) returns (EarningResponse) {
     option (google.api.http) = {
       post: "/v1/earning"
       body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Loyalty"
+      operation_id: "Loyalty_Earning"
+      summary: "Earning"
+      description: ""
+      // Uncomment if you use JWT/Bearer
+      // security: { security_requirement: { key: "BearerAuth" } }
     };
   };
 
@@ -29,40 +56,105 @@ service Service {
     option (google.api.http) = {
       get: "/v1/earning/{transaction_id}"
     };
-  };
 
-  rpc ValidateRedeem(RedeemValidationRequest) returns (RedeemValidationResponse) {
-    option (google.api.http) = {
-      post: "/v1/redeem/validate"
-      body: "*"
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Loyalty"
+      operation_id: "Loyalty_Get_Earning_Status"
+      summary: "Get Earning Status"
+      description: ""
+      // security: { security_requirement: { key: "BearerAuth" } }
     };
   };
 
-  rpc RedeemPoint(RedeemRequest) returns (RedeemResponse) {
+  rpc ValidateRedemption(RedeemValidationRequest) returns (RedeemValidationResponse) {
     option (google.api.http) = {
-      post: "/v1/redeem"
+      post: "/v1/redemption/validate"
       body: "*"
+    };
+
+     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Loyalty"
+      operation_id: "Loyalty_Validate_Redemption"
+      summary: "Validate Redemption"
+      description: ""
+      // Uncomment if you use JWT/Bearer
+      // security: { security_requirement: { key: "BearerAuth" } }
     };
   };
 
-  rpc GetRedeemStatus(StatusRedeemRequest) returns (StatusRedeemResponse) {
+  rpc Redemption(RedeemRequest) returns (RedeemResponse) {
     option (google.api.http) = {
-      get: "/v1/redeem/{transaction_id}"
+      post: "/v1/redeemption"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Loyalty"
+      operation_id: "Loyalty_Redemption"
+      summary: "Redemption"
+      description: ""
+      // Uncomment if you use JWT/Bearer
+      // security: { security_requirement: { key: "BearerAuth" } }
+    };
+  };
+
+  rpc GetRedemption(StatusRedeemRequest) returns (StatusRedeemResponse) {
+    option (google.api.http) = {
+      get: "/v1/redemption/{transaction_id}"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Loyalty"
+      operation_id: "Loyalty_Get_Redemption"
+      summary: "Get Redemption"
+      description: ""
+      // Uncomment if you use JWT/Bearer
+      // security: { security_requirement: { key: "BearerAuth" } }
     };
   };
 }
 
 enum Status {
   STATUS_UNSPECIFIED = 0;
-  STATUS_PENDING = 1;
-  STATUS_SUCCESS = 2;
-  STATUS_FAILED = 3;
+  PENDING = 1;
+  SUCCESS = 2;
+  FAILED = 3;
 }
 
 enum RewardType {
   REWARD_TYPE_UNSPECIFIED = 0;
-  REWARD_TYPE_VOUCHER = 1;
-  REWARD_TYPE_PHYSICAL = 2;
+  VOUCHER = 1;
+  PHYSICAL = 2;
+}
+
+// Attributes for point-earning transactions across various industries
+message TransactionAttributes {
+  string category = 1;               // Required: must be "transaction"
+  double amount = 2;                 // Total transaction amount (after discount)
+  string currency = 3;               // Currency code, e.g., "IDR", "USD"
+  string reference_id = 4;              // Unique transaction/order/invoice ID
+  string reward_name = 5;            // Human-friendly reward name for history display
+  string item_category = 6;          // Main product category, e.g., "food", "digital"
+  string sub_category = 7;           // Optional subcategory
+  string payment_method = 8;         // Payment method, e.g., "gopay", "credit_card"
+  string channel = 9;                // Channel of transaction, e.g., "mobile", "web", "offline"
+  string brand_id = 10;              // Brand ID, e.g., "KFC", "Starbucks"
+  string merchant_id = 11;           // Merchant ID (useful for franchise/multi-tenant)
+  string outlet_id = 12;             // Outlet/store/branch ID
+  string promo_id = 13;              // Promo or campaign ID
+
+  repeated TransactionItem items = 14;          // List of purchased items
+  map<string, string> custom = 15;              // Custom key-value data for extensibility
+}
+
+// Individual purchased item
+message TransactionItem {
+  string sku = 1;                    // Product SKU code
+  string name = 2;                   // Product name (optional)
+  string category = 3;               // Product category
+  int32 qty = 4;                     // Quantity purchased
+  double price = 5;                  // Price per unit
+  double total = 6;                  // Total price (qty * price)
 }
 
 message EarningPreviewRequest {
@@ -83,7 +175,7 @@ message EarningRequest {
   string user_agent = 5;
 
   oneof attributes {
-    smallbiznis.loyalty.rule.v1.TransactionAttributes transaction = 6;
+    TransactionAttributes transaction = 6;
   }
 
 }

@@ -18,7 +18,7 @@ GRPCPLUGIN ?= /usr/local/bin/grpc_$(LANGUAGE)_plugin
 # Choose the proto include directory.
 PROTOINCLUDE ?= /usr/local/include
 
-GATEWAY_DIR ?= $(shell go list -f '{{.Dir}}' -m github.com/grpc-ecosystem/grpc-gateway/v2 2>/dev/null)
+GATEWAY_DIR ?= ./grpc-gateway
 
 # Choose protoc binary
 PROTOC ?= protoc -I .

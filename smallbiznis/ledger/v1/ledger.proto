@@ -5,7 +5,7 @@ package smallbiznis.ledger.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/ledger/v1;ledgerv1";
 
 import "google/protobuf/timestamp.proto";
-
+import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 // OpenAPI (Swagger v2) top-level config
@@ -35,6 +35,10 @@ service LedgerService {
   };
 
   rpc AddEntry(AddEntryRequest) returns (LedgerEntry) {
+    option (google.api.http) = {
+      post: "/v1/entries"
+      body: "*"
+    };
 
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Ledger"
@@ -49,7 +53,10 @@ service LedgerService {
   rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
 
   rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse) {
-    
+    option (google.api.http) = {
+      get: "/v1/entries"
+    };
+
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Ledger"
       operation_id: "Ledger_List"
@@ -60,6 +67,10 @@ service LedgerService {
   };
 
   rpc GetEntry(GetEntryRequest) returns (LedgerEntry) {
+
+    option (google.api.http) = {
+      get: "/v1/entries/{id}"
+    };
 
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Ledger"
@@ -72,7 +83,7 @@ service LedgerService {
 
   rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
 
-  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {};
 }
 
 enum EntryType {

@@ -40,7 +40,6 @@ FLAGS+= --grpc-gateway_out=$(OUTPUT) --grpc-gateway_opt paths=source_relative
 FLAGS+=	--plugin=protoc-gen-grpc=$(GRPCPLUGIN)
 
 # OpenAPI specific flags
-OPENAPI_FLAGS+= -I .
 OPENAPI_FLAGS+= -I $(GOOGLEAPIS) -I $(GATEWAY_DIR)
 OPENAPI_FLAGS+= --openapiv2_opt use_go_templates=true
 OPENAPI_FLAGS+= --openapiv2_opt=allow_merge=true,merge_file_name=smallbiznis,logtostderr=true,use_go_templates=true
@@ -68,7 +67,7 @@ convertopenapiv3:
 	swagger2openapi -o ./gen/api-specs/smallbiznis.oas3.json ./gen/api-specs/smallbiznis.swagger.json
 
 build-docs:
-	redocly build-docs ./gen/api-specs/smallbiznis.swagger.json -o ./gen/docs/index.html
+	redocly build-docs ./gen/api-specs/smallbiznis.swagger.json -o ./docs/index.html
 
 clean:
 	rm $(patsubst %,$(OUTPUT)/%,$(DEPS)) 2> /dev/null

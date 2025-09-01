@@ -13,16 +13,12 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "SmallBiznis API";
     version: "1.0";
-    description: "";
-    contact: {
-      name: "SmallBiznis project";
-      url: "https://github.com/smallbiznis";
-      email: "taufiktriantono4@gmail.com";
-    };
+    description: "Multi-tenant, global-ready Organization & Onboarding APIs";
+    contact: { name: "SmallBiznis project"; url: "https://github.com/smallbiznis"; email: "taufiktriantono4@gmail.com"; };
   };
   host: "api.smallbiznis.test"
   schemes: HTTPS;
-  base_path: "/";
+  base_path: "/api";
   consumes: "application/json";
   produces: "application/json";
 };
@@ -60,8 +56,8 @@ service LedgerService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Ledger"
       operation_id: "Ledger_List"
-      summary: "List ledgefr"
-      description: "Returns a paginated list of ledgefr. Use query parameters such as `cursor` and `limit` when available."
+      summary: "List entry"
+      description: "Returns a paginated list of entry. Use query parameters such as `cursor` and `limit` when available."
       // security: { security_requirement: { key: "BearerAuth" } }
     };
   };
@@ -94,7 +90,7 @@ enum EntryType {
 
 message LedgerEntry {
   string id = 1;
-  string organization_id = 2;
+  string org_id = 2;
   string user_id = 3;
   EntryType type = 4;
   string transaction_id = 5;
@@ -106,7 +102,7 @@ message LedgerEntry {
 }
 
 message AddEntryRequest {
-  string organization_id = 1;
+  string org_id = 1;
   string user_id = 2;
   EntryType type = 3; // fixed: was undefined type
   int64 amount = 4;
@@ -134,7 +130,7 @@ message GetEntryRequest {
 }
 
 message VerifyChainRequest {
-  string organization_id = 1;
+  string org_id = 1;
   string user_id = 2;
 }
 
@@ -145,7 +141,7 @@ message VerifyChainResponse {
 
 message GetBalanceRequest {
   string user_id = 1;
-  string organization_id = 2;
+  string org_id = 2;
 }
 
 message GetBalanceResponse {

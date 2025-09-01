@@ -5,11 +5,9 @@ package smallbiznis.organization.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/organization/v1;orgv1";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-// ------------------ OpenAPI (Swagger v2) top-level config ------------------
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "SmallBiznis API";
@@ -19,7 +17,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   };
   host: "api.smallbiznis.test"
   schemes: HTTPS;
-  base_path: "/";
+  base_path: "/api";
   consumes: "application/json";
   produces: "application/json";
   // security_definitions: {
@@ -30,24 +28,54 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   // }
 };
 
-// ============================= SERVICE =====================================
 service OrganizationService {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
     name: "Organization"
     description: "APIs to manage organizations, global regions, onboarding, locations, pricebooks, tax & payment profiles."
   };
 
-  // -------- Core Org CRUD --------
+  rpc ListCountry(ListContryRequest) returns (ListCountryResponse) {
+    option (google.api.http) = { get: "/v1/contries" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Contries" summary: "List an contries" operation_id: "Contries_List";
+      description: "List a contries."
+    };
+  }
+
+  rpc ListTimezone(ListTimezoneRequest) returns (ListTimezoneResponse) {
+    option (google.api.http) = { get: "/v1/timezones" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Timezone" summary: "List an timezone" operation_id: "Timezone_List";
+      description: "List a timezone."
+    };
+  }
+
+  rpc ListCurrency(ListCurrencyRequest) returns (ListCurrencyResponse) {
+    option (google.api.http) = { get: "/v1/currencies" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Currencies" summary: "List an currency" operation_id: "Currency_List";
+      description: "List a currency."
+    };
+  }
+
+  rpc LookupOrganization(LookupOrganizationRequest) returns (LookupOrganizationResponse) {
+    option (google.api.http) = { post: "/v1/organizations/lookup" body: "*" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Organization" summary: "Lookup an organization" operation_id: "Organization_Lookup";
+      description: "Lookup a organization (tenant)."
+    };
+  }
+
   rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {
     option (google.api.http) = { post: "/v1/organizations" body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Organization" summary: "Create an organization" operation_id: "Organization_Create"
+      tags: "Organization" summary: "Create an organization" operation_id: "Organization_Createe";
       description: "Creates a new organization (tenant). Idempotent via Idempotency-Key header.";
     };
   }
 
   rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
-    option (google.api.http) = { get: "/v1/organizations/{id}" };
+    option (google.api.http) = { get: "/v1/organizations/{org_id}" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Organization" summary: "Get organization by id" operation_id: "Organization_Get";
     };
@@ -61,116 +89,96 @@ service OrganizationService {
   }
 
   rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization) {
-    option (google.api.http) = { put: "/v1/organizations/{id}" body: "*" };
+    option (google.api.http) = { put: "/v1/organizations/{org_id}" body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Organization" summary: "Update an organization" operation_id: "Organization_Update";
     };
   }
 
-  // -------- Onboarding Wizard --------
-  rpc GetOnboardingState(GetOnboardingStateRequest) returns (GetOnboardingStateResponse) {
-    option (google.api.http) = { get: "/v1/organizations/{org_id}/onboarding" };
-  }
-  rpc StartOnboarding(StartOnboardingRequest) returns (GetOnboardingStateResponse) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/onboarding/start" body: "*" };
-  }
-  rpc CompleteOnboarding(CompleteOnboardingRequest) returns (GetOnboardingStateResponse) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/onboarding/complete" body: "*" };
-  }
-
-  // Step 1: Business Profile
-  rpc PutBusinessProfile(PutBusinessProfileRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { put: "/v1/organizations/{org_id}/business-profile" body: "*" };
-  }
-
-  // Step 2: Tax Config
-  rpc PutTaxConfig(PutTaxConfigRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { put: "/v1/organizations/{org_id}/tax-config" body: "*" };
-  }
-
-  // Step 3: Location & POS
-  rpc CreateLocation(CreateLocationRequest) returns (Location) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/locations" body: "*" };
-  }
-  rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse) {
-    option (google.api.http) = { get: "/v1/organizations/{org_id}/locations" };
-  }
-  rpc PutReceiptTemplate(PutReceiptTemplateRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { put: "/v1/organizations/{org_id}/receipt-template" body: "*" };
-  }
-
-  // Step 4: Payments & Domain (optional)
-  rpc ConnectPaymentProvider(ConnectPaymentProviderRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/payment-profiles" body: "*" };
-  }
-  rpc CreateDomain(CreateDomainRequest) returns (Domain) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/domains" body: "*" };
-  }
-  rpc VerifyDomainDNS(VerifyDomainDNSRequest) returns (Domain) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/domains/{domain_id}:verify-dns" body: "*" };
-  }
-  rpc ProvisionDomainTLS(ProvisionDomainTLSRequest) returns (Domain) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/domains/{domain_id}:provision-tls" body: "*" };
-  }
-
-  // -------- Globalization (Regions, Pricebooks, Tax Profiles) --------
-  rpc CreateRegion(CreateRegionRequest) returns (OrgRegion) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/regions" body: "*" };
-  }
-  rpc ListRegions(ListRegionsRequest) returns (ListRegionsResponse) {
-    option (google.api.http) = { get: "/v1/organizations/{org_id}/regions" };
-  }
-
-  rpc CreatePricebook(CreatePricebookRequest) returns (Pricebook) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/pricebooks" body: "*" };
-  }
-  rpc UpsertPricebookItems(UpsertPricebookItemsRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/pricebooks/{pricebook_id}/items:upsert-batch" body: "*" };
-  }
-  rpc ListPricebooks(ListPricebooksRequest) returns (ListPricebooksResponse) {
-    option (google.api.http) = { get: "/v1/organizations/{org_id}/pricebooks" };
-  }
-
-  rpc CreateTaxProfile(CreateTaxProfileRequest) returns (TaxProfile) {
-    option (google.api.http) = { post: "/v1/organizations/{org_id}/tax-profiles" body: "*" };
-  }
-  rpc ListTaxProfiles(ListTaxProfilesRequest) returns (ListTaxProfilesResponse) {
-    option (google.api.http) = { get: "/v1/organizations/{org_id}/tax-profiles" };
-  }
 }
 
-// ============================= MESSAGES ====================================
-message Organization {
+message Countries {
+  string code = 1;
+  string name = 2;
+}
+
+message ListContryRequest {
+  string code = 1;
+}
+
+message ListCountryResponse {
+  repeated Countries data = 1;
+}
+
+message Timezones {
   string id = 1;
-  string slug = 2;
-  string name = 3;
-  string logo_url = 4;
-  string status = 5; // trial, active, suspended
-  string plan_id = 6; // free, pro, enterprise
-  string billing_email = 7;
-  google.protobuf.Timestamp trial_ends_at = 8;
-  google.protobuf.Timestamp created_at = 9;
-  google.protobuf.Timestamp updated_at = 10;
+  string country_code = 2;
+  string tz = 3;
+}
+
+message ListTimezoneRequest {
+  string country_code = 1;
+}
+
+message ListTimezoneResponse {
+  repeated Timezones data = 1;
+}
+
+message Currencies {
+  string id = 1;
+  string country_code = 2;
+  string format = 3;
+  string currency = 4;
+}
+
+message ListCurrencyRequest {
+  string country_code = 1;
+}
+
+message ListCurrencyResponse {
+  repeated Currencies data = 1;
+}
+
+enum OrganizationType {
+  TYPE_UNSPECIFIED = 0;
+  PERSONAL = 1;
+  COMPANY = 2;
+}
+
+message Organization {
+  string org_id = 1;
+  OrganizationType type = 2;
+  string slug = 3;
+  string name = 4;
+  string logo_url = 5;
+  string country_code = 6;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message LookupOrganizationRequest {
+  string name = 1;
+}
+
+message LookupOrganizationResponse {
+  string organization = 1;
+  string errors = 2;
 }
 
 message CreateOrganizationRequest {
   string name = 1;
-  string slug = 2;          // for subdomain
-  string logo_url = 3;
-  string billing_email = 4; // invoice & owner contact
-  string plan_id = 5;       // optional, default "free"
+  OrganizationType type = 2;
+  string country_code = 3;
+  string owner = 4;
 }
 
-message GetOrganizationRequest { string id = 1; }
+message GetOrganizationRequest { string org_id = 1; }
 
 message UpdateOrganizationRequest {
-  string id = 1;
+  string org_id = 1;
   string name = 2;
   string slug = 3;
   string logo_url = 4;
-  string status = 5;
-  string plan_id = 6;
-  string billing_email = 7;
 }
 
 message ListOrganizationRequest {
@@ -178,151 +186,52 @@ message ListOrganizationRequest {
   string page_token = 2;    // opaque token
   string query = 3;         // optional search by name/slug
 }
+
 message ListOrganizationResponse {
   repeated Organization data = 1;
   string next_page_token = 2;
 }
 
-// --------------------- Onboarding ---------------------
-message WizardState {
-  string current_step = 1; // business, tax, location, payment, complete
-  repeated string steps_done = 2;
-  bool completed = 3;
-}
-message GetOnboardingStateRequest { string org_id = 1; }
-message GetOnboardingStateResponse { WizardState state = 1; }
-message StartOnboardingRequest { string org_id = 1; }
-message CompleteOnboardingRequest { string org_id = 1; bool accept_terms = 2; }
-
-message BusinessProfile {
-  string legal_name = 1;
-  string tax_id = 2;       // NPWP/VAT id
-  string address = 3;
-  string phone = 4;
-  string timezone = 5;     // Asia/Jakarta
-  string currency = 6;     // IDR
-  string locale = 7;       // id-ID
-  string contact_email = 8;
-}
-message PutBusinessProfileRequest { string org_id = 1; BusinessProfile profile = 2; }
-
-message TaxConfig {
-  bool tax_inclusive = 1; // true for VAT/PPN style pricing
-  double default_rate = 2; // e.g. 11.0 for ID PPN
-}
-message PutTaxConfigRequest { string org_id = 1; TaxConfig tax = 2; }
-
-// --------------------- Locations ----------------------
 message Location {
-  string id = 1;
+
+  string location_id = 1;
   string org_id = 2;
   string name = 3;
   string address = 4;
   string timezone = 5;
-  bool is_default = 6;
-  string country_code = 7; // ISO 3166-1 alpha-2
-  string city = 8;
-  string postal_code = 9;
-  string locale = 10;
-  string currency = 11;
-  string region_id = 12; // link to OrgRegion
+  string city = 6;
+  string zip_code = 7;
+  bool is_default = 8;
+
+  message GeoPoint {
+    float lat = 1;
+    float long = 2;
+  }
+
+  GeoPoint geo_point = 9;
+
 }
-message CreateLocationRequest {
+
+enum Role {
+  OWNER = 0;
+}
+
+enum InvitationStatus {
+  INVITATION_STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  COMPLETED = 2;
+}
+
+message Invitation {
+  string invitation_id = 1;
+  string org_id = 2;
+  string email = 3;
+  string role = 4;
+  string code = 5;
+}
+
+message Member {
   string org_id = 1;
-  string name = 2;
-  string address = 3;
-  string timezone = 4;
-  bool is_default = 5;
-  string country_code = 6;
-  string city = 7;
-  string postal_code = 8;
-  string locale = 9;
-  string currency = 10;
-  string region_id = 11;
-}
-message ListLocationsRequest { string org_id = 1; }
-message ListLocationsResponse { repeated Location data = 1; }
-
-// --------------------- Receipt Template ----------------
-message ReceiptTemplate {
-  string header = 1; // multi-line allowed with \n
-  string footer = 2;
-  int32 width_mm = 3; // 58 or 80
-  bool show_tax_breakdown = 4;
-  string rounding_policy = 5; // nearest_1, nearest_100, etc.
-}
-message PutReceiptTemplateRequest { string org_id = 1; ReceiptTemplate tpl = 2; }
-
-// --------------------- Domains ------------------------
-message DomainDNSRecord { string type = 1; string host = 2; string value = 3; int32 ttl = 4; }
-message Domain {
-  string id = 1;
-  string org_id = 2;
-  string custom_domain = 3;
-  string status = 4; // pending_dns, verified, tls_provisioned, failed
-  repeated DomainDNSRecord dns_records = 5; // instructions for the user
-}
-message CreateDomainRequest { string org_id = 1; string custom_domain = 2; }
-message VerifyDomainDNSRequest { string org_id = 1; string domain_id = 2; }
-message ProvisionDomainTLSRequest { string org_id = 1; string domain_id = 2; }
-
-// --------------------- Regions (Global) ----------------
-message OrgRegion {
-  string id = 1;
-  string org_id = 2;
-  string code = 3;            // EU, US, APAC
-  string data_residency = 4;  // eu-west-1, us-east-1, asia-southeast1
-  string default_currency = 5;
-  string default_locale = 6;
-  string tax_profile_id = 7;
-  string payment_profile_id = 8;
-}
-message CreateRegionRequest {
-  string org_id = 1;
-  string code = 2;
-  string data_residency = 3;
-  string default_currency = 4;
-  string default_locale = 5;
-  string tax_profile_id = 6;
-  string payment_profile_id = 7;
-}
-message ListRegionsRequest { string org_id = 1; }
-message ListRegionsResponse { repeated OrgRegion data = 1; }
-
-// --------------------- Pricebooks ---------------------
-message Pricebook {
-  string id = 1; string org_id = 2; string name = 3; string country_code = 4; string currency = 5; bool tax_inclusive = 6; bool active = 7;
-}
-message CreatePricebookRequest {
-  string org_id = 1; string name = 2; string country_code = 3; string currency = 4; bool tax_inclusive = 5; bool active = 6;
-}
-message PricebookItemUpsert { string variant_id = 1; int64 price_minor = 2; int64 compare_at_minor = 3; string currency = 4; }
-message UpsertPricebookItemsRequest { string org_id = 1; string pricebook_id = 2; repeated PricebookItemUpsert items = 3; }
-message ListPricebooksRequest { string org_id = 1; string country_code = 2; string currency = 3; }
-message ListPricebooksResponse { repeated Pricebook data = 1; }
-
-// --------------------- Tax Profiles -------------------
-message TaxProfile {
-  string id = 1;
-  string org_id = 2;
-  string name = 3;     // "EU VAT OSS", "US Sales Tax", "ID PPN 11"
-  string regime = 4;   // VAT, GST, SALES_TAX, PPN
-  string country_code = 5; // optional
-  string config_json = 6;  // JSON string for rules (rates, thresholds)
-}
-
-message CreateTaxProfileRequest {
-  string org_id = 1; string name = 2; string regime = 3; string country_code = 4; string config_json = 5;
-}
-
-message ListTaxProfilesRequest { string org_id = 1; }
-message ListTaxProfilesResponse { repeated TaxProfile data = 1; }
-
-// --------------------- Payment Profiles ---------------
-message PaymentRoute { string method = 1; string provider = 2; string account_id = 3; }
-message PaymentProfile {
-  string id = 1; string org_id = 2; string name = 3; repeated PaymentRoute routes = 4;
-}
-message ConnectPaymentProviderRequest {
-  string org_id = 1; string name = 2; repeated PaymentRoute routes = 3; // e.g., method="qris", provider="xendit", account_id="..."
+  string user_id = 2;
+  Role role = 3;
 }

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package smallbiznis.loyalty.point.v1;
+package smallbiznis.loyalty.v1;
 
-option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/point/v1;pointv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/v1;loyaltyv1";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
@@ -52,7 +52,7 @@ service PointService {
     };
   };
 
-  rpc GetEarningStatus(StatusEarningRequest) returns (StatusEarningResponse) {
+  rpc GetEarning(StatusEarningRequest) returns (StatusEarningResponse) {
     option (google.api.http) = {
       get: "/v1/earning/{transaction_id}"
     };

@@ -116,6 +116,27 @@ service OrganizationService {
     };
   }
 
+  rpc CreateInvitation(InvitationRequest) returns (InvitationResponse) {
+    option (google.api.http) = { post: "/v1/invitations", body: "*" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Invitation" summary: "List invitations (paginated)" operation_id: "Invitation_List";
+    };
+  }
+
+  rpc GetInvitation(GetInvitationRequest) returns (Invitation) {
+    option (google.api.http) = { get: "/v1/invitations/{invitation_id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Invitation" summary: "Get invitation by id" operation_id: "Invitation_Get";
+    };
+  }
+
+  rpc VerifyInvitation(VerifyInvitationRequest) returns (VerifyInvitationResponse) {
+    option (google.api.http) = { put: "/v1/invitations/{code}/verify" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Invitation" summary: "Verify invitation by id" operation_id: "Invitation_Verify";
+    };
+  }
+
 }
 
 message Countries {
@@ -264,7 +285,19 @@ message InvitationRequest {
   string role = 3;
 }
 
-message InvitationResponse {}
+message InvitationResponse {
+  repeated Invitation data = 1;
+}
+
+message GetInvitationRequest {
+  string invitation_id = 1;
+}
+
+message VerifyInvitationRequest {
+  string code = 1;
+}
+
+message VerifyInvitationResponse {}
 
 message Member {
   string id = 1;

@@ -95,6 +95,27 @@ service OrganizationService {
     };
   }
 
+  rpc ListLocation(ListLocationRequest) returns (ListLocationResponse) {
+     option (google.api.http) = { get: "/v1/locations" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Location" summary: "List locations (paginated)" operation_id: "Location_List";
+    };
+  }
+
+  rpc CreateLocation(Location) returns (Location) {
+     option (google.api.http) = { post: "/v1/locations", body: "*" };
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Location" summary: "List locations (paginated)" operation_id: "Location_List";
+      };
+  }
+
+  rpc GetLocation(GetLocationRequest) returns (Location) {
+    option (google.api.http) = { get: "/v1/locations/{location_id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Location" summary: "Get location by id" operation_id: "Location_Get";
+    };
+  }
+
 }
 
 message Countries {
@@ -198,28 +219,33 @@ message Location {
   string org_id = 2;
   string name = 3;
   string address = 4;
-  string timezone = 5;
-  string city = 6;
-  string zip_code = 7;
-  bool is_default = 8;
+  string city = 5;
+  string zip_code = 6;
+  string country_code = 7;
+  string timezone = 8;
+  bool is_default = 9;
 
   message GeoPoint {
     float lat = 1;
     float long = 2;
   }
 
-  GeoPoint geo_point = 9;
+  GeoPoint geo_point = 10;
 
+}
+
+message ListLocationRequest {}
+
+message ListLocationResponse {
+  repeated Location data = 1;
+}
+
+message GetLocationRequest {
+  string location_id = 1;
 }
 
 enum Role {
   OWNER = 0;
-}
-
-enum InvitationStatus {
-  INVITATION_STATUS_UNSPECIFIED = 0;
-  PENDING = 1;
-  COMPLETED = 2;
 }
 
 message Invitation {
@@ -228,10 +254,22 @@ message Invitation {
   string email = 3;
   string role = 4;
   string code = 5;
+  string status = 6;
+  string expiry_at = 7;
 }
 
-message Member {
+message InvitationRequest {
   string org_id = 1;
-  string user_id = 2;
-  Role role = 3;
+  string email = 2;
+  string role = 3;
+}
+
+message InvitationResponse {}
+
+message Member {
+  string id = 1;
+  string org_id = 2;
+  string user_id = 3;
+  string email = 4;
+  Role role = 5;
 }

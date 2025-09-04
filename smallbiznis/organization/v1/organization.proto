@@ -204,7 +204,6 @@ message LookupOrganizationRequest {
 
 message LookupOrganizationResponse {
   string organization = 1;
-  string errors = 2;
 }
 
 message CreateOrganizationRequest {

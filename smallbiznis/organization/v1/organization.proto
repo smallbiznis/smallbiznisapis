@@ -194,6 +194,7 @@ message Organization {
   string name = 4;
   string logo_url = 5;
   string country_code = 6;
+  string plan_id = 7;
   google.protobuf.Timestamp created_at = 8;
   google.protobuf.Timestamp updated_at = 9;
 }

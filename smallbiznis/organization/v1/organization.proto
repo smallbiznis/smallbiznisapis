@@ -130,6 +130,13 @@ service OrganizationService {
     };
   }
 
+  rpc RevokeInvitation(RevokeInvitationRequest) returns (RevokeInvitationResponse) {
+    option (google.api.http) = { put: "/v1/invitations/{invitation_id}/revoke" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Invitation" summary: "Revookoe invitation by id" operation_id: "Invitation_Revoke";
+    };
+  }
+
   rpc VerifyInvitation(VerifyInvitationRequest) returns (VerifyInvitationResponse) {
     option (google.api.http) = { put: "/v1/invitations/{code}/verify" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -287,13 +294,20 @@ enum Role {
   OWNER = 0;
 }
 
+enum InvitationStatus {
+  INVITATION_PENDING = 0;
+  INVITATION_ACCEPT = 1;
+  INVITATION_EXPIRED = 2;
+  INVITATION_REVOKED = 3;
+}
+
 message Invitation {
   string invitation_id = 1;
   string org_id = 2;
   string email = 3;
   string role = 4;
-  string code = 5;
-  string status = 6;
+  string token = 5;
+  InvitationStatus status = 6;
   string expiry_at = 7;
 }
 
@@ -316,6 +330,12 @@ message ListInvitationResponse {
 message GetInvitationRequest {
   string invitation_id = 1;
 }
+
+message RevokeInvitationRequest {
+  string invitation_id = 1;
+}
+
+message RevokeInvitationResponse {}
 
 message VerifyInvitationRequest {
   string code = 1;

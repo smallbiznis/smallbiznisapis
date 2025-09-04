@@ -116,7 +116,7 @@ service OrganizationService {
     };
   }
 
-  rpc CreateInvitation(InvitationRequest) returns (InvitationResponse) {
+  rpc CreateInvitation(CreateInvitationRequest) returns (CreateInvitationResponse) {
     option (google.api.http) = { post: "/v1/invitations", body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Invitation" summary: "List invitations (paginated)" operation_id: "Invitation_List";

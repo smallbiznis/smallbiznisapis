@@ -58,6 +58,7 @@ service OrganizationService {
     };
   }
 
+  // Organization
   rpc LookupOrganization(LookupOrganizationRequest) returns (LookupOrganizationResponse) {
     option (google.api.http) = { post: "/v1/organizations/lookup" body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -95,6 +96,7 @@ service OrganizationService {
     };
   }
 
+  // Location
   rpc ListLocation(ListLocationRequest) returns (ListLocationResponse) {
      option (google.api.http) = { get: "/v1/locations" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -116,10 +118,11 @@ service OrganizationService {
     };
   }
 
+  // Invitation
   rpc CreateInvitation(CreateInvitationRequest) returns (CreateInvitationResponse) {
     option (google.api.http) = { post: "/v1/invitations", body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Invitation" summary: "List invitations (paginated)" operation_id: "Invitation_List";
+      tags: "Invitation" summary: "List invitations (paginated)" operation_id: "Invitation_Create";
     };
   }
 
@@ -131,16 +134,16 @@ service OrganizationService {
   }
 
   rpc RevokeInvitation(RevokeInvitationRequest) returns (RevokeInvitationResponse) {
-    option (google.api.http) = { put: "/v1/invitations/{invitation_id}/revoke" };
+    option (google.api.http) = { post: "/v1/invitations/{invitation_id}/revoke" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Invitation" summary: "Revookoe invitation by id" operation_id: "Invitation_Revoke";
+      tags: "Invitation" summary: "Revoke invitation by id" operation_id: "Invitation_Revoke";
     };
   }
 
   rpc VerifyInvitation(VerifyInvitationRequest) returns (VerifyInvitationResponse) {
-    option (google.api.http) = { put: "/v1/invitations/{code}/verify" };
+    option (google.api.http) = { post: "/v1/invitations/{token}/verify" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Invitation" summary: "Verify invitation by id" operation_id: "Invitation_Verify";
+      tags: "Invitation" summary: "Verify invitation by token" operation_id: "Invitation_Verify";
     };
   }
 
@@ -338,7 +341,7 @@ message RevokeInvitationRequest {
 message RevokeInvitationResponse {}
 
 message VerifyInvitationRequest {
-  string code = 1;
+  string token = 1;
 }
 
 message VerifyInvitationResponse {}

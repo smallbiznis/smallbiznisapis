@@ -290,13 +290,19 @@ message Invitation {
   string expiry_at = 7;
 }
 
-message InvitationRequest {
+message CreateInvitationRequest {
   string org_id = 1;
   string email = 2;
   string role = 3;
 }
 
-message InvitationResponse {
+message CreateInvitationResponse {}
+
+message ListInvitationRequest {
+  string org_id = 1;
+}
+
+message ListInvitationResponse {
   repeated Invitation data = 1;
 }
 

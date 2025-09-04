@@ -211,6 +211,7 @@ message CreateOrganizationRequest {
   OrganizationType type = 2;
   string country_code = 3;
   string owner = 4;
+  string plan_id = 5;
 }
 
 message GetOrganizationRequest { string org_id = 1; }

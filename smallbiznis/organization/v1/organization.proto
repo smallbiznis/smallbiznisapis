@@ -187,6 +187,13 @@ enum OrganizationType {
   COMPANY = 2;
 }
 
+enum PlanType {
+  FREE = 0;
+  PRO = 1;
+  GROWTH = 2;
+  ENTERPRISE = 3;
+}
+
 message Organization {
   string org_id = 1;
   OrganizationType type = 2;
@@ -194,7 +201,7 @@ message Organization {
   string name = 4;
   string logo_url = 5;
   string country_code = 6;
-  string plan_id = 7;
+  PlanType plan_id = 7;
   google.protobuf.Timestamp created_at = 8;
   google.protobuf.Timestamp updated_at = 9;
 }

@@ -102,7 +102,7 @@ service OrganizationService {
     };
   }
 
-  rpc CreateLocation(Location) returns (Location) {
+  rpc CreateLocation(CreateLocationRequest) returns (Location) {
      option (google.api.http) = { post: "/v1/locations", body: "*" };
       option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
         tags: "Location" summary: "List locations (paginated)" operation_id: "Location_List";
@@ -254,6 +254,16 @@ message Location {
 
   GeoPoint geo_point = 10;
 
+}
+
+message CreateLocationRequest {
+  string org_id = 1;
+  string name = 2;
+  string address = 3;
+  string city = 4;
+  string zip_code = 5;
+  string country_code = 6;
+  string timezone = 7;
 }
 
 message ListLocationRequest {}

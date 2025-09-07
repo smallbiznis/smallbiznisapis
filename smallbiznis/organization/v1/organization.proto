@@ -42,11 +42,27 @@ service OrganizationService {
     };
   }
 
+  rpc GetCountry(GetCountryRequest) returns (Countries) {
+    option (google.api.http) = { get: "/v1/contries/{code}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Contries" summary: "Get an contries by code" operation_id: "Contries_GetByCode";
+      description: "Get a contries by code."
+    };
+  }
+
   rpc ListTimezone(ListTimezoneRequest) returns (ListTimezoneResponse) {
     option (google.api.http) = { get: "/v1/timezones" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Timezone" summary: "List an timezone" operation_id: "Timezone_List";
       description: "List a timezone."
+    };
+  }
+
+  rpc GetTimezone(GetTimezoneRequest) returns (Timezones) {
+    option (google.api.http) = { get: "/v1/timezones/{id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Timezone" summary: "Get an timezone by ID" operation_id: "Timezone_GetByID";
+      description: "Get a timezone by id."
     };
   }
 
@@ -154,6 +170,10 @@ message Countries {
   string name = 2;
 }
 
+message GetCountryRequest {
+  string code = 1;
+}
+
 message ListContryRequest {
   string code = 1;
 }
@@ -174,6 +194,10 @@ message ListTimezoneRequest {
 
 message ListTimezoneResponse {
   repeated Timezones data = 1;
+}
+
+message GetTimezoneRequest {
+  string id = 1;
 }
 
 message Currencies {

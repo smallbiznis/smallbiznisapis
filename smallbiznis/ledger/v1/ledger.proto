@@ -117,7 +117,7 @@ message RevertEntryRequest {
 }
 
 message ListEntriesRequest {
-  string organization_id = 1;
+  string org_id = 1;
   string user_id = 2;
 }
 

@@ -53,7 +53,8 @@ message Product {
 message Option {
   string option_id = 1;
   string option_name = 2;
-  repeated string values = 3;
+  int32 position = 3;
+  repeated string values = 4;
 }
 
 // VARIANT

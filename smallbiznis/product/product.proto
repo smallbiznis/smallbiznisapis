@@ -1,0 +1,184 @@
+syntax = "proto3";
+
+package smallbiznis.product.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;productv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+// ENUMS
+enum ProductType {
+  PRODUCT_TYPE_UNSPECIFIED = 0;
+  PHYSICAL = 1;
+  DIGITAL = 2;
+  MENU = 3;
+}
+
+enum ProductStatus {
+  STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  DRAFT = 2;
+  ARCHIVED = 3;
+}
+
+enum WeightUnit {
+  UNIT_UNSPECIFIED = 0;
+  KG = 1;
+  G = 2;
+}
+
+// ----------------------------
+// PRODUCT
+// ----------------------------
+message Product {
+  string product_id = 1;
+  string org_id = 2;
+  ProductType type = 3;
+  string slug = 4;
+  string title = 5;
+  string body_html = 6;
+  ProductStatus status = 7;
+
+  repeated Option options = 8;
+  repeated Variant variants = 9;
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+// OPTION
+message Option {
+  string option_id = 1;
+  string option_name = 2;
+  repeated string values = 3;
+}
+
+// VARIANT
+message Variant {
+  string variant_id = 1;
+  string product_id = 2;
+  string sku = 3;
+  string title = 4;
+  bool taxable = 5;
+  double price = 6;
+  double cost = 7;
+  double compare_at_price = 8;
+  double weight = 9;
+  WeightUnit weight_unit = 10;
+  repeated Attribute attributes = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+// ATTRIBUTE (key-value)
+message Attribute {
+  string key = 1;
+  string value = 2;
+}
+
+// ----------------------------
+// REQUEST / RESPONSE
+// ----------------------------
+message GetProductRequest {
+  string product_id = 1;
+  string org_id = 2;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+message ListProductsRequest {
+  string org_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+  int32 total_count = 2;
+}
+
+
+// SERVICE
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "SmallBiznis API";
+    version: "1.0";
+    description: "Multi-tenant, global-ready Organization & Onboarding APIs";
+    contact: { name: "SmallBiznis project"; url: "https://github.com/smallbiznis"; email: "taufiktriantono4@gmail.com"; };
+  };
+  host: "api.smallbiznis.test"
+  schemes: HTTPS;
+  base_path: "/api";
+  consumes: "application/json";
+  produces: "application/json";
+  // security_definitions: {
+  //   security: [{
+  //     key: "BearerAuth",
+  //     value: { type: TYPE_API_KEY, in: IN_HEADER, name: "Authorization", description: "Bearer <token>" }
+  //   }]
+  // }
+};
+
+service ProductService {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Product"
+    description: "APIs to manage organization product."
+  };
+
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {
+    option (google.api.http) = {
+      get: "/v1/products/{product_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Product" summary: "Get product by ID" operation_id: "Product_GetByID";
+      description: "Get product by ID"
+    };
+  }
+
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse) {
+    option (google.api.http) = {
+      get: "/v1/products"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Product" summary: "List an products" operation_id: "Product_List";
+      description: "List a products."
+    };
+  }
+
+  rpc CreateProduct(Product) returns (Product) {
+    option (google.api.http) = {
+      post: "/v1/products"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Product" summary: "Create product" operation_id: "Product_Create";
+      description: "Product create"
+    };
+  }
+
+  rpc UpdateProduct(Product) returns (Product) {
+    option (google.api.http) = {
+      put: "/v1/products/{product_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Product" summary: "Update product" operation_id: "Product_Update";
+      description: "Update product"
+    };
+  }
+
+  rpc DeleteProduct(GetProductRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/products/{product_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Product" summary: "Delete product" operation_id: "Product_Delete";
+      description: "Delete product"
+    };
+  }
+}

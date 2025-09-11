@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package smallbiznis.inventory.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1;inventoryv1";
+
+// import "google/protobuf/timestamp.proto";
+// import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+// INVENTORY ITEM
+message InventoryItem {
+  string inventory_item_id = 1;
+  string org_id = 2;
+  string location_id = 3;
+  string variant_id = 4;
+  int32 quantity = 5;
+  int32 reserved_quantity = 6;
+  int32 incoming_quantity = 7; // optional, future-proof
+}
+
+// REQUEST / RESPONSE
+message GetVariantInventoryRequest {
+  string variant_id = 1;
+  string org_id = 2;
+}
+
+message GetVariantInventoryResponse {
+  repeated InventoryItem inventories = 1;
+}
+
+message ListLocationInventoryRequest {
+  string location_id = 1;
+  string org_id = 2;
+}
+
+message ListLocationInventoryResponse {
+  repeated InventoryItem inventories = 1;
+}
+
+message UpdateInventoryRequest {
+  string inventory_item_id = 1;
+  int32 quantity = 2;
+  int32 reserved_quantity = 3;
+  int32 incoming_quantity = 4;
+}
+
+message UpdateInventoryResponse {
+  InventoryItem inventory = 1;
+}
+
+// ----------------------------
+// Adjust / Transfer stock
+// ----------------------------
+enum AdjustType {
+  ADJUST_TYPE_UNSPECIFIED = 0;
+  SUPPLIER_RESTOCK = 1;
+  TRANSFER_FROM_LOCATION = 2;
+  MANUAL_ADJUST = 3;
+}
+
+message AdjustInventoryRequest {
+  string inventory_item_id = 1;
+  int32 adjust_quantity = 2;           // positif = tambah, negatif = kurang
+  AdjustType adjust_type = 3;
+  string from_location_id = 4;         // optional, untuk transfer
+  string note = 5;                      // optional catatan / reason
+}
+
+message AdjustInventoryResponse {
+  InventoryItem inventory = 1;
+}
+
+// SERVICE
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "SmallBiznis Inventory API";
+    version: "1.0";
+    description: "Multi-tenant Inventory Service API for SmallBiznis";
+    contact: { name: "SmallBiznis project"; url: "https://github.com/smallbiznis"; email: "taufiktriantono4@gmail.com"; };
+  };
+  host: "api.smallbiznis.test"
+  schemes: HTTPS;
+  base_path: "/api";
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+service InventoryService {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Inventory"
+    description: "APIs to manage inventory."
+  };
+
+  rpc CreateVariantInventory(InventoryItem) returns (InventoryItem) {
+    option (google.api.http) = {
+      post: "/v1/inventory"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Inventory" summary: "Create an inventory" operation_id: "Inventory_Create";
+    };
+  } 
+
+  rpc GetVariantInventory(GetVariantInventoryRequest) returns (GetVariantInventoryResponse) {
+    option (google.api.http) = {
+      get: "/v1/inventory/variants/{variant_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Inventory" summary: "Get an inventory" operation_id: "Inventory_Get";
+    };
+  }
+
+  rpc ListLocationInventory(ListLocationInventoryRequest) returns (ListLocationInventoryResponse) {
+    option (google.api.http) = {
+      get: "/v1/inventory/locations/{location_id}"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Inventory" summary: "List a inventory" operation_id: "Inventory_List";
+    };
+  }
+
+  rpc UpdateInventory(UpdateInventoryRequest) returns (UpdateInventoryResponse) {
+    option (google.api.http) = {
+      put: "/v1/inventory/{inventory_item_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Inventory" summary: "Update an inventory" operation_id: "Inventory_Update";
+    };
+  }
+
+  rpc AdjustInventory(AdjustInventoryRequest) returns (AdjustInventoryResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/{inventory_item_id}/adjust"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Inventory" summary: "Adjust an inventory" operation_id: "Inventory_Adjust";
+    };
+  }
+}

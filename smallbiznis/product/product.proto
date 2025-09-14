@@ -9,7 +9,9 @@ import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+// ----------------------------
 // ENUMS
+// ----------------------------
 enum ProductType {
   PRODUCT_TYPE_UNSPECIFIED = 0;
   PHYSICAL = 1;
@@ -31,7 +33,7 @@ enum WeightUnit {
 }
 
 // ----------------------------
-// PRODUCT
+// MODELS
 // ----------------------------
 message Product {
   string product_id = 1;
@@ -49,15 +51,19 @@ message Product {
   google.protobuf.Timestamp updated_at = 11;
 }
 
-// OPTION
 message Option {
   string option_id = 1;
-  string option_name = 2;
-  int32 position = 3;
-  repeated string values = 4;
+  string org_id = 2;
+  string option_name = 3;
+  int32 position = 4;
+  repeated OptionValue values = 5;
 }
 
-// VARIANT
+message OptionValue {
+  string value = 1;
+  double additional_price = 2;
+}
+
 message Variant {
   string variant_id = 1;
   string product_id = 2;
@@ -74,24 +80,14 @@ message Variant {
   google.protobuf.Timestamp updated_at = 13;
 }
 
-// ATTRIBUTE (key-value)
 message Attribute {
   string key = 1;
   string value = 2;
 }
 
 // ----------------------------
-// REQUEST / RESPONSE
+// REQUESTS & RESPONSES
 // ----------------------------
-message GetProductRequest {
-  string product_id = 1;
-  string org_id = 2;
-}
-
-message GetProductResponse {
-  Product product = 1;
-}
-
 message ListProductsRequest {
   string org_id = 1;
   int32 page = 2;
@@ -103,8 +99,92 @@ message ListProductsResponse {
   int32 total_count = 2;
 }
 
+message GetProductRequest {
+  string product_id = 1;
+  string org_id = 2;
+}
 
+message GetProductResponse {
+  Product product = 1;
+}
+
+message CreateProductRequest {
+  Product product = 1;
+}
+
+message UpdateProductRequest {
+  Product product = 1;
+}
+
+message DeleteProductRequest {
+  string product_id = 1;
+  string org_id = 2;
+}
+
+// Option
+message ListOptionsRequest {
+  string org_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message ListOptionsResponse {
+  repeated Option data = 1;
+  int32 total_count = 2;
+}
+
+message GetOptionRequest {
+  string option_id = 1;
+}
+
+message CreateOptionRequest {
+  Option option = 1;
+}
+
+message UpdateOptionRequest {
+  Option option = 1;
+}
+
+message DeleteOptionRequest {
+  string option_id = 1;
+  string org_id = 2;
+}
+
+// Variant
+message ListVariantsRequest {
+  string product_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message ListVariantsResponse {
+  repeated Variant data = 1;
+  int32 total_count = 2;
+}
+
+message GetVariantRequest {
+  string variant_id = 1;
+  string product_id = 2;
+}
+
+message CreateVariantRequest {
+  string product_id = 1;
+  Variant variant = 2;
+}
+
+message UpdateVariantRequest {
+  Variant variant = 1;
+}
+
+message DeleteVariantRequest {
+  string variant_id = 1;
+  string product_id = 2;
+}
+
+// ----------------------------
 // SERVICE
+// ----------------------------
+
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "SmallBiznis API";
@@ -127,59 +207,160 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 
 service ProductService {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
-    name: "Product"
-    description: "APIs to manage organization product."
+    name: "Products"
+    description: "APIs to manage products, options, and variants."
   };
 
-  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {
-    option (google.api.http) = {
-      get: "/v1/products/{product_id}"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Product" summary: "Get product by ID" operation_id: "Product_GetByID";
-      description: "Get product by ID"
-    };
-  }
-
+  // Products
   rpc ListProducts(ListProductsRequest) returns (ListProductsResponse) {
-    option (google.api.http) = {
-      get: "/v1/products"
-    };
+    option (google.api.http) = { get: "/v1/products" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Product" summary: "List an products" operation_id: "Product_List";
-      description: "List a products."
+      tags: "Products"
+      summary: "List all products"
+      operation_id: "Product_List"
+      description: "Retrieve a paginated list of products for an organization."
     };
   }
 
-  rpc CreateProduct(Product) returns (Product) {
-    option (google.api.http) = {
-      post: "/v1/products"
-      body: "*"
-    };
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {
+    option (google.api.http) = { get: "/v1/products/{product_id}" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Product" summary: "Create product" operation_id: "Product_Create";
-      description: "Product create"
+      tags: "Products"
+      summary: "Get product by ID"
+      operation_id: "Product_GetByID"
+      description: "Retrieve a product by its unique identifier."
     };
   }
 
-  rpc UpdateProduct(Product) returns (Product) {
-    option (google.api.http) = {
-      put: "/v1/products/{product_id}"
-      body: "*"
-    };
+  rpc CreateProduct(CreateProductRequest) returns (Product) {
+    option (google.api.http) = { post: "/v1/products" body: "product" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Product" summary: "Update product" operation_id: "Product_Update";
-      description: "Update product"
+      tags: "Products"
+      summary: "Create a product"
+      operation_id: "Product_Create"
+      description: "Create a new product for an organization."
     };
   }
 
-  rpc DeleteProduct(GetProductRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/products/{product_id}"
-    };
+  rpc UpdateProduct(UpdateProductRequest) returns (Product) {
+    option (google.api.http) = { put: "/v1/products/{product.product_id}" body: "product" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Product" summary: "Delete product" operation_id: "Product_Delete";
-      description: "Delete product"
+      tags: "Products"
+      summary: "Update product"
+      operation_id: "Product_Update"
+      description: "Update an existing product by ID."
+    };
+  }
+
+  rpc DeleteProduct(DeleteProductRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/products/{product_id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Products"
+      summary: "Delete product"
+      operation_id: "Product_Delete"
+      description: "Delete a product by its unique identifier."
+    };
+  }
+
+  // Options
+  rpc ListOptions(ListOptionsRequest) returns (ListOptionsResponse) {
+    option (google.api.http) = { get: "/v1/options" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Options"
+      summary: "List options"
+      operation_id: "Option_List"
+      description: "Retrieve a paginated list of product options."
+    };
+  }
+
+  rpc GetOption(GetOptionRequest) returns (Option) {
+    option (google.api.http) = { get: "/v1/options/{option_id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Options"
+      summary: "Get option by ID"
+      operation_id: "Option_GetByID"
+      description: "Retrieve a product option by its unique identifier."
+    };
+  }
+
+  rpc CreateOption(CreateOptionRequest) returns (Option) {
+    option (google.api.http) = { post: "/v1/options" body: "option" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Options"
+      summary: "Create option"
+      operation_id: "Option_Create"
+      description: "Create a new product option."
+    };
+  }
+
+  rpc UpdateOption(UpdateOptionRequest) returns (Option) {
+    option (google.api.http) = { put: "/v1/options/{option.option_id}" body: "option" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Options"
+      summary: "Update option"
+      operation_id: "Option_Update"
+      description: "Update an existing product option by ID."
+    };
+  }
+
+  rpc DeleteOption(DeleteOptionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/options/{option_id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Options"
+      summary: "Delete option"
+      operation_id: "Option_Delete"
+      description: "Delete a product option by ID."
+    };
+  }
+
+  // Variants
+  rpc ListVariants(ListVariantsRequest) returns (ListVariantsResponse) {
+    option (google.api.http) = { get: "/v1/products/{product_id}/variants" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Variants"
+      summary: "List variants"
+      operation_id: "Variant_List"
+      description: "Retrieve all variants of a given product."
+    };
+  }
+
+  rpc GetVariant(GetVariantRequest) returns (Variant) {
+    option (google.api.http) = { get: "/v1/products/{product_id}/variants/{variant_id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Variants"
+      summary: "Get variant by ID"
+      operation_id: "Variant_GetByID"
+      description: "Retrieve a product variant by its unique identifier."
+    };
+  }
+
+  rpc CreateVariant(CreateVariantRequest) returns (Variant) {
+    option (google.api.http) = { post: "/v1/products/{product_id}/variants" body: "variant" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Variants"
+      summary: "Create variant"
+      operation_id: "Variant_Create"
+      description: "Create a new variant for a given product."
+    };
+  }
+
+  rpc UpdateVariant(UpdateVariantRequest) returns (Variant) {
+    option (google.api.http) = { put: "/v1/products/{variant.product_id}/variants/{variant.variant_id}" body: "variant" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Variants"
+      summary: "Update variant"
+      operation_id: "Variant_Update"
+      description: "Update an existing product variant by ID."
+    };
+  }
+
+  rpc DeleteVariant(DeleteVariantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/products/{product_id}/variants/{variant_id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Variants"
+      summary: "Delete variant"
+      operation_id: "Variant_Delete"
+      description: "Delete a product variant by ID."
     };
   }
 }

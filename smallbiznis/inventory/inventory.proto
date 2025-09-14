@@ -20,6 +20,13 @@ message InventoryItem {
   int32 incoming_quantity = 7; // optional, future-proof
 }
 
+message CreateInventoryItemRequest {
+  string org_id = 1;
+  string location_id = 2;
+  string variant_id = 3;
+  int32 quantity = 4;
+}
+
 // REQUEST / RESPONSE
 message GetVariantInventoryRequest {
   string variant_id = 1;
@@ -93,7 +100,7 @@ service InventoryService {
     description: "APIs to manage inventory."
   };
 
-  rpc CreateVariantInventory(InventoryItem) returns (InventoryItem) {
+  rpc CreateVariantInventory(CreateInventoryItemRequest) returns (InventoryItem) {
     option (google.api.http) = {
       post: "/v1/inventory"
       body: "*"

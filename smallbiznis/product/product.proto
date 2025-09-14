@@ -55,13 +55,13 @@ message Option {
   string option_id = 1;
   string org_id = 2;
   string option_name = 3;
-  int32 position = 4;
   repeated OptionValue values = 5;
 }
 
 message OptionValue {
-  string value = 1;
-  double additional_price = 2;
+  string option_id = 1;
+  string value = 2;
+  double additional_price = 3;
 }
 
 message Variant {

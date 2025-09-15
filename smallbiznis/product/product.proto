@@ -35,9 +35,24 @@ enum WeightUnit {
 // ----------------------------
 // MODELS
 // ----------------------------
+message Option {
+  string option_id = 1;
+  string option_name = 2;
+  repeated OptionValue values = 3;
+}
+
+message OptionValue {
+  string option_id = 1;
+  string value = 2;
+  double additional_price = 3;
+}
+
+message ProductResources {
+  string resources_id = 1;
+}
+
 message Product {
   string product_id = 1;
-  string org_id = 2;
   ProductType type = 3;
   string slug = 4;
   string title = 5;
@@ -49,19 +64,6 @@ message Product {
 
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
-}
-
-message Option {
-  string option_id = 1;
-  string org_id = 2;
-  string option_name = 3;
-  repeated OptionValue values = 5;
-}
-
-message OptionValue {
-  string option_id = 1;
-  string value = 2;
-  double additional_price = 3;
 }
 
 message Variant {

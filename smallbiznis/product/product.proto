@@ -59,7 +59,25 @@ message Product {
   string body_html = 6;
   ProductStatus status = 7;
 
-  repeated Option options = 8;
+  message ProductOption {
+
+    message ProductOptionValue {
+
+      string value = 1;
+      
+      double additional_price = 2;
+
+    }
+
+    string option_name = 2;
+
+    repeated ProductOptionValue values = 3;
+
+    int32 position = 4;
+
+  }
+
+  repeated ProductOption options = 8;
   repeated Variant variants = 9;
 
   google.protobuf.Timestamp created_at = 10;
@@ -72,19 +90,35 @@ message Variant {
   string sku = 3;
   string title = 4;
   bool taxable = 5;
-  double price = 6;
-  double cost = 7;
-  double compare_at_price = 8;
-  double weight = 9;
-  WeightUnit weight_unit = 10;
-  repeated Attribute attributes = 11;
-  google.protobuf.Timestamp created_at = 12;
-  google.protobuf.Timestamp updated_at = 13;
+  Price prices = 6;
+  Dimension dimension = 7;
+  repeated Attribute attributes = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
 }
 
 message Attribute {
   string key = 1;
   string value = 2;
+}
+
+message Price {
+  string price_id = 1;
+  string variant_id = 2;
+  string currency = 3;
+  double price = 4;
+  double cost = 5;
+  double compare_at_price = 6;
+}
+
+message Dimension {
+  string dimension_id = 1;
+  string variant_id = 2;
+  double weight = 3;
+  string weight_unit = 4;
+  double height = 5;
+  string height_unit = 6;
+  double dept = 7;
 }
 
 // ----------------------------

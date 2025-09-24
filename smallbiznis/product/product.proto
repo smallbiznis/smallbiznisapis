@@ -37,8 +37,9 @@ enum WeightUnit {
 // ----------------------------
 message Option {
   string option_id = 1;
-  string option_name = 2;
-  repeated OptionValue values = 3;
+  string org_id = 2;
+  string option_name = 3;
+  repeated OptionValue values = 4;
 }
 
 message OptionValue {
@@ -88,14 +89,15 @@ message Product {
 message Variant {
   string variant_id = 1;
   string product_id = 2;
-  string sku = 3;
-  string title = 4;
-  bool taxable = 5;
-  Price prices = 6;
-  Dimension dimension = 7;
-  repeated Attribute attributes = 8;
-  google.protobuf.Timestamp created_at = 9;
-  google.protobuf.Timestamp updated_at = 10;
+  string org_id = 3;
+  string sku = 4;
+  string title = 5;
+  bool taxable = 6;
+  Price prices = 7;
+  Dimension dimension = 8;
+  repeated Attribute attributes = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
 }
 
 message Attribute {

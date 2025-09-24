@@ -53,6 +53,7 @@ message ProductResources {
 
 message Product {
   string product_id = 1;
+  string org_id = 2;
   ProductType type = 3;
   string slug = 4;
   string title = 5;

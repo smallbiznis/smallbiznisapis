@@ -41,12 +41,12 @@ message GetVariantInventoryResponse {
 message ListLocationInventoryRequest {
   string location_id = 1;
   string org_id = 2;
-  smallbiznis.common.v1.CursorRequest page = 3;
+  smallbiznis.common.CursorRequest page = 3;
 }
 
 message ListLocationInventoryResponse {
   repeated InventoryItem inventories = 1;
-  smallbiznis.common.v1.CursorResponse page = 2;
+  smallbiznis.common.CursorResponse page = 2;
 }
 
 message UpdateInventoryRequest {

@@ -132,12 +132,12 @@ message ListFlowTemplatesRequest {
   string organization_id = 1;
   FlowStatus status = 2;
   string trigger = 3;
-  smallbiznis.common.v1.CursorRequest page = 4;
+  smallbiznis.common.CursorRequest page = 4;
 }
 
 message ListFlowTemplatesResponse {
   repeated FlowTemplate data = 1;
-  smallbiznis.common.v1.CursorResponse page = 2;
+  smallbiznis.common.CursorResponse page = 2;
 }
 
 message GetFlowTemplateRequest {
@@ -148,12 +148,12 @@ message ListFlowsRequest {
   string organization_id = 1;
   FlowStatus status = 2;
   string trigger = 3;
-  smallbiznis.common.v1.CursorRequest page = 4;
+  smallbiznis.common.CursorRequest page = 4;
 }
 
 message ListFlowsResponse {
   repeated Flow data = 1;
-  smallbiznis.common.v1.CursorResponse page = 2;
+  smallbiznis.common.CursorResponse page = 2;
 }
 
 message CreateFlowRequest {

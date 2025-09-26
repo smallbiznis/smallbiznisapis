@@ -177,12 +177,12 @@ message GetCountryRequest {
 
 message ListCountriesRequest {
   string code = 1;
-  smallbiznis.common.v1.CursorRequest page = 2;
+  smallbiznis.common.CursorRequest page = 2;
 }
 
 message ListCountriesResponse {
   repeated Countries data = 1;
-  smallbiznis.common.v1.CursorResponse page = 2;
+  smallbiznis.common.CursorResponse page = 2;
 }
 
 message Timezones {
@@ -193,12 +193,12 @@ message Timezones {
 
 message ListTimezoneRequest {
   string country_code = 1;
-  smallbiznis.common.v1.CursorRequest page = 2;
+  smallbiznis.common.CursorRequest page = 2;
 }
 
 message ListTimezoneResponse {
   repeated Timezones data = 1;
-  smallbiznis.common.v1.CursorResponse page = 2;
+  smallbiznis.common.CursorResponse page = 2;
 }
 
 message GetTimezoneRequest {
@@ -214,12 +214,12 @@ message Currencies {
 
 message ListCurrencyRequest {
   string country_code = 1;
-  smallbiznis.common.v1.CursorRequest page = 2;
+  smallbiznis.common.CursorRequest page = 2;
 }
 
 message ListCurrencyResponse {
   repeated Currencies data = 1;
-  smallbiznis.common.v1.CursorResponse page = 2;
+  smallbiznis.common.CursorResponse page = 2;
 }
 
 enum OrganizationType {
@@ -273,13 +273,13 @@ message UpdateOrganizationRequest {
 }
 
 message ListOrganizationRequest {
-  smallbiznis.common.v1.CursorRequest page = 1;
+  smallbiznis.common.CursorRequest page = 1;
   string query = 2;         // optional search by name/slug
 }
 
 message ListOrganizationResponse {
   repeated Organization data = 1;
-  smallbiznis.common.v1.CursorResponse page = 2;
+  smallbiznis.common.CursorResponse page = 2;
 }
 
 message Location {
@@ -315,12 +315,12 @@ message CreateLocationRequest {
 
 message ListLocationRequest {
   string org_id = 1;
-  smallbiznis.common.v1.CursorRequest page = 2;
+  smallbiznis.common.CursorRequest page = 2;
 }
 
 message ListLocationResponse {
   repeated Location data = 1;
-  smallbiznis.common.v1.CursorResponse page = 2;
+  smallbiznis.common.CursorResponse page = 2;
 }
 
 message GetLocationRequest {

@@ -273,14 +273,13 @@ message UpdateOrganizationRequest {
 }
 
 message ListOrganizationRequest {
-  int32 page_size = 1;      // default 20
-  string page_token = 2;    // opaque token
-  string query = 3;         // optional search by name/slug
+  smallbiznis.common.v1.CursorRequest page = 1;
+  string query = 2;         // optional search by name/slug
 }
 
 message ListOrganizationResponse {
   repeated Organization data = 1;
-  string next_page_token = 2;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 message Location {
@@ -314,10 +313,14 @@ message CreateLocationRequest {
   string timezone = 7;
 }
 
-message ListLocationRequest {}
+message ListLocationRequest {
+  string org_id = 1;
+  smallbiznis.common.v1.CursorRequest page = 2;
+}
 
 message ListLocationResponse {
   repeated Location data = 1;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 message GetLocationRequest {

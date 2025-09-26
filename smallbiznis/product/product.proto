@@ -6,7 +6,9 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;p
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
 import "google/api/annotations.proto";
+import "google/type/money.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "smallbiznis/common/pagination.proto";
 
@@ -46,7 +48,7 @@ message Option {
 message OptionValue {
   string option_id = 1;
   string value = 2;
-  double additional_price = 3;
+  google.type.Money additional_price = 3;
 }
 
 message ProductResources {
@@ -85,7 +87,7 @@ message ProductOptionValue {
 
   string value = 1;
   
-  double additional_price = 2;
+  google.type.Money additional_price = 2;
 
 }
 
@@ -111,10 +113,9 @@ message Attribute {
 message Price {
   string price_id = 1;
   string variant_id = 2;
-  string currency = 3;
-  double price = 4;
-  double cost = 5;
-  double compare_at_price = 6;
+  google.type.Money price = 3;
+  google.type.Money cost = 4;
+  google.type.Money compare_at_price = 5;
 }
 
 message Dimension {
@@ -154,6 +155,7 @@ message CreateProductRequest {
 
 message UpdateProductRequest {
   Product product = 1;
+  google.protobuf.FieldMask update_mask = 2;
 }
 
 message DeleteProductRequest {
@@ -182,6 +184,7 @@ message CreateOptionRequest {
 
 message UpdateOptionRequest {
   Option option = 1;
+  google.protobuf.FieldMask update_mask = 2;
 }
 
 message DeleteOptionRequest {
@@ -212,6 +215,7 @@ message CreateVariantRequest {
 
 message UpdateVariantRequest {
   Variant variant = 1;
+  google.protobuf.FieldMask update_mask = 2;
 }
 
 message DeleteVariantRequest {

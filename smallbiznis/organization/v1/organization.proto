@@ -7,6 +7,7 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/organization
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "smallbiznis/common/pagination.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
@@ -176,10 +177,12 @@ message GetCountryRequest {
 
 message ListCountriesRequest {
   string code = 1;
+  smallbiznis.common.v1.CursorRequest page = 2;
 }
 
 message ListCountriesResponse {
   repeated Countries data = 1;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 message Timezones {
@@ -190,10 +193,12 @@ message Timezones {
 
 message ListTimezoneRequest {
   string country_code = 1;
+  smallbiznis.common.v1.CursorRequest page = 2;
 }
 
 message ListTimezoneResponse {
   repeated Timezones data = 1;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 message GetTimezoneRequest {
@@ -209,10 +214,12 @@ message Currencies {
 
 message ListCurrencyRequest {
   string country_code = 1;
+  smallbiznis.common.v1.CursorRequest page = 2;
 }
 
 message ListCurrencyResponse {
   repeated Currencies data = 1;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 enum OrganizationType {

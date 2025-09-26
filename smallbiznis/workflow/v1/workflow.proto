@@ -9,6 +9,7 @@ import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "smallbiznis/common/pagination.proto";
 
 // OpenAPI (Swagger v2) top-level config
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
@@ -130,10 +131,12 @@ message ListFlowTemplatesRequest {
   string organization_id = 1;
   FlowStatus status = 2;
   string trigger = 3;
+  smallbiznis.common.v1.CursorRequest page = 4;
 }
 
 message ListFlowTemplatesResponse {
   repeated FlowTemplate data = 1;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 message GetFlowTemplateRequest {
@@ -144,10 +147,12 @@ message ListFlowsRequest {
   string organization_id = 1;
   FlowStatus status = 2;
   string trigger = 3;
+  smallbiznis.common.v1.CursorRequest page = 4;
 }
 
 message ListFlowsResponse {
   repeated Flow data = 1;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 message CreateFlowRequest {

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package smallbiznis.common.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/common/v1;commonv1";
+
+import "google/protobuf/wrappers.proto";
+
+message CursorRequest {
+  string cursor = 1; // opaque cursor provided by previous response
+  google.protobuf.UInt32Value limit = 2; // optional page size override
+}
+
+message CursorResponse {
+  string next_cursor = 1;
+  string prev_cursor = 2;
+  uint64 total_count = 3;
+}

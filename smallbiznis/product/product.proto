@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "smallbiznis/common/pagination.proto";
 
 // ----------------------------
 // ENUMS
@@ -131,13 +132,12 @@ message Dimension {
 // ----------------------------
 message ListProductsRequest {
   string org_id = 1;
-  int32 page = 2;
-  int32 limit = 3;
+  smallbiznis.common.v1.CursorRequest page = 2;
 }
 
 message ListProductsResponse {
   repeated Product products = 1;
-  int32 total_count = 2;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 message GetProductRequest {
@@ -164,13 +164,12 @@ message DeleteProductRequest {
 // Option
 message ListOptionsRequest {
   string org_id = 1;
-  int32 page = 2;
-  int32 limit = 3;
+  smallbiznis.common.v1.CursorRequest page = 2;
 }
 
 message ListOptionsResponse {
   repeated Option data = 1;
-  int32 total_count = 2;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 message GetOptionRequest {
@@ -193,13 +192,12 @@ message DeleteOptionRequest {
 // Variant
 message ListVariantsRequest {
   string product_id = 1;
-  int32 page = 2;
-  int32 limit = 3;
+  smallbiznis.common.v1.CursorRequest page = 2;
 }
 
 message ListVariantsResponse {
   repeated Variant data = 1;
-  int32 total_count = 2;
+  smallbiznis.common.v1.CursorResponse page = 2;
 }
 
 message GetVariantRequest {

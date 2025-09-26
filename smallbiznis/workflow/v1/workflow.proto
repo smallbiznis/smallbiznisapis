@@ -316,7 +316,7 @@ enum CapPeriod {
 message RewardPointCap {
   CapPeriod period = 1; // day, month, year
   int64 value = 2; // max points per period
-  string timezone = 3; // Asia/Jakarata or tz from org
+  string timezone = 3; // Asia/Jakarta or tz from org
 }
 
 message RewardPoint {
@@ -350,16 +350,16 @@ message Node {
 enum EdgeType {
   EDGE_TYPE_UNSPECIFIED = 0;
 
-  EDGE_TYPE_THEN = 1;
+  THEN = 1;
 
-  EDGE_TYPE_OTHERWISE = 2;
+  OTHERWISE = 2;
 }
 
 message Edge {
 
   string id = 1;
 
-  string type = 2;
+  EdgeType type = 2;
 
   string source = 3;
 

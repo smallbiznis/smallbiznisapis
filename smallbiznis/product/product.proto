@@ -123,7 +123,7 @@ message Dimension {
   string weight_unit = 4;
   double height = 5;
   string height_unit = 6;
-  double dept = 7;
+  double depth = 7;
 }
 
 // ----------------------------

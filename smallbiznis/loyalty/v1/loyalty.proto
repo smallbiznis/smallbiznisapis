@@ -84,7 +84,7 @@ service PointService {
 
   rpc Redemption(RedeemRequest) returns (RedeemResponse) {
     option (google.api.http) = {
-      post: "/v1/redeemption"
+      post: "/v1/redemption"
       body: "*"
     };
 

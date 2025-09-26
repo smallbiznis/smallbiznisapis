@@ -34,19 +34,19 @@ service OrganizationService {
     description: "APIs to manage organizations, global regions, onboarding, locations, pricebooks, tax & payment profiles."
   };
 
-  rpc ListCountry(ListContryRequest) returns (ListCountryResponse) {
-    option (google.api.http) = { get: "/v1/contries" };
+  rpc ListCountries(ListCountriesRequest) returns (ListCountriesResponse) {
+    option (google.api.http) = { get: "/v1/countries" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Contries" summary: "List an contries" operation_id: "Contries_List";
-      description: "List a contries."
+      tags: "Countries" summary: "List countries" operation_id: "Countries_List";
+      description: "List available countries."
     };
   }
 
   rpc GetCountry(GetCountryRequest) returns (Countries) {
-    option (google.api.http) = { get: "/v1/contries/{code}" };
+    option (google.api.http) = { get: "/v1/countries/{code}" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Contries" summary: "Get an contries by code" operation_id: "Contries_GetByCode";
-      description: "Get a contries by code."
+      tags: "Countries" summary: "Get country by code" operation_id: "Countries_GetByCode";
+      description: "Retrieve a country by its ISO code."
     };
   }
 
@@ -174,11 +174,11 @@ message GetCountryRequest {
   string code = 1;
 }
 
-message ListContryRequest {
+message ListCountriesRequest {
   string code = 1;
 }
 
-message ListCountryResponse {
+message ListCountriesResponse {
   repeated Countries data = 1;
 }
 

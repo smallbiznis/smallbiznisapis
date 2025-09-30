@@ -48,7 +48,6 @@ message Option {
 message OptionValue {
   string option_id = 1;
   string value = 2;
-  google.type.Money additional_price = 3;
 }
 
 message ProductResources {
@@ -86,8 +85,6 @@ message ProductOption {
 message ProductOptionValue {
 
   string value = 1;
-  
-  google.type.Money additional_price = 2;
 
 }
 
@@ -113,9 +110,10 @@ message Attribute {
 message Price {
   string price_id = 1;
   string variant_id = 2;
-  google.type.Money price = 3;
-  google.type.Money cost = 4;
-  google.type.Money compare_at_price = 5;
+  string currency_code = 3;
+  double price = 4;
+  double cost = 5;
+  double compare_at_price = 6;
 }
 
 message Dimension {

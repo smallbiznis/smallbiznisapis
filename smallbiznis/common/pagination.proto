@@ -14,5 +14,6 @@ message CursorRequest {
 message CursorResponse {
   string next_cursor = 1;
   string prev_cursor = 2;
-  int32 total_count = 3;
+  bool has_more = 3;
+  int32 total_count = 4;
 }

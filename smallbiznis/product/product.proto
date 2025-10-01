@@ -135,7 +135,7 @@ message ListProductsRequest {
 }
 
 message ListProductsResponse {
-  repeated Product products = 1;
+  repeated Product data = 1;
   smallbiznis.common.CursorResponse page = 2;
 }
 

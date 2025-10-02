@@ -72,10 +72,11 @@ enum AdjustType {
 
 message AdjustInventoryRequest {
   string inventory_item_id = 1;
-  int32 adjust_quantity = 2;           // positif = tambah, negatif = kurang
-  AdjustType adjust_type = 3;
-  string from_location_id = 4;         // optional, untuk transfer
-  string note = 5;                      // optional catatan / reason
+  string org_id = 2;
+  int32 adjust_quantity = 3;           // positif = tambah, negatif = kurang
+  AdjustType adjust_type = 4;
+  string from_location_id = 5;         // optional, untuk transfer
+  string note = 6;                      // optional catatan / reason
 }
 
 message AdjustInventoryResponse {

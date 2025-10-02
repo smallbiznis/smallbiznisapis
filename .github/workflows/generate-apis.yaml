@@ -4,12 +4,7 @@ on:
     branches:
       - "main"
 permissions:
-  deployments: write
   contents: write
-  statuses: write
-  actions: write
-  packages: write
-  checks: read
 jobs:
   build-go:
     runs-on: ubuntu-latest
@@ -17,24 +12,40 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
+        with:
+          version: "24.4"
       - name: Setup Go 1.21.x
         uses: actions/setup-go@v5
         with:
-          # Semantic version range syntax or exact version of Go
-          go-version: '1.21.x'
+          go-version: "1.21.x"
+          cache: true
       - name: Checkout go-genproto
         uses: actions/checkout@v4
         with:
           repository: smallbiznis/go-genproto
           token: ${{ secrets.ACCESS_TOKEN }}
           path: gen
+      - name: Cache Go build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Generate APIs
+        env:
+          OPENAPI_PLUGIN_VERSION: v2.18.0
+          GRPC_GATEWAY_PLUGIN_VERSION: v2.18.0
+          GRPC_PLUGIN_VERSION: v1.3.0
+          PROTOBUF_PLUGIN_VERSION: v1.34.1
         run: |
-          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
-          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.18.0
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1
-          make LANGUAGE=go OUTPUT=gen 
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@${OPENAPI_PLUGIN_VERSION}
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@${GRPC_GATEWAY_PLUGIN_VERSION}
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@${GRPC_PLUGIN_VERSION}
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@${PROTOBUF_PLUGIN_VERSION}
+          make LANGUAGE=go OUTPUT=gen
       - name: Check for changes
         id: check_changes
         run: |

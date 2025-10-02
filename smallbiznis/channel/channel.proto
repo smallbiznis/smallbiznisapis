@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package smallbiznis.channel.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/channel/v1;channelv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "smallbiznis/common/pagination.proto";
+
+// ----------------------------
+// Model
+// ----------------------------
+
+message SalesChannel {
+  string id = 1;
+  string name = 3;
+  string code = 4; // "ONLINE" / "POS"
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message ChannelLocation {
+  string id = 1;
+  string location_id = 2;
+  string channel_id = 3;
+  int32 priority = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// ----------------------------
+// Requests & Responses
+// ----------------------------
+message ListChannelRequest {
+  smallbiznis.common.CursorRequest page = 2;
+}
+
+message ListChannelResponse {
+  repeated SalesChannel data = 1;
+  smallbiznis.common.CursorResponse page = 2;
+}
+
+message GetChannelRequest {
+  string id = 1;
+}
+
+
+message ListChannelLocationsRequest {
+  string org_id = 1;
+  string channel_id = 2;
+}
+
+message ListChannelLocationsResponse {
+  repeated ChannelLocation data = 1;
+}
+
+// ----------------------------
+// SERVICE
+// ----------------------------
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "SmallBiznis API";
+    version: "1.0";
+    description: "Multi-tenant, global-ready Channel & Location APIs";
+    contact: { name: "SmallBiznis project"; url: "https://github.com/smallbiznis"; email: "taufiktriantono4@gmail.com"; };
+  };
+  host: "api.smallbiznis.test"
+  schemes: HTTPS;
+  base_path: "/api";
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+service ChannelService {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Channels"
+    description: "APIs to manage sales channels and channel locations"
+  };
+
+  rpc ListChannel(ListChannelRequest) returns (ListChannelResponse) {
+    option (google.api.http) = { get: "/v1/channels" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Channels"
+      summary: "List all channels"
+      operation_id: "Product_List"
+      description: "Retrieve a paginated list of channels."
+    };
+  }
+
+  rpc GetChannel(GetChannelRequest) returns (SalesChannel) {
+    option (google.api.http) = { get: "/v1/channels/{id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Channels"
+      summary: "Get channel by ID"
+      operation_id: "Channel_GetByID"
+      description: "Retrieve a channel by its unique identifier."
+    };
+  }
+
+  // --- ChannelLocation ---
+  rpc ListChannelLocations(ListChannelLocationsRequest) returns (ListChannelLocationsResponse) {
+    option (google.api.http) = { get: "/v1/channel_locations" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Channel Location"
+      summary: "List all channel locations"
+      operation_id: "ChannelLocation_List"
+      description: "Retrieve all location mappings for a given channel within an organization. This API is used to know from which locations a channel (e.g. ONLINE, POS) can fulfill orders."
+    };
+  }
+
+}

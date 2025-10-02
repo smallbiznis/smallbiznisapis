@@ -21,6 +21,12 @@ enum ProductType {
   MENU = 3;
 }
 
+enum ProductResourceType {
+  PRODUCT_RESOURCE_TYPE_UNSPECIFIED = 0;
+  IMAGE = 1;
+  VIDEO = 2;
+}
+
 enum ProductStatus {
   STATUS_UNSPECIFIED = 0;
   ACTIVE = 1;
@@ -58,19 +64,22 @@ message OptionValue {
 }
 
 message ProductResources {
-  string resources_id = 1;
+  string id = 1;
+  ProductResourceType type = 2;
+  string url = 3;
+  string alt_text = 4;
 }
 
 message Product {
   string product_id = 1;
-  string org_id = 2;
-  ProductType type = 3;
-  string slug = 4;
-  string title = 5;
-  string body_html = 6;
-  ProductStatus status = 7;
+  ProductType type = 2;
+  string slug = 3;
+  string title = 4;
+  string body_html = 5;
 
-  
+  repeated ProductResources resources = 6;
+
+  ProductStatus status = 7;
 
   repeated ProductOption options = 8;
   repeated Variant variants = 9;
@@ -96,9 +105,8 @@ message ProductOptionValue {
 }
 
 message Variant {
-  string variant_id = 1;
+  string id = 1;
   string product_id = 2;
-  string org_id = 3;
   string sku = 4;
   string title = 5;
   bool taxable = 6;
@@ -107,11 +115,23 @@ message Variant {
   repeated Attribute attributes = 9;
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
+  string product_resource_id = 12;
 }
 
 message Attribute {
   string key = 1;
   string value = 2;
+}
+
+message VariantStock {
+
+  string org_id = 1;
+  string variant_id = 2;
+  string location_id = 3;
+  int32 available_quantity = 4;
+  int32 reserved_quantity = 5;
+  google.protobuf.Timestamp updated_at = 6;
+
 }
 
 message Price {
@@ -151,11 +171,56 @@ message GetProductRequest {
 }
 
 message GetProductResponse {
-  Product product = 1;
+  string product_id = 1;
+}
+
+message CreateProductResource {
+
+  string source_url = 1;
+  ProductResourceType type = 2;
+  string alt_text = 3;
+
+}
+
+message CreateProductVariantPrice {
+  string currency_code = 1;
+  double price = 2;
+  double cost = 3;
+  double compare_at_price = 4;
+}
+
+message CreateProductVariantDimension {
+  double weight = 1;
+  WeightUnit weight_unit = 2;
+  double height = 3;
+  HeightUnit height_unit = 4;
+  double depth = 5;
+}
+
+message CreateProductVariant {
+
+  string sku = 1;
+  string title = 2;
+  bool taxable = 3;
+  repeated CreateProductVariantPrice prices = 4;
+  CreateProductVariantDimension dimension = 5;
+  repeated Attribute attributes = 6;
+
 }
 
 message CreateProductRequest {
-  Product product = 1;
+  string org_id = 1;
+  ProductType type = 2;
+  string slug = 3;
+  string title = 4;
+  string body_html = 5;
+
+  repeated CreateProductResource resources = 6;
+
+  ProductStatus status = 7;
+
+  repeated ProductOption options = 8;
+  repeated Variant variants = 9;
 }
 
 message UpdateProductRequest {
@@ -166,6 +231,20 @@ message UpdateProductRequest {
 message DeleteProductRequest {
   string product_id = 1;
   string org_id = 2;
+}
+
+// Variant
+message CreateVariantRequest {
+  string product_id = 1;
+  string sku = 2;
+  string title = 3;
+  bool taxable = 4;
+  repeated Price prices = 5;
+  Dimension dimension = 6;
+  repeated Attribute attributes = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  string product_resource_id = 10;
 }
 
 // Option
@@ -211,11 +290,6 @@ message ListVariantsResponse {
 message GetVariantRequest {
   string variant_id = 1;
   string product_id = 2;
-}
-
-message CreateVariantRequest {
-  string product_id = 1;
-  Variant variant = 2;
 }
 
 message UpdateVariantRequest {
@@ -280,7 +354,7 @@ service ProductService {
   }
 
   rpc CreateProduct(CreateProductRequest) returns (Product) {
-    option (google.api.http) = { post: "/v1/products" body: "product" };
+    option (google.api.http) = { post: "/v1/products" body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Products"
       summary: "Create a product"
@@ -382,7 +456,7 @@ service ProductService {
   }
 
   rpc CreateVariant(CreateVariantRequest) returns (Variant) {
-    option (google.api.http) = { post: "/v1/products/{product_id}/variants" body: "variant" };
+    option (google.api.http) = { post: "/v1/products/{product_id}/variants" body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Variants"
       summary: "Create variant"
@@ -392,7 +466,7 @@ service ProductService {
   }
 
   rpc UpdateVariant(UpdateVariantRequest) returns (Variant) {
-    option (google.api.http) = { put: "/v1/products/{variant.product_id}/variants/{variant.variant_id}" body: "variant" };
+    option (google.api.http) = { put: "/v1/products/{variant.product_id}/variants/{variant.id}" body: "variant" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Variants"
       summary: "Update variant"

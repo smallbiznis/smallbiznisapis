@@ -4,8 +4,7 @@ package smallbiznis.inventory.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1;inventoryv1";
 
-// import "google/protobuf/timestamp.proto";
-// import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "smallbiznis/common/pagination.proto";
@@ -13,12 +12,23 @@ import "smallbiznis/common/pagination.proto";
 // INVENTORY ITEM
 message InventoryItem {
   string inventory_item_id = 1;
+  string location_id = 2;
+  string variant_id = 3;
+  int32 on_hand_quantity = 4;
+  int32 reserved_quantity = 5;
+  int32 incoming_quantity = 6; // optional, future-proof
+}
+
+message InventoryMovement {
+  string movement_id = 1;
   string org_id = 2;
-  string location_id = 3;
-  string variant_id = 4;
-  int32 quantity = 5;
-  int32 reserved_quantity = 6;
-  int32 incoming_quantity = 7; // optional, future-proof
+  string variant_id = 3;
+  string location_id = 4;
+  AdjustType movement_type = 5;
+  int32 quantity = 6;
+  string reference_id = 7;
+  string note = 8;
+  google.protobuf.Timestamp created_at = 9;
 }
 
 message CreateInventoryItemRequest {
@@ -60,14 +70,37 @@ message UpdateInventoryResponse {
   InventoryItem inventory = 1;
 }
 
+message ListInventoryMovementsRequest {
+  string org_id = 1;
+  string variant_id = 2;
+  string location_id = 3;
+  smallbiznis.common.CursorRequest page = 4;
+}
+
+message ListInventoryMovementsResponse {
+  repeated InventoryMovement movements = 1;
+  smallbiznis.common.CursorResponse page = 2;
+}
+
 // ----------------------------
 // Adjust / Transfer stock
 // ----------------------------
 enum AdjustType {
   ADJUST_TYPE_UNSPECIFIED = 0;
   SUPPLIER_RESTOCK = 1;
-  TRANSFER_FROM_LOCATION = 2;
-  MANUAL_ADJUST = 3;
+  MANUAL_ADJUST = 2;
+}
+
+message TransferInventoryRequest {
+  string org_id = 1;
+  string variant_id = 2;
+  string from_location_id = 3;
+  string to_location_id = 4;
+  int32 quantity = 5;
+}
+
+message TransferInventoryResponse {
+  repeated InventoryItem inventories = 1;
 }
 
 message AdjustInventoryRequest {
@@ -75,8 +108,7 @@ message AdjustInventoryRequest {
   string org_id = 2;
   int32 adjust_quantity = 3;           // positif = tambah, negatif = kurang
   AdjustType adjust_type = 4;
-  string from_location_id = 5;         // optional, untuk transfer
-  string note = 6;                      // optional catatan / reason
+  string note = 5;                      // optional catatan / reason
 }
 
 message AdjustInventoryResponse {
@@ -142,6 +174,16 @@ service InventoryService {
     };
   }
 
+  rpc TransferInventory(TransferInventoryRequest) returns (TransferInventoryResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/transfer"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Inventory" summary: "Transfer an inventory" operation_id: "Inventory_Transfer";
+    };
+  }
+
   rpc AdjustInventory(AdjustInventoryRequest) returns (AdjustInventoryResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/{inventory_item_id}/adjust"
@@ -149,6 +191,18 @@ service InventoryService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Inventory" summary: "Adjust an inventory" operation_id: "Inventory_Adjust";
+    };
+  }
+
+  rpc ListInventoryMovements(ListInventoryMovementsRequest) returns (ListInventoryMovementsResponse) {
+    option (google.api.http) = {
+      get: "/v1/inventory/movements"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Inventory"
+      summary: "List inventory movements"
+      operation_id: "InventoryMovement_List"
+      description: "Retrieve a paginated list of inventory movements (adjustments, transfers, restocks) for auditing and reporting."
     };
   }
 }

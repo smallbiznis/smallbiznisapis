@@ -6,6 +6,7 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/channel/v1;c
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "smallbiznis/common/pagination.proto";
 
@@ -15,6 +16,7 @@ import "smallbiznis/common/pagination.proto";
 
 message SalesChannel {
   string id = 1;
+  string org_id = 2;
   string name = 3;
   string code = 4; // "ONLINE" / "POS"
   google.protobuf.Timestamp created_at = 5;
@@ -23,17 +25,19 @@ message SalesChannel {
 
 message ChannelLocation {
   string id = 1;
-  string location_id = 2;
-  string channel_id = 3;
-  int32 priority = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
+  string org_id = 2;
+  string location_id = 3;
+  string channel_id = 4;
+  int32 priority = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
 }
 
 // ----------------------------
 // Requests & Responses
 // ----------------------------
 message ListChannelRequest {
+  string org_id = 1;
   smallbiznis.common.CursorRequest page = 2;
 }
 
@@ -43,7 +47,29 @@ message ListChannelResponse {
 }
 
 message GetChannelRequest {
-  string id = 1;
+  string org_id = 1;
+  string id = 2;
+}
+
+message CreateChannelRequest {
+  string org_id = 1;
+  string name = 2;
+  string code = 3;
+}
+
+message CreateChannelResponse {
+  SalesChannel data = 1;
+}
+
+message UpdateChannelRequest {
+  string org_id = 1;
+  string id = 2;
+  string name = 3;
+  google.protobuf.FieldMask update_mask = 4;
+}
+
+message UpdateChannelResponse {
+  SalesChannel data = 1;
 }
 
 
@@ -86,7 +112,7 @@ service ChannelService {
       tags: "Channels"
       summary: "List all channels"
       operation_id: "Product_List"
-      description: "Retrieve a paginated list of channels."
+      description: "Retrieve a paginated list of channels scoped to an organization."
     };
   }
 
@@ -96,7 +122,33 @@ service ChannelService {
       tags: "Channels"
       summary: "Get channel by ID"
       operation_id: "Channel_GetByID"
-      description: "Retrieve a channel by its unique identifier."
+      description: "Retrieve a channel by its unique identifier within the organization."
+    };
+  }
+
+  rpc CreateChannel(CreateChannelRequest) returns (CreateChannelResponse) {
+    option (google.api.http) = {
+      post: "/v1/channels"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Channels"
+      summary: "Create new channel"
+      operation_id: "Channel_Create"
+      description: "Provision a sales channel for an organization. `org_id` is required."
+    };
+  }
+
+  rpc UpdateChannel(UpdateChannelRequest) returns (UpdateChannelResponse) {
+    option (google.api.http) = {
+      patch: "/v1/channels/{id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Channels"
+      summary: "Update channel"
+      operation_id: "Channel_Update"
+      description: "Update mutable attributes (e.g. display name) of a sales channel. Use `update_mask` to control which fields are changed."
     };
   }
 

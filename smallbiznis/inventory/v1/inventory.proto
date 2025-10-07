@@ -9,6 +9,19 @@ import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "smallbiznis/common/pagination.proto";
 
+enum StockSource {
+  STOCK_SOURCE_UNSPECIFIED = 0;
+  INTERNAL = 1;
+  EXTERNAL = 2;
+}
+
+// For source=EXTERNAL, InventoryService delegates stock read/update to adapter plugins.
+// Example:
+// - ULTRAVOUCHER → fetch stock availability via provider API
+// - WAREHOUSE_API → fetch SKU quantity
+// Internal stock still stored in local DB (inventory_items table).
+// Unified interface ensures frontends and RuleEngine can query stock consistently.
+
 // INVENTORY ITEM
 message InventoryItem {
   string inventory_item_id = 1;
@@ -17,6 +30,10 @@ message InventoryItem {
   int32 on_hand_quantity = 4;
   int32 reserved_quantity = 5;
   int32 incoming_quantity = 6; // optional, future-proof
+  string external_id = 8; // reference id from external provider
+  string provider = 9; // e.g. "ultravoucher", "supplier_a"
+  StockSource source = 10; // INTERNAL or EXTERNAL
+  map<string, string> provider_metadata = 11; // e.g. available_quantity, redeem_url
 }
 
 message InventoryMovement {
@@ -80,6 +97,23 @@ message ListInventoryMovementsRequest {
 message ListInventoryMovementsResponse {
   repeated InventoryMovement movements = 1;
   smallbiznis.common.CursorResponse page = 2;
+}
+
+message ListStockSourcesRequest {}
+
+message ListStockSourcesResponse {
+  repeated string providers = 1;
+}
+
+message SyncExternalStockRequest {
+  string provider = 1; // "ultravoucher"
+  string external_id = 2;
+  string variant_id = 3;
+  map<string, string> metadata = 4;
+}
+
+message SyncExternalStockResponse {
+  repeated InventoryItem items = 1;
 }
 
 // ----------------------------
@@ -253,6 +287,42 @@ service InventoryService {
       summary: "List inventory movements"
       operation_id: "InventoryMovement_List"
       description: "Retrieve a paginated list of inventory movements (adjustments, transfers, restocks) for auditing and reporting."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  }
+
+  rpc ListStockSources(ListStockSourcesRequest) returns (ListStockSourcesResponse) {
+    option (google.api.http) = {
+      get: "/v1/inventory/sources"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Inventory" summary: "List external stock sources" operation_id: "Inventory_ListStockSources";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  }
+
+  rpc SyncExternalStock(SyncExternalStockRequest) returns (SyncExternalStockResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/sync-external"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Inventory" summary: "Sync external stock" operation_id: "Inventory_SyncExternalStock";
+      description: "Sync external stock availability into the unified inventory model.";
       parameters: {
         headers: {
           name: "X-Organization-ID";

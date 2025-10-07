@@ -497,11 +497,15 @@ service ProductService {
   }
 
   rpc UpdateVariantStock(UpdateVariantStockRequest) returns (VariantStock) {
+    option (google.api.http) = {
+      put: "/v1/orgs/{org_id}/variants/{variant_id}/locations/{location_id}/stock"
+      body: "*"
+    };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Variant Stocks"
-      summary: "Update variant stock levels"
+      tags: "Variants"
+      summary: "Update variant stock"
       operation_id: "VariantStock_Update"
-      description: "Update the on-hand, reserved, incoming, and available stock quantities for a variant at a specific location."
+      description: "Updates variant stock levels and publishes a VariantStockEvent on success."
     };
   }
 }

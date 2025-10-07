@@ -113,9 +113,31 @@ service OrganizationService {
     };
   }
 
+  // Member
+  rpc ListMember(ListMemberRequest) returns (ListMemberResponse) {
+    option (google.api.http) = { get: "/v1/organizations/{org_id}/members" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Member" summary: "List members" operation_id: "Member_List";
+    };
+  }
+
+  rpc CreateMember(CreateMemberRequest) returns (Member) {
+    option (google.api.http) = { post: "/v1/organizations/{org_id}/members" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Member" summary: "Create an members" operation_id: "Member_Create";
+    };
+  }
+
+  rpc GetMember(GetMemberRequest) returns (Member) {
+    option (google.api.http) = { put: "/v1/organizations/{org_id}/members/{member_id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Member" summary: "Update an membeer" operation_id: "Member_Update";
+    };
+  }
+
   // Location
   rpc ListLocation(ListLocationRequest) returns (ListLocationResponse) {
-     option (google.api.http) = { get: "/v1/locations" };
+    option (google.api.http) = { get: "/v1/locations" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Location" summary: "List locations (paginated)" operation_id: "Location_List";
     };
@@ -263,9 +285,7 @@ message LookupOrganizationResponse {
 message CreateOrganizationRequest {
   string name = 1;
   OrganizationType type = 2;
-  string country_code = 3;
-  string owner = 4;
-  string plan_id = 5;
+  string owner = 3;
 }
 
 message GetOrganizationRequest { string org_id = 1; }
@@ -285,6 +305,42 @@ message ListOrganizationRequest {
 message ListOrganizationResponse {
   repeated Organization data = 1;
   smallbiznis.common.CursorResponse page = 2;
+}
+
+// Member
+
+message Member {
+
+  string id = 1;
+  string user_id = 2;
+  string role_id = 3;
+
+}
+
+message ListMemberRequest {
+  
+  string org_id = 1;
+  string role_id = 2;
+
+}
+
+message ListMemberResponse {
+  repeated Member data = 1;
+}
+
+message CreateMemberRequest {
+
+  string org_id = 1;
+  string user_id = 2;
+  string role_id = 3;
+
+}
+
+message GetMemberRequest {
+
+  string org_id = 1;
+  string member_id = 2;
+
 }
 
 message Location {
@@ -384,11 +440,3 @@ message VerifyInvitationRequest {
 }
 
 message VerifyInvitationResponse {}
-
-message Member {
-  string id = 1;
-  string org_id = 2;
-  string user_id = 3;
-  string email = 4;
-  Role role = 5;
-}

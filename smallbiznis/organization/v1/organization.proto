@@ -40,6 +40,14 @@ service OrganizationService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Countries" summary: "List countries" operation_id: "Countries_List";
       description: "List available countries."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -48,6 +56,14 @@ service OrganizationService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Countries" summary: "Get country by code" operation_id: "Countries_GetByCode";
       description: "Retrieve a country by its ISO code."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -56,6 +72,14 @@ service OrganizationService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Timezone" summary: "List an timezone" operation_id: "Timezone_List";
       description: "List a timezone."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -64,6 +88,14 @@ service OrganizationService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Timezone" summary: "Get an timezone by ID" operation_id: "Timezone_GetByID";
       description: "Get a timezone by id."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -72,6 +104,14 @@ service OrganizationService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Currencies" summary: "List an currency" operation_id: "Currency_List";
       description: "List a currency."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -81,6 +121,14 @@ service OrganizationService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Organization" summary: "Lookup an organization" operation_id: "Organization_Lookup";
       description: "Lookup a organization (tenant)."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -89,6 +137,14 @@ service OrganizationService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Organization" summary: "Create an organization" operation_id: "Organization_Createe";
       description: "Creates a new organization (tenant). Idempotent via Idempotency-Key header.";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -96,6 +152,14 @@ service OrganizationService {
     option (google.api.http) = { get: "/v1/organizations/{org_id}" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Organization" summary: "Get organization by id" operation_id: "Organization_Get";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -103,6 +167,14 @@ service OrganizationService {
     option (google.api.http) = { get: "/v1/organizations" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Organization" summary: "List organizations (paginated)" operation_id: "Organization_List";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -110,6 +182,14 @@ service OrganizationService {
     option (google.api.http) = { put: "/v1/organizations/{org_id}" body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Organization" summary: "Update an organization" operation_id: "Organization_Update";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -118,6 +198,14 @@ service OrganizationService {
     option (google.api.http) = { get: "/v1/organizations/{org_id}/members" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Member" summary: "List members" operation_id: "Member_List";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -125,6 +213,14 @@ service OrganizationService {
     option (google.api.http) = { post: "/v1/organizations/{org_id}/members" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Member" summary: "Create an members" operation_id: "Member_Create";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -132,6 +228,14 @@ service OrganizationService {
     option (google.api.http) = { put: "/v1/organizations/{org_id}/members/{member_id}" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Member" summary: "Update an membeer" operation_id: "Member_Update";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -140,6 +244,14 @@ service OrganizationService {
     option (google.api.http) = { get: "/v1/locations" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Location" summary: "List locations (paginated)" operation_id: "Location_List";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -147,6 +259,14 @@ service OrganizationService {
      option (google.api.http) = { post: "/v1/locations", body: "*" };
       option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
         tags: "Location" summary: "List locations (paginated)" operation_id: "Location_List";
+        parameters: {
+          headers: {
+            name: "X-Organization-ID";
+            description: "Organization context identifier";
+            type: STRING;
+            required: true;
+          };
+        };
       };
   }
 
@@ -154,6 +274,14 @@ service OrganizationService {
     option (google.api.http) = { get: "/v1/locations/{location_id}" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Location" summary: "Get location by id" operation_id: "Location_Get";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -162,6 +290,14 @@ service OrganizationService {
     option (google.api.http) = { post: "/v1/invitations", body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Invitation" summary: "List invitations (paginated)" operation_id: "Invitation_Create";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -169,6 +305,14 @@ service OrganizationService {
     option (google.api.http) = { get: "/v1/invitations/{invitation_id}" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Invitation" summary: "Get invitation by id" operation_id: "Invitation_Get";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -176,6 +320,14 @@ service OrganizationService {
     option (google.api.http) = { post: "/v1/invitations/{invitation_id}/revoke" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Invitation" summary: "Revoke invitation by id" operation_id: "Invitation_Revoke";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -183,6 +335,14 @@ service OrganizationService {
     option (google.api.http) = { post: "/v1/invitations/{token}/verify" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Invitation" summary: "Verify invitation by token" operation_id: "Invitation_Verify";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 

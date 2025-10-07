@@ -7,7 +7,7 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;p
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "smallbiznis/product/product.proto";
+import "smallbiznis/product/v1/product.proto";
 
 // VariantStockEventType enumerates the types of stock related changes that can
 // be delivered to subscribers.
@@ -28,7 +28,7 @@ message VariantStockEvent {
   string location_id = 5;
   int32 delta_on_hand_quantity = 6;
   int32 delta_reserved_quantity = 7;
-  VariantStock stock_snapshot = 8;
+  smallbiznis.product.v1.VariantStock stock_snapshot = 8;
   google.protobuf.Timestamp occurred_at = 9;
   string correlation_id = 10;
   string triggered_by = 11;
@@ -62,6 +62,14 @@ service VariantStockEventService {
       summary: "Subscribe to variant stock events"
       operation_id: "VariantStock_Subscribe"
       description: "Streams VariantStockEvent payloads for inventory updates, adjustments, and transfers."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 }

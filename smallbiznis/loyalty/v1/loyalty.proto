@@ -50,6 +50,14 @@ service PointService {
       description: ""
       // Uncomment if you use JWT/Bearer
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   };
 
@@ -64,6 +72,14 @@ service PointService {
       summary: "Get Earning Status"
       description: ""
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   };
 
@@ -80,6 +96,14 @@ service PointService {
       description: ""
       // Uncomment if you use JWT/Bearer
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   };
 
@@ -96,6 +120,14 @@ service PointService {
       description: ""
       // Uncomment if you use JWT/Bearer
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   };
 
@@ -111,6 +143,14 @@ service PointService {
       description: ""
       // Uncomment if you use JWT/Bearer
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   };
 }

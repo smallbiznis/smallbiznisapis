@@ -351,6 +351,14 @@ service ProductService {
       summary: "List all products"
       operation_id: "Product_List"
       description: "Retrieve a paginated list of products for an organization."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -361,6 +369,14 @@ service ProductService {
       summary: "Get product by ID"
       operation_id: "Product_GetByID"
       description: "Retrieve a product by its unique identifier."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -371,6 +387,14 @@ service ProductService {
       summary: "Create a product"
       operation_id: "Product_Create"
       description: "Create a new product for an organization."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -381,6 +405,14 @@ service ProductService {
       summary: "Update product"
       operation_id: "Product_Update"
       description: "Update an existing product by ID."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -391,6 +423,14 @@ service ProductService {
       summary: "Delete product"
       operation_id: "Product_Delete"
       description: "Delete a product by its unique identifier."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -402,6 +442,14 @@ service ProductService {
       summary: "List options"
       operation_id: "Option_List"
       description: "Retrieve a paginated list of product options."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -412,6 +460,14 @@ service ProductService {
       summary: "Get option by ID"
       operation_id: "Option_GetByID"
       description: "Retrieve a product option by its unique identifier."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -422,6 +478,14 @@ service ProductService {
       summary: "Create option"
       operation_id: "Option_Create"
       description: "Create a new product option."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -432,6 +496,14 @@ service ProductService {
       summary: "Update option"
       operation_id: "Option_Update"
       description: "Update an existing product option by ID."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -442,6 +514,14 @@ service ProductService {
       summary: "Delete option"
       operation_id: "Option_Delete"
       description: "Delete a product option by ID."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -453,6 +533,14 @@ service ProductService {
       summary: "List variants"
       operation_id: "Variant_List"
       description: "Retrieve all variants of a given product."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -463,6 +551,14 @@ service ProductService {
       summary: "Get variant by ID"
       operation_id: "Variant_GetByID"
       description: "Retrieve a product variant by its unique identifier."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -473,6 +569,14 @@ service ProductService {
       summary: "Create variant"
       operation_id: "Variant_Create"
       description: "Create a new variant for a given product."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -483,6 +587,14 @@ service ProductService {
       summary: "Update variant"
       operation_id: "Variant_Update"
       description: "Update an existing product variant by ID."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -493,6 +605,14 @@ service ProductService {
       summary: "Delete variant"
       operation_id: "Variant_Delete"
       description: "Delete a product variant by ID."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -506,6 +626,14 @@ service ProductService {
       summary: "Update variant stock"
       operation_id: "VariantStock_Update"
       description: "Updates variant stock levels and publishes a VariantStockEvent on success."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 }

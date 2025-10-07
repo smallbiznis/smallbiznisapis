@@ -87,6 +87,14 @@ service ChannelService {
       summary: "List all channels"
       operation_id: "Product_List"
       description: "Retrieve a paginated list of channels."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -97,6 +105,14 @@ service ChannelService {
       summary: "Get channel by ID"
       operation_id: "Channel_GetByID"
       description: "Retrieve a channel by its unique identifier."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -108,6 +124,14 @@ service ChannelService {
       summary: "List all channel locations"
       operation_id: "ChannelLocation_List"
       description: "Retrieve all location mappings for a given channel within an organization. This API is used to know from which locations a channel (e.g. ONLINE, POS) can fulfill orders."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 

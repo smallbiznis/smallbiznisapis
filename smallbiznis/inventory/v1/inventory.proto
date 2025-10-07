@@ -143,8 +143,16 @@ service InventoryService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Inventory" summary: "Create an inventory" operation_id: "Inventory_Create";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
-  } 
+  }
 
   rpc GetVariantInventory(GetVariantInventoryRequest) returns (GetVariantInventoryResponse) {
     option (google.api.http) = {
@@ -152,6 +160,14 @@ service InventoryService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Inventory" summary: "Get an inventory" operation_id: "Inventory_Get";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -161,6 +177,14 @@ service InventoryService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Inventory" summary: "List a inventory" operation_id: "Inventory_List";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -171,6 +195,14 @@ service InventoryService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Inventory" summary: "Update an inventory" operation_id: "Inventory_Update";
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -182,6 +214,14 @@ service InventoryService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Inventory" summary: "Transfer an inventory" operation_id: "Inventory_Transfer"
       description: "Transfers inventory between locations and publishes VariantStockEvent updates for both locations."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -193,6 +233,14 @@ service InventoryService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Inventory" summary: "Adjust an inventory" operation_id: "Inventory_Adjust"
       description: "Adjusts inventory quantities and publishes a VariantStockEvent for downstream subscribers."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -205,6 +253,14 @@ service InventoryService {
       summary: "List inventory movements"
       operation_id: "InventoryMovement_List"
       description: "Retrieve a paginated list of inventory movements (adjustments, transfers, restocks) for auditing and reporting."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 }

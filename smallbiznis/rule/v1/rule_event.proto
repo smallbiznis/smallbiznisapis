@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package smallbiznis.rule.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/rule/v1;rulev1";
+
+import "google/protobuf/timestamp.proto";
+import "smallbiznis/rule/v1/rule.proto";
+
+// This event is emitted whenever rules are evaluated successfully for a given trigger.
+// Each action in this event may result in downstream effects:
+// - EARN_POINT / REDEEM_POINT → LedgerService
+// - ISSUE_VOUCHER → VoucherService
+// - CASHBACK → PaymentService
+// - NOTIFY → NotificationService
+// - TAG_CUSTOMER → CRM sync
+message RuleEvaluatedEvent {
+  string event_id = 1;
+  string org_id = 2;
+  string correlation_id = 3;
+  repeated string rule_ids = 4;
+  repeated RuleAction actions = 5;
+  string trigger = 6;
+  map<string, string> attributes = 7;
+  google.protobuf.Timestamp evaluated_at = 8;
+}

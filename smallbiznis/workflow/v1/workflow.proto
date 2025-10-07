@@ -49,6 +49,14 @@ service WorkflowService {
       summary: "List workflow templates"
       description: "Returns a paginated list of workflow templates. Use query parameters such as `cursor` and `limit` when available."
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -63,6 +71,14 @@ service WorkflowService {
       summary: "Get flow template details"
       description: "Retrieves an workflow by its unique identifier. Returns 404 if the workflow does not exist."
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -78,6 +94,14 @@ service WorkflowService {
       description: "Return a paginated list of workflow definitions."
       // Uncomment if you use JWT/Bearer
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -94,6 +118,14 @@ service WorkflowService {
       description: "Creates a new workflow with the provided attributes. Returns the created workflow on success."
       // Uncomment if you use JWT/Bearer
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -108,6 +140,14 @@ service WorkflowService {
       summary: "Get workflow details"
       description: "Retrieves an workflow by its unique identifier. Returns 404 if the workflow does not exist."
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
@@ -123,6 +163,14 @@ service WorkflowService {
       summary: "Update an workflow"
       description: "Updates mutable fields of an existing workflow. Returns the updated resource on success."
       // security: { security_requirement: { key: "BearerAuth" } }
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 

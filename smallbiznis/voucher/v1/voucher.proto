@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package smallbiznis.voucher.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/voucher/v1;voucherv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+// ----------------------------
+// ENUMS
+// ----------------------------
+enum VoucherStatus {
+  VOUCHER_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  REDEEMED = 2;
+  EXPIRED = 3;
+  INACTIVE = 4;
+}
+
+enum VoucherSource {
+  INTERNAL = 1;
+  EXTERNAL = 2;
+}
+
+enum VoucherProvider {
+  UNKNOWN_PROVIDER = 0;
+  ULTRAVOUCHER = 1;
+  VOUCHERIFY = 2;
+  MIDTRANS = 3;
+  CUSTOM = 4;
+}
+
+// ----------------------------
+// MODELS
+// ----------------------------
+message Voucher {
+  string voucher_id = 1;
+  string org_id = 2;
+  string code = 3;
+  string name = 4;
+  string description = 5;
+  double nominal_value = 6;
+  string currency_code = 7;
+  VoucherStatus status = 8;
+  string campaign_id = 9;
+  string customer_id = 10;
+  bool single_use = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+  string external_id = 14;
+  VoucherSource source = 15;
+  VoucherProvider provider = 16;
+  map<string, string> provider_metadata = 17;
+}
+
+message RedeemVoucherResponse {
+  string voucher_id = 1;
+  string redemption_id = 2;
+  google.protobuf.Timestamp redeemed_at = 3;
+  string message = 4;
+}
+
+message SyncExternalVoucherRequest {
+  VoucherProvider provider = 1;
+  string external_id = 2;
+  string customer_id = 3;
+  map<string, string> metadata = 4;
+}
+
+message RedeemExternalVoucherRequest {
+  VoucherProvider provider = 1;
+  string voucher_code = 2;
+  string customer_id = 3;
+  map<string, string> metadata = 4;
+}
+
+// ----------------------------
+// SERVICE
+// ----------------------------
+service VoucherService {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Vouchers"
+    description: "VoucherService can integrate with providers such as UltraVoucher or Voucherify."
+  };
+
+  // VoucherService delegates external voucher logic to provider adapters.
+  // For example:
+  // - ULTRAVOUCHER -> calls https://api.ultravoucher.co.id/v1/vouchers/redeem
+  // - VOUCHERIFY -> uses API key auth and /vouchers endpoints
+  // - MIDTRANS -> promo code validation
+  // Each adapter translates between internal schema and provider-specific payloads.
+  rpc SyncExternalVoucher(SyncExternalVoucherRequest) returns (Voucher) {
+    option (google.api.http) = {
+      post: "/v1/vouchers/sync"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Vouchers"
+      summary: "Sync external voucher"
+      operation_id: "Voucher_SyncExternal"
+      description: "VoucherService can integrate with providers such as UltraVoucher or Voucherify."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  }
+
+  rpc RedeemExternalVoucher(RedeemExternalVoucherRequest) returns (RedeemVoucherResponse) {
+    option (google.api.http) = {
+      post: "/v1/vouchers:redeem-external"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Vouchers"
+      summary: "Redeem external voucher"
+      operation_id: "Voucher_RedeemExternal"
+      description: "VoucherService can integrate with providers such as UltraVoucher or Voucherify."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  }
+}

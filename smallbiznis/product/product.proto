@@ -128,9 +128,11 @@ message VariantStock {
   string org_id = 1;
   string variant_id = 2;
   string location_id = 3;
-  int32 available_quantity = 4;
-  int32 reserved_quantity = 5;
+  int32 available_quantity = 4; // Calculated: on-hand minus reserved.
+  int32 reserved_quantity = 5; // Quantity blocked by pending fulfillments.
   google.protobuf.Timestamp updated_at = 6;
+  int32 on_hand_quantity = 7; // Total physical units currently in stock.
+  int32 incoming_quantity = 8; // Units expected from purchase orders or transfers.
 
 }
 
@@ -306,9 +308,9 @@ message UpdateVariantStockRequest {
   string org_id = 1;
   string variant_id = 2;
   string location_id = 3;
-  int32 on_hand_quantity = 4;
-  int32 reserved_quantity = 5;
-  int32 incoming_quantity = 6;
+  int32 on_hand_quantity = 4; // Physical units currently available on the shelf.
+  int32 reserved_quantity = 5; // Units locked by orders.
+  int32 incoming_quantity = 6; // Units in transit from suppliers or transfers.
 }
 
 // ----------------------------
@@ -494,5 +496,12 @@ service ProductService {
     };
   }
 
-  rpc UpdateVariantStock(UpdateVariantStockRequest) returns (VariantStock);
+  rpc UpdateVariantStock(UpdateVariantStockRequest) returns (VariantStock) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Variant Stocks"
+      summary: "Update variant stock levels"
+      operation_id: "VariantStock_Update"
+      description: "Update the on-hand, reserved, incoming, and available stock quantities for a variant at a specific location."
+    };
+  }
 }

@@ -106,9 +106,9 @@ message TransferInventoryResponse {
 message AdjustInventoryRequest {
   string inventory_item_id = 1;
   string org_id = 2;
-  int32 adjust_quantity = 3;           // positif = tambah, negatif = kurang
+  int32 adjust_quantity = 3;
   AdjustType adjust_type = 4;
-  string note = 5;                      // optional catatan / reason
+  string note = 5;
 }
 
 message AdjustInventoryResponse {

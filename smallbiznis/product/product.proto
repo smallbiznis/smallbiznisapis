@@ -302,6 +302,15 @@ message DeleteVariantRequest {
   string product_id = 2;
 }
 
+message UpdateVariantStockRequest {
+  string org_id = 1;
+  string variant_id = 2;
+  string location_id = 3;
+  int32 on_hand_quantity = 4;
+  int32 reserved_quantity = 5;
+  int32 incoming_quantity = 6;
+}
+
 // ----------------------------
 // SERVICE
 // ----------------------------
@@ -484,4 +493,6 @@ service ProductService {
       description: "Delete a product variant by ID."
     };
   }
+
+  rpc UpdateVariantStock(UpdateVariantStockRequest) returns (VariantStock);
 }

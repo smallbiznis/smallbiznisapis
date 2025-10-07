@@ -228,6 +228,13 @@ enum OrganizationType {
   COMPANY = 2;
 }
 
+enum OrganizationState {
+  STATE_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+  SUSPENDED = 3;
+}
+
 enum PlanType {
   FREE = 0;
   PRO = 1;
@@ -240,11 +247,9 @@ message Organization {
   OrganizationType type = 2;
   string slug = 3;
   string name = 4;
-  string logo_url = 5;
-  string country_code = 6;
-  PlanType plan_id = 7;
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
+  OrganizationState status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
 
 message LookupOrganizationRequest {

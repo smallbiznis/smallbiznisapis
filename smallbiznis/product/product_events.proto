@@ -62,6 +62,14 @@ service VariantStockEventService {
       summary: "Subscribe to variant stock events"
       operation_id: "VariantStock_Subscribe"
       description: "Streams VariantStockEvent payloads for inventory updates, adjustments, and transfers."
+      parameters: {
+        headers: {
+          name: "X-Organization-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 }

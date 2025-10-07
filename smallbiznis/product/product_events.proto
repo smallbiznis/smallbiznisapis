@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package smallbiznis.product.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;productv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "smallbiznis/product/product.proto";
+
+// VariantStockEventType enumerates the types of stock related changes that can
+// be delivered to subscribers.
+enum VariantStockEventType {
+  VARIANT_STOCK_EVENT_TYPE_UNSPECIFIED = 0;
+  VARIANT_STOCK_UPDATED = 1;
+  VARIANT_STOCK_ADJUSTED = 2;
+  VARIANT_STOCK_TRANSFERRED = 3;
+}
+
+// VariantStockEvent captures the inventory state of a variant at the time an
+// update, adjustment, or transfer completed successfully.
+message VariantStockEvent {
+  string event_id = 1;
+  VariantStockEventType event_type = 2;
+  string org_id = 3;
+  string variant_id = 4;
+  string location_id = 5;
+  int32 delta_on_hand_quantity = 6;
+  int32 delta_reserved_quantity = 7;
+  VariantStock stock_snapshot = 8;
+  google.protobuf.Timestamp occurred_at = 9;
+  string correlation_id = 10;
+  string triggered_by = 11;
+}
+
+// SubscribeVariantStockRequest defines filters and resume tokens that can be
+// used when establishing a streaming subscription.
+message SubscribeVariantStockRequest {
+  string org_id = 1;
+  repeated string variant_ids = 2;
+  repeated string location_ids = 3;
+  string cursor = 4;
+  bool include_snapshot = 5;
+}
+
+service VariantStockEventService {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Variant Stock Events"
+    description: "Realtime notifications for variant stock movements"
+  };
+
+  // SubscribeVariantStock opens a server side stream that emits VariantStockEvent
+  // payloads. The HTTP binding enables the gateway to expose the stream as
+  // Server-Sent Events (SSE) or WebSockets for admin web clients.
+  rpc SubscribeVariantStock(SubscribeVariantStockRequest) returns (stream VariantStockEvent) {
+    option (google.api.http) = {
+      get: "/v1/orgs/{org_id}/variant-stock:subscribe"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Variant Stock Events"
+      summary: "Subscribe to variant stock events"
+      operation_id: "VariantStock_Subscribe"
+      description: "Streams VariantStockEvent payloads for inventory updates, adjustments, and transfers."
+    };
+  }
+}

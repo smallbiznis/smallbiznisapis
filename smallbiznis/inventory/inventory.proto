@@ -180,7 +180,8 @@ service InventoryService {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Inventory" summary: "Transfer an inventory" operation_id: "Inventory_Transfer";
+      tags: "Inventory" summary: "Transfer an inventory" operation_id: "Inventory_Transfer"
+      description: "Transfers inventory between locations and publishes VariantStockEvent updates for both locations."
     };
   }
 
@@ -190,7 +191,8 @@ service InventoryService {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Inventory" summary: "Adjust an inventory" operation_id: "Inventory_Adjust";
+      tags: "Inventory" summary: "Adjust an inventory" operation_id: "Inventory_Adjust"
+      description: "Adjusts inventory quantities and publishes a VariantStockEvent for downstream subscribers."
     };
   }
 

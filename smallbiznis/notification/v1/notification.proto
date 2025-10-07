@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package smallbiznis.notification.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/notification/v1;notificationv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "smallbiznis/common/pagination.proto";
+
+// KAFKA CONSUMER:
+//   topic = rule.evaluated
+//   key = org_id
+//   value = smallbiznis.rule.v1.RuleEvaluatedEvent
+
+// OpenAPI (Swagger v2) top-level config
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "SmallBiznis API";
+    version: "1.0";
+    description: "Multi-tenant, global-ready Organization & Onboarding APIs";
+    contact: { name: "SmallBiznis project"; url: "https://github.com/smallbiznis"; email: "taufiktriantono4@gmail.com"; };
+  };
+  host: "api.smallbiznis.test"
+  schemes: HTTPS;
+  base_path: "/api";
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+service NotificationService {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Notification"
+    description: "APIs for dispatching notifications triggered by rule engine actions."
+  };
+
+  rpc SendNotification(SendNotificationRequest) returns (SendNotificationResponse) {
+    option (google.api.http) = {
+      post: "/v1/notifications/send"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Notification"
+      summary: "Send notification"
+      description: "Queues a notification for delivery. Requires the `X-Organization-ID` header to resolve organization context."
+      operation_id: "Notification_Send"
+    };
+  }
+
+  rpc ListNotificationHistory(ListNotificationHistoryRequest) returns (ListNotificationHistoryResponse) {
+    option (google.api.http) = {
+      get: "/v1/notifications/history"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Notification"
+      summary: "List notification history"
+      description: "Returns notification history for the organization specified by the required `X-Organization-ID` header."
+      operation_id: "Notification_History"
+    };
+  }
+}
+
+enum NotificationChannel {
+  NOTIFICATION_CHANNEL_UNSPECIFIED = 0;
+  EMAIL = 1;
+  PUSH = 2;
+  SMS = 3;
+}
+
+enum NotificationStatus {
+  NOTIFICATION_STATUS_UNSPECIFIED = 0;
+  QUEUED = 1;
+  SENT = 2;
+  FAILED = 3;
+}
+
+message Notification {
+  string notification_id = 1;
+  string org_id = 2;
+  string customer_id = 3;
+  NotificationChannel channel = 4;
+  string template_id = 5;
+  map<string, string> data = 6;
+  NotificationStatus status = 7;
+  string error_message = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp sent_at = 10;
+}
+
+message SendNotificationRequest {
+  string customer_id = 1;
+  NotificationChannel channel = 2;
+  string template_id = 3;
+  map<string, string> data = 4;
+}
+
+message SendNotificationResponse {
+  Notification notification = 1;
+}
+
+message ListNotificationHistoryRequest {
+  smallbiznis.common.CursorRequest page = 1;
+}
+
+message ListNotificationHistoryResponse {
+  repeated Notification notifications = 1;
+  smallbiznis.common.CursorResponse page = 2;
+}

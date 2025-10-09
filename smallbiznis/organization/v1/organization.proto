@@ -115,9 +115,17 @@ service OrganizationService {
     };
   }
 
+  rpc GetOrganizationByDomain(LookupDomainRequest) returns (Domain) {
+    option (google.api.http) = { get: "/v1/domains" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Domain" summary: "Lookup an domains" operation_id: "Domain_Lookup";
+      description: "Lookup a domains (tenant)."
+    };
+  }
+
   // Organization
   rpc LookupOrganization(LookupOrganizationRequest) returns (LookupOrganizationResponse) {
-    option (google.api.http) = { post: "/v1/organizations/lookup" body: "*" };
+    option (google.api.http) = { post: "/v1/organizations:lookup" body: "*" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       tags: "Organization" summary: "Lookup an organization" operation_id: "Organization_Lookup";
       description: "Lookup a organization (tenant)."
@@ -467,8 +475,19 @@ message ListOrganizationResponse {
   smallbiznis.common.CursorResponse page = 2;
 }
 
-// Member
+// Domain
+message Domain {
+  string id = 1;
+  string org_id = 2;
+  string host = 3;
+  bool is_default = 4;
+}
 
+message LookupDomainRequest {
+  string host = 1;
+}
+
+// Member
 message Member {
 
   string id = 1;

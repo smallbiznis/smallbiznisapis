@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package smallbiznis.controlplane.license.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/controlplane/license/v1;licensev1";
+
+// ======================================
+// LicenseService
+// ======================================
+service LicenseService {
+  rpc GenerateLicense(GenerateLicenseRequest) returns (License) {
+    option (google.api.http) = {
+      post: "/v1/licenses:generate"
+      body: "*"
+    };
+  }
+
+  rpc ValidateLicense(ValidateLicenseRequest) returns (ValidateLicenseResponse) {
+    option (google.api.http) = {
+      post: "/v1/licenses:validate"
+      body: "*"
+    };
+  }
+}
+
+message License {
+  string license_id = 1;
+  string tenant_id = 2;
+  string license_key = 3;
+  string plan = 4;
+  repeated string features = 5;
+  google.protobuf.Timestamp expires_at = 6;
+}
+
+message GenerateLicenseRequest {
+  string tenant_id = 1;
+  string plan = 2;
+}
+
+message ValidateLicenseRequest {
+  string license_key = 1;
+}
+
+message ValidateLicenseResponse {
+  bool valid = 1;
+  string message = 2;
+  License license = 3;
+}

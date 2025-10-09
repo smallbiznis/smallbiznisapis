@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package smallbiznis.controlplane.billing.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/controlplane/billing/v1;billingv1";
+
+// ======================================
+// BillingService
+// ======================================
+service BillingService {
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription) {
+    option (google.api.http) = {
+      post: "/v1/subscriptions"
+      body: "*"
+    };
+  }
+
+  rpc GetSubscription(GetSubscriptionRequest) returns (Subscription) {
+    option (google.api.http) = {
+      get: "/v1/subscriptions/{subscription_id}"
+    };
+  }
+
+  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/subscriptions"
+    };
+  }
+
+  rpc HandleWebhook(HandleWebhookRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/billing/webhook"
+      body: "*"
+    };
+  }
+}
+
+message Subscription {
+  string subscription_id = 1;
+  string tenant_id = 2;
+  string plan = 3;
+  string status = 4;
+  string provider = 5;
+  google.protobuf.Timestamp current_period_end = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message CreateSubscriptionRequest {
+  string tenant_id = 1;
+  string plan = 2;
+  string provider = 3;
+}
+
+message GetSubscriptionRequest {
+  string subscription_id = 1;
+}
+
+message ListSubscriptionsRequest {
+  string tenant_id = 1;
+}
+
+message ListSubscriptionsResponse {
+  repeated Subscription subscriptions = 1;
+}
+
+message HandleWebhookRequest {
+  string payload = 1;
+}

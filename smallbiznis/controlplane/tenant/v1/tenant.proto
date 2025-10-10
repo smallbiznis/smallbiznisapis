@@ -47,7 +47,7 @@ service TenantService {
 }
 
 message Tenant {
-  int32 tenant_id = 1;
+  string tenant_id = 1;
   string name = 2;
   string slug = 3;
   string plan = 4;

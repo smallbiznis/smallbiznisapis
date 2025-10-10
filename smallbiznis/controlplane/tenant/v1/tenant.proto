@@ -50,7 +50,9 @@ message Tenant {
   string tenant_id = 1;
   string name = 2;
   string slug = 3;
-  string status = 5;
+  string country_code = 4; // ISO alpha-2
+  string timezone = 5;
+  string status = 6; // active, suspended, archived
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
 }
@@ -58,6 +60,7 @@ message Tenant {
 message CreateTenantRequest {
   string name = 1;
   string slug = 2;
+  string country_code = 3; // ISO alpha-2
 }
 
 message GetTenantRequest {

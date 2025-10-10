@@ -50,9 +50,7 @@ message Tenant {
   string tenant_id = 1;
   string name = 2;
   string slug = 3;
-  string plan = 4;
   string status = 5;
-  string region = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp updated_at = 8;
 }
@@ -60,8 +58,6 @@ message Tenant {
 message CreateTenantRequest {
   string name = 1;
   string slug = 2;
-  string plan = 3;
-  string region = 4;
 }
 
 message GetTenantRequest {
@@ -80,7 +76,6 @@ message ListTenantsResponse {
 message UpdateTenantRequest {
   string tenant_id = 1;
   string name = 2;
-  string plan = 3;
   string status = 4;
 }
 

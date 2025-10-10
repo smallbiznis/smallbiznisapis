@@ -48,13 +48,14 @@ service TenantService {
 
 message Tenant {
   string tenant_id = 1;
-  string name = 2;
-  string slug = 3;
-  string country_code = 4; // ISO alpha-2
-  string timezone = 5;
-  string status = 6; // active, suspended, archived
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  string type = 2;
+  string name = 3;
+  string slug = 4;
+  string country_code = 5; // ISO alpha-2
+  string timezone = 6; // Asia/Jakarta
+  string status = 7; // pending, provisioning, active, suspended, archived
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 }
 
 message CreateTenantRequest {

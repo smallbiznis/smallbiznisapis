@@ -28,8 +28,8 @@ service LicenseService {
 }
 
 message License {
-  string license_id = 1;
-  string tenant_id = 2;
+  int32 license_id = 1;
+  int32 tenant_id = 2;
   string license_key = 3;
   string plan = 4;
   repeated string features = 5;
@@ -37,7 +37,7 @@ message License {
 }
 
 message GenerateLicenseRequest {
-  string tenant_id = 1;
+  int32 tenant_id = 1;
   string plan = 2;
 }
 

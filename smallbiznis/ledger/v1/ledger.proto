@@ -114,8 +114,8 @@ enum EntryType {
 
 message LedgerEntry {
   string id = 1;
-  string org_id = 2;
-  string user_id = 3;
+  string tenant_id = 2;
+  string member_id = 3;
   EntryType type = 4;
   string transaction_id = 5;
   string reference_id = 6;
@@ -126,8 +126,8 @@ message LedgerEntry {
 }
 
 message AddEntryRequest {
-  string org_id = 1;
-  string user_id = 2;
+  string tenant_id = 1;
+  string member_id = 2;
   EntryType type = 3; // fixed: was undefined type
   int64 amount = 4;
   string description = 5;
@@ -141,8 +141,8 @@ message RevertEntryRequest {
 }
 
 message ListEntriesRequest {
-  string org_id = 1;
-  string user_id = 2;
+  string tenant_id = 1;
+  string member_id = 2;
 }
 
 message ListEntriesResponse {
@@ -154,8 +154,8 @@ message GetEntryRequest {
 }
 
 message VerifyChainRequest {
-  string org_id = 1;
-  string user_id = 2;
+  string tenant_id = 1;
+  string member_id = 2;
 }
 
 message VerifyChainResponse {
@@ -164,8 +164,8 @@ message VerifyChainResponse {
 }
 
 message GetBalanceRequest {
-  string user_id = 1;
-  string org_id = 2;
+  string member_id = 1;
+  string tenant_id = 2;
 }
 
 message GetBalanceResponse {

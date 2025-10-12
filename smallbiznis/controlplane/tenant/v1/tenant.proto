@@ -53,10 +53,9 @@ message Tenant {
   string slug = 4;
   string country_code = 5; // ISO alpha-2
   string timezone = 6; // Asia/Jakarta
-  bool is_platform = 7;
-  string status = 8; // pending, provisioning, active, suspended, archived
-  google.protobuf.Timestamp created_at = 9;
-  google.protobuf.Timestamp updated_at = 10;
+  string status = 7; // pending, provisioning, active, suspended, archived
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 }
 
 message CreateTenantRequest {
@@ -65,7 +64,6 @@ message CreateTenantRequest {
   string country_code = 3; // ISO alpha-2
   string timezone = 4; // Asia/Jakarta
   string type = 5; // company, personal
-  bool is_platform = 6;
 }
 
 message GetTenantRequest {
@@ -73,7 +71,7 @@ message GetTenantRequest {
 }
 
 message ListTenantsRequest {
-  int32 page = 1;
+  string cursor = 1;
   int32 limit = 2;
 }
 

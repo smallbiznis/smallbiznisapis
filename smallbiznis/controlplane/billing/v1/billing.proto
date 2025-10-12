@@ -40,20 +40,69 @@ service BillingService {
   }
 }
 
+message Plan {
+  string plan_id = 1;
+  string plan_name = 2;
+  string stripe_product_id = 3;
+  bool active = 5;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+enum RecurringInterval {
+  DAY = 0;
+  MONTH = 1;
+  WEEK = 2;
+  YEAR = 3;
+}
+
+message Recurring {
+  RecurringInterval interval = 1;
+  int32 interval_count = 2;
+}
+
+message Price {
+  string price_id = 1;
+  string plan_id = 2;
+  string stripe_price_id = 3;
+  int32 unit_amount = 4;
+  string currency = 5;
+  string lookup_key = 6;
+  bool is_visible = 7;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
 message Subscription {
   string subscription_id = 1;
   string tenant_id = 2;
-  string plan = 3;
-  string status = 4;
-  string provider = 5;
-  google.protobuf.Timestamp current_period_end = 6;
-  google.protobuf.Timestamp created_at = 7;
+  string stripe_customer_id = 3;
+  string stripe_subscription_id = 4;
+  google.protobuf.Timestamp current_period_start = 6;
+  google.protobuf.Timestamp current_period_end = 7;
+  bool cancel_at_period = 8;
+  google.protobuf.Timestamp cancel_at = 9;
+  google.protobuf.Timestamp trial_start = 10;
+  google.protobuf.Timestamp trial_end = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+message SubscriptionItem {
+  string subscription_item_id = 1;
+  string subscription_id = 2;
+  Plan plan = 3;
+  Price Price = 4;
+  int32 amount = 5;
+  RecurringInterval interval = 6;
+  int32 interval_count = 7;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
 }
 
 message CreateSubscriptionRequest {
   string tenant_id = 1;
-  string plan = 2;
-  string provider = 3;
+  string price_id = 2;
 }
 
 message GetSubscriptionRequest {

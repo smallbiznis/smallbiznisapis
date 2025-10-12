@@ -62,6 +62,8 @@ message CreateTenantRequest {
   string name = 1;
   string slug = 2;
   string country_code = 3; // ISO alpha-2
+  string timezone = 4; // Asia/Jakarta
+  string type = 5; // company, personal
 }
 
 message GetTenantRequest {

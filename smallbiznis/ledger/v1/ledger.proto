@@ -45,8 +45,8 @@ service LedgerService {
       // security: { security_requirement: { key: "BearerAuth" } }
       parameters: {
         headers: {
-          name: "X-Organization-ID";
-          description: "Organization context identifier";
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
           type: STRING;
           required: true;
         };
@@ -69,8 +69,8 @@ service LedgerService {
       // security: { security_requirement: { key: "BearerAuth" } }
       parameters: {
         headers: {
-          name: "X-Organization-ID";
-          description: "Organization context identifier";
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
           type: STRING;
           required: true;
         };
@@ -92,8 +92,8 @@ service LedgerService {
       // security: { security_requirement: { key: "BearerAuth" } }
       parameters: {
         headers: {
-          name: "X-Organization-ID";
-          description: "Organization context identifier";
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
           type: STRING;
           required: true;
         };

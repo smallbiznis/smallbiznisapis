@@ -28,28 +28,82 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   produces: "application/json"
 };
 
-// ====================
+// =====================
 // ENUMS
-// ====================
+// =====================
 
 enum RuleStatus {
   RULE_STATUS_UNSPECIFIED = 0;
-  RULE_STATUS_ENABLED = 1;
-  RULE_STATUS_DISABLED = 2;
+  RULE_STATUS_ACTIVE = 1;
+  RULE_STATUS_INACTIVE = 2;
+}
+
+enum RuleTriggerType {
+  RULE_TRIGGER_TYPE_UNSPECIFIED = 0;
+  RULE_TRIGGER_TYPE_USER_SIGNUP = 1;
+  RULE_TRIGGER_TYPE_PURCHASE = 2;
+  RULE_TRIGGER_TYPE_CAMPAIGN = 3;
 }
 
 enum RuleActionType {
   RULE_ACTION_TYPE_UNSPECIFIED = 0;
   RULE_ACTION_TYPE_REWARD_POINT = 1;
-  RULE_ACTION_TYPE_DISCOUNT = 2;
-  RULE_ACTION_TYPE_NOTIFICATION = 3;
-  RULE_ACTION_TYPE_TAG_USER = 4;
+  RULE_ACTION_TYPE_VOUCHER = 2;
+  RULE_ACTION_TYPE_CASHBACK = 3;
+  RULE_ACTION_TYPE_NOTIFY = 4;
+  RULE_ACTION_TYPE_TAG = 5;
 }
 
 enum EvaluationStatus {
   EVALUATION_STATUS_UNSPECIFIED = 0;
   EVALUATION_STATUS_SUCCESS = 1;
   EVALUATION_STATUS_ERROR = 2;
+}
+
+// =====================
+// SUB-MESSAGES (Action Details)
+// =====================
+
+message PointAction {
+  int64 points = 1;
+  string reference = 2;
+  map<string, string> metadata = 3;
+}
+
+message VoucherAction {
+  string voucher_code = 1;
+  double discount_value = 2;
+  string discount_type = 3;
+  google.protobuf.Timestamp expiry_date = 4;
+  map<string, string> metadata = 5;
+}
+
+message CashbackAction {
+  double amount = 1;
+  string currency = 2;
+  string target_wallet_id = 3;
+  map<string, string> metadata = 4;
+}
+
+message NotifyAction {
+  string channel = 1;
+  string template_id = 2;
+  map<string, string> metadata = 3;
+}
+
+message TagAction {
+  string tag_key = 1;
+  string tag_value = 2;
+}
+
+// Wrapper untuk setiap action
+message RuleAction {
+  RuleActionType type = 1;
+  PointAction point_action = 2;
+  VoucherAction voucher_action = 3;
+  CashbackAction cashback_action = 4;
+  NotifyAction notify_action = 5;
+  TagAction tag_action = 6;
 }
 
 // ====================
@@ -62,12 +116,76 @@ message Rule {
   string tenant_id = 2;
   string name = 3;
   string description = 4;
-  string expression = 5;  // Example: total_spent > 100000 && user_tier == "gold"
-  RuleActionType action_type = 6;
-  google.protobuf.Struct action_value = 7; // Example: {"reward_points": 100}
-  RuleStatus status = 8;
-  google.protobuf.Timestamp created_at = 9;
-  google.protobuf.Timestamp updated_at = 10;
+  bool is_active = 5;
+  int32 priority = 6;
+  RuleTriggerType trigger = 7;
+  string dsl_expression = 8;
+  repeated RuleAction actions = 9;
+  RuleStatus status = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+// =====================
+// API REQUEST/RESPONSE
+// =====================
+
+message CreateRuleRequest {
+  string tenant_id = 1;
+  string name = 2;
+  string description = 3;
+  bool is_active = 4;
+  int32 priority = 5;
+  RuleTriggerType trigger = 6;
+  string dsl_expression = 7;
+  repeated RuleAction actions = 8;
+}
+
+message CreateRuleResponse {
+  Rule rule = 1;
+}
+
+message GetRuleRequest {
+  string rule_id = 1;
+}
+
+message GetRuleResponse {
+  Rule rule = 1;
+}
+
+message ListRulesRequest {
+  string tenant_id = 1;
+  int32 limit = 2;
+  string cursor = 3;
+}
+
+message ListRulesResponse {
+  repeated Rule rules = 1;
+  string next_cursor = 2;
+}
+
+message UpdateRuleRequest {
+  string rule_id = 1;
+  string name = 2;
+  string description = 3;
+  bool is_active = 4;
+  int32 priority = 5;
+  RuleTriggerType trigger = 6;
+  string dsl_expression = 7;
+  repeated RuleAction actions = 8;
+  RuleStatus status = 9;
+}
+
+message UpdateRuleResponse {
+  Rule rule = 1;
+}
+
+message DeleteRuleRequest {
+  string rule_id = 1;
+}
+
+message DeleteRuleResponse {
+  bool success = 1;
 }
 
 // ====================
@@ -143,120 +261,185 @@ message StreamEvaluateResponse {
 // ====================
 
 service RuleService {
+
+  // List all rules for a tenant with pagination
+  rpc ListRules(ListRulesRequest) returns (ListRulesResponse) {
+    option (google.api.http) = {
+      get: "/v1/rules"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Rule Engine"
+      summary: "List rules"
+      operation_id: "Rule_ListRules"
+      description: "Retrieve a paginated list of rules for a specific tenant."
+      parameters: {
+        headers: {
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  }
+
+  // Get a single rule by ID
+  rpc GetRule(GetRuleRequest) returns (GetRuleResponse) {
+    option (google.api.http) = {
+      get: "/v1/rules/{rule_id}"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Rule Engine"
+      summary: "Get a rule by ID"
+      operation_id: "Rule_GetRule"
+      description: "Retrieve the details of a specific rule by its ID."
+      parameters: {
+        headers: {
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  }
+
+  // Create a new rule
+  rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
+    option (google.api.http) = {
+      post: "/v1/rules"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Rule Engine"
+      summary: "Create a new rule"
+      operation_id: "Rule_CreateRule"
+      description: "Create a new rule for a specific tenant."
+      parameters: {
+        headers: {
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  }
+
+  // Update a rule by ID
+  rpc UpdateRule(UpdateRuleRequest) returns (UpdateRuleResponse) {
+    option (google.api.http) = {
+      patch: "/v1/rules/{rule_id}"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Rule Engine"
+      summary: "Update a rule"
+      operation_id: "Rule_UpdateRule"
+      description: "Update the details of an existing rule."
+      parameters: {
+        headers: {
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  }
+
+  // Delete a rule by ID
+  rpc DeleteRule(DeleteRuleRequest) returns (DeleteRuleResponse) {
+    option (google.api.http) = {
+      delete: "/v1/rules/{rule_id}"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Rule Engine"
+      summary: "Delete a rule"
+      operation_id: "Rule_DeleteRule"
+      description: "Delete a specific rule by its ID."
+      parameters: {
+        headers: {
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  }
+
   // Evaluate a single rule by ID
   rpc EvaluateRule(EvaluateRuleRequest) returns (EvaluateRuleResponse) {
     option (google.api.http) = {
       post: "/v1/rules:evaluate"
       body: "*"
     };
-  }
 
-  // Evaluate multiple rules in one call
-  rpc EvaluateRules(EvaluateRulesRequest) returns (EvaluateRulesResponse) {
-    option (google.api.http) = {
-      post: "/v1/rules:batchEvaluate"
-      body: "*"
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Rule Engine"
+      summary: "Evaluate a single rule"
+      operation_id: "Rule_EvaluateRule"
+      description: "Evaluate a specific rule for a tenant with provided context."
+      parameters: {
+        headers: {
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
     };
   }
 
-  // CRUD ops (optional for management UI)
-  rpc ListRules(ListRulesRequest) returns (ListRulesResponse) {
-    option (google.api.http) = {
-      get: "/v1/rules"
-    };
-  }
-
-  rpc GetRule(GetRuleRequest) returns (GetRuleResponse) {
-    option (google.api.http) = {
-      get: "/v1/rules/{rule_id}"
-    };
-  }
-
-  rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
-    option (google.api.http) = {
-      post: "/v1/rules"
-      body: "*"
-    };
-  }
-
-  rpc UpdateRule(UpdateRuleRequest) returns (UpdateRuleResponse) {
-    option (google.api.http) = {
-      patch: "/v1/rules/{rule_id}"
-      body: "*"
-    };
-  }
-
-  rpc DeleteRule(DeleteRuleRequest) returns (DeleteRuleResponse) {
-    option (google.api.http) = {
-      delete: "/v1/rules/{rule_id}"
-    };
-  }
-
+  // Evaluate multiple rules
   rpc BatchEvaluate(BatchEvaluateRequest) returns (BatchEvaluateResponse) {
     option (google.api.http) = {
       post: "/v1/rules:evaluateBatch"
       body: "*"
     };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Rule Engine"
+      summary: "Batch evaluate rules"
+      operation_id: "Rule_BatchEvaluate"
+      description: "Evaluate multiple rules for a tenant in a single request."
+      parameters: {
+        headers: {
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
   }
 
   // Evaluasi batch rules secara streaming (gRPC streaming)
-  rpc StreamEvaluate(stream StreamEvaluateRequest) returns (stream StreamEvaluateResponse);
-}
+  rpc StreamEvaluate(stream StreamEvaluateRequest) returns (stream StreamEvaluateResponse) {
+    option (google.api.http) = {
+      post: "/v1/rules:evaluateStream"
+      body: "*"
+    };
 
-// ====================
-// MANAGEMENT MESSAGES
-// ====================
-
-message ListRulesRequest {
-  string tenant_id = 1;
-  int32 limit = 2;
-  string cursor = 3;
-}
-
-message ListRulesResponse {
-  repeated Rule rules = 1;
-  string next_cursor = 2;
-}
-
-message GetRuleRequest {
-  string rule_id = 1;
-}
-
-message GetRuleResponse {
-  Rule rule = 1;
-}
-
-message CreateRuleRequest {
-  string tenant_id = 1;
-  string name = 2;
-  string description = 3;
-  string expression = 4;
-  RuleActionType action_type = 5;
-  google.protobuf.Struct action_value = 6;
-}
-
-message CreateRuleResponse {
-  Rule rule = 1;
-}
-
-message UpdateRuleRequest {
-  string rule_id = 1;
-  string name = 2;
-  string description = 3;
-  string expression = 4;
-  RuleActionType action_type = 5;
-  google.protobuf.Struct action_value = 6;
-  RuleStatus status = 7;
-}
-
-message UpdateRuleResponse {
-  Rule rule = 1;
-}
-
-message DeleteRuleRequest {
-  string rule_id = 1;
-}
-
-message DeleteRuleResponse {
-  bool success = 1;
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Rule Engine"
+      summary: "Stream evaluate rules"
+      operation_id: "Rule_StreamEvaluate"
+      description: "Stream evaluation results for multiple rules in real-time."
+      parameters: {
+        headers: {
+          name: "X-Tenant-ID";
+          description: "Tenant context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  };
 }

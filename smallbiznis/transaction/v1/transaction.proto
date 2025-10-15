@@ -95,6 +95,7 @@ message CreateTransactionRequest {
   smallbiznis.common.Money amount = 4;
   PaymentMethod payment_method = 5;
   google.protobuf.Struct metadata = 6;
+  repeated TransactionItem items = 7;
 }
 
 message CreateTransactionResponse {

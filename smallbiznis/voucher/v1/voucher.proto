@@ -12,6 +12,13 @@ import "google/protobuf/struct.proto";
 // ENUMS
 // ========================================================
 
+enum CampaignType {
+  CAMPAIGN_TYPE_UNSPECIFIED = 0;
+  CAMPAIGN_DISCOUNT = 1;
+  CAMPAIGN_CASHBACK = 2;
+  CAMPAIGN_FREE_ITEM = 3;
+}
+
 enum DiscountType {
   DISCOUNT_TYPE_UNSPECIFIED = 0;
   FIXED = 1;
@@ -57,7 +64,7 @@ message VoucherCampaign {
   string tenant_id = 2;
   string name = 3;
   string description = 4;
-  string type = 5; // discount, cashback, etc.
+  CampaignType type = 5; // discount, cashback, etc.
   string code = 6;
   int32 total_stock = 7;
   int32 remaining_stock = 8;

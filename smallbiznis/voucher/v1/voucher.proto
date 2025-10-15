@@ -41,6 +41,7 @@ message VoucherCampaign {
   string metadata_json = 11;
   google.protobuf.Timestamp created_at = 12;
   google.protobuf.Timestamp updated_at = 13;
+  string code = 14;
 }
 
 message VoucherIssuance {

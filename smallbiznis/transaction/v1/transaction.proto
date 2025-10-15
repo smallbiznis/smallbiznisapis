@@ -62,6 +62,7 @@ message Transaction {
 
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
+  string transaction_code = 12;
 }
 
 // ========================================================

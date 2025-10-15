@@ -21,8 +21,6 @@ message Voucher {
   int32 remaining_stock = 10;
   google.protobuf.Timestamp expiry_date = 11;
   bool is_active = 12;
-  string dsl_expression = 13; // CEL expression for eligibility
-  string metadata_json = 14;
   google.protobuf.Timestamp created_at = 15;
   google.protobuf.Timestamp updated_at = 16;
 }
@@ -38,10 +36,11 @@ message VoucherCampaign {
   bool is_active = 8;
   google.protobuf.Timestamp start_at = 9;
   google.protobuf.Timestamp end_at = 10;
-  string metadata_json = 11;
-  google.protobuf.Timestamp created_at = 12;
-  google.protobuf.Timestamp updated_at = 13;
-  string code = 14;
+  string dsl_expression = 11; // CEL expression for eligibility
+  string metadata_json = 12;
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
+  string code = 15;
 }
 
 message VoucherIssuance {

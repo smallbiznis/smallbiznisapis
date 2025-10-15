@@ -52,7 +52,7 @@ service PointService {
       // security: { security_requirement: { key: "BearerAuth" } }
       parameters: {
         headers: {
-          name: "X-Organization-ID";
+          name: "X-Tenant-ID";
           description: "Organization context identifier";
           type: STRING;
           required: true;
@@ -74,7 +74,7 @@ service PointService {
       // security: { security_requirement: { key: "BearerAuth" } }
       parameters: {
         headers: {
-          name: "X-Organization-ID";
+          name: "X-Tenant-ID";
           description: "Organization context identifier";
           type: STRING;
           required: true;
@@ -98,7 +98,7 @@ service PointService {
       // security: { security_requirement: { key: "BearerAuth" } }
       parameters: {
         headers: {
-          name: "X-Organization-ID";
+          name: "X-Tenant-ID";
           description: "Organization context identifier";
           type: STRING;
           required: true;
@@ -122,7 +122,7 @@ service PointService {
       // security: { security_requirement: { key: "BearerAuth" } }
       parameters: {
         headers: {
-          name: "X-Organization-ID";
+          name: "X-Tenant-ID";
           description: "Organization context identifier";
           type: STRING;
           required: true;
@@ -145,7 +145,7 @@ service PointService {
       // security: { security_requirement: { key: "BearerAuth" } }
       parameters: {
         headers: {
-          name: "X-Organization-ID";
+          name: "X-Tenant-ID";
           description: "Organization context identifier";
           type: STRING;
           required: true;
@@ -153,6 +153,29 @@ service PointService {
       };
     };
   };
+
+  rpc EarningPreview(EarningPreviewRequest) returns (EarningPreviewResponse) {
+    option (google.api.http) = {
+      post: "/v1/earning/preview"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Loyalty"
+      operation_id: "Loyalty_Earning_Preview"
+      summary: "Preview Earning"
+      description: "Evaluates earning rules and returns estimated points without committing to ledger."
+      parameters: {
+        headers: {
+          name: "X-Tenant-ID";
+          description: "Organization context identifier";
+          type: STRING;
+          required: true;
+        };
+      };
+    };
+  };
+
 }
 
 enum Status {

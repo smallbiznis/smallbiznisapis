@@ -7,34 +7,35 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/v1;l
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
-import "google/type/money.proto";
-
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-// OpenAPI (Swagger v2) top-level config
+// OpenAPI top-level config
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "SmallBiznis API";
     version: "1.0";
-    description: "";
+    description: "Loyalty API for earning and redemption flows";
     contact: {
       name: "SmallBiznis project";
       url: "https://github.com/smallbiznis";
       email: "taufiktriantono4@gmail.com";
     };
   };
-  host: "api.smallbiznis.test"
+  host: "api.smallbiznis.test";
   schemes: HTTPS;
   base_path: "/api";
   consumes: "application/json";
   produces: "application/json";
 };
 
-service PointService {
+// ──────────────────────────────
+//  Service
+// ──────────────────────────────
 
+service PointService {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
     name: "Loyalty"
-    description: "APIs for manage loyalty earn and redeemption (create, update, list, delete)"
+    description: "APIs for managing loyalty earning and redemption flows"
   };
 
   rpc Earning(EarningRequest) returns (EarningResponse) {
@@ -42,141 +43,45 @@ service PointService {
       post: "/v1/earning"
       body: "*"
     };
-
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Loyalty"
-      operation_id: "Loyalty_Earning"
-      summary: "Earning"
-      description: ""
-      // Uncomment if you use JWT/Bearer
-      // security: { security_requirement: { key: "BearerAuth" } }
-      parameters: {
-        headers: {
-          name: "X-Tenant-ID";
-          description: "Tenant context identifier";
-          type: STRING;
-          required: true;
-        };
-      };
-    };
-  };
+  }
 
   rpc GetEarning(StatusEarningRequest) returns (StatusEarningResponse) {
     option (google.api.http) = {
       get: "/v1/earning/{transaction_id}"
     };
-
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Loyalty"
-      operation_id: "Loyalty_Get_Earning_Status"
-      summary: "Get Earning Status"
-      description: ""
-      // security: { security_requirement: { key: "BearerAuth" } }
-      parameters: {
-        headers: {
-          name: "X-Tenant-ID";
-          description: "Tenant context identifier";
-          type: STRING;
-          required: true;
-        };
-      };
-    };
-  };
-
-  rpc ValidateRedemption(RedeemValidationRequest) returns (RedeemValidationResponse) {
-    option (google.api.http) = {
-      post: "/v1/redemption/validate"
-      body: "*"
-    };
-
-     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Loyalty"
-      operation_id: "Loyalty_Validate_Redemption"
-      summary: "Validate Redemption"
-      description: ""
-      // Uncomment if you use JWT/Bearer
-      // security: { security_requirement: { key: "BearerAuth" } }
-      parameters: {
-        headers: {
-          name: "X-Tenant-ID";
-          description: "Tenant context identifier";
-          type: STRING;
-          required: true;
-        };
-      };
-    };
-  };
-
-  rpc Redemption(RedeemRequest) returns (RedeemResponse) {
-    option (google.api.http) = {
-      post: "/v1/redemption"
-      body: "*"
-    };
-
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Loyalty"
-      operation_id: "Loyalty_Redemption"
-      summary: "Redemption"
-      description: ""
-      // Uncomment if you use JWT/Bearer
-      // security: { security_requirement: { key: "BearerAuth" } }
-      parameters: {
-        headers: {
-          name: "X-Tenant-ID";
-          description: "Tenant context identifier";
-          type: STRING;
-          required: true;
-        };
-      };
-    };
-  };
-
-  rpc GetRedemption(StatusRedeemRequest) returns (StatusRedeemResponse) {
-    option (google.api.http) = {
-      get: "/v1/redemption/{transaction_id}"
-    };
-
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Loyalty"
-      operation_id: "Loyalty_Get_Redemption"
-      summary: "Get Redemption"
-      description: ""
-      // Uncomment if you use JWT/Bearer
-      // security: { security_requirement: { key: "BearerAuth" } }
-      parameters: {
-        headers: {
-          name: "X-Tenant-ID";
-          description: "Tenant context identifier";
-          type: STRING;
-          required: true;
-        };
-      };
-    };
-  };
+  }
 
   rpc EarningPreview(EarningPreviewRequest) returns (EarningPreviewResponse) {
     option (google.api.http) = {
       post: "/v1/earning/preview"
       body: "*"
     };
+  }
 
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Loyalty"
-      operation_id: "Loyalty_Earning_Preview"
-      summary: "Preview Earning"
-      description: "Evaluates earning rules and returns estimated points without committing to ledger."
-      parameters: {
-        headers: {
-          name: "X-Tenant-ID";
-          description: "Tenant context identifier";
-          type: STRING;
-          required: true;
-        };
-      };
+  rpc ValidateRedemption(RedeemValidationRequest) returns (RedeemValidationResponse) {
+    option (google.api.http) = {
+      post: "/v1/redemption/validate"
+      body: "*"
     };
-  };
+  }
 
+  rpc Redemption(RedeemRequest) returns (RedeemResponse) {
+    option (google.api.http) = {
+      post: "/v1/redemption"
+      body: "*"
+    };
+  }
+
+  rpc GetRedemption(StatusRedeemRequest) returns (StatusRedeemResponse) {
+    option (google.api.http) = {
+      get: "/v1/redemption/{transaction_id}"
+    };
+  }
 }
+
+// ──────────────────────────────
+//  Enums
+// ──────────────────────────────
 
 enum Status {
   STATUS_UNSPECIFIED = 0;
@@ -189,51 +94,69 @@ enum RewardType {
   REWARD_TYPE_UNSPECIFIED = 0;
   VOUCHER = 1;
   PHYSICAL = 2;
+  CASHBACK = 3;
+  POINT = 4;
 }
 
-// Attributes for point-earning transactions across various industries
+// ──────────────────────────────
+//  Common types
+// ──────────────────────────────
+
+message Money {
+  string currency_code = 1; // e.g. "IDR"
+  int64 amount = 2;         // value in minor units (e.g. cents)
+}
+
+// ──────────────────────────────
+//  Transaction attributes
+// ──────────────────────────────
+
 message TransactionAttributes {
-  string category = 1;               // Required: must be "transaction"
-  google.type.Money amount = 2;      // Total transaction amount (after discount)
-  string currency = 3 [deprecated = true]; // Deprecated: use amount.currency_code
-  string reference_id = 4;              // Unique transaction/order/invoice ID
-  string reward_name = 5;            // Human-friendly reward name for history display
-  string item_category = 6;          // Main product category, e.g., "food", "digital"
-  string sub_category = 7;           // Optional subcategory
-  string payment_method = 8;         // Payment method, e.g., "gopay", "credit_card"
-  string channel = 9;                // Channel of transaction, e.g., "mobile", "web", "offline"
-  string brand_id = 10;              // Brand ID, e.g., "KFC", "Starbucks"
-  string merchant_id = 11;           // Merchant ID (useful for franchise/multi-tenant)
-  string outlet_id = 12;             // Outlet/store/branch ID
-  string promo_id = 13;              // Promo or campaign ID
+  string category = 1;          // must be "transaction"
+  Money amount = 2;             // total after discount
+  string reference_id = 3;      // order/invoice ID
+  string reward_name = 4;       // for display
+  string item_category = 5;
+  string sub_category = 6;
+  string payment_method = 7;
+  string channel = 8;
+  string brand_id = 9;
+  string merchant_id = 10;
+  string outlet_id = 11;
+  string promo_id = 12;
 
-  repeated TransactionItem items = 14;          // List of purchased items
-  map<string, string> custom = 15;              // Custom key-value data for extensibility
+  repeated TransactionItem items = 13;
+  google.protobuf.Struct metadata = 14;
 }
 
-// Individual purchased item
 message TransactionItem {
-  string sku = 1;                    // Product SKU code
-  string name = 2;                   // Product name (optional)
-  string category = 3;               // Product category
-  int32 qty = 4;                     // Quantity purchased
-  google.type.Money price = 5;       // Price per unit
-  google.type.Money total = 6;       // Total price (qty * price)
+  string sku = 1;
+  string name = 2;
+  string category = 3;
+  int32 qty = 4;
+  Money price = 5;
+  Money total = 6;
 }
+
+// ──────────────────────────────
+//  Earning API
+// ──────────────────────────────
 
 message EarningPreviewRequest {
   string user_id = 1;
-  string organization_id = 2;
-  google.protobuf.Struct attributes = 3; // flexible payload (e.g., item list, order info)
+  string tenant_id = 2;
+  google.protobuf.Struct attributes = 3;
 }
 
 message EarningPreviewResponse {
   int64 estimated_point = 1;
+  string rule_id = 2;
+  string description = 3;
 }
 
 message EarningRequest {
   string user_id = 1;
-  string organization_id = 2;
+  string tenant_id = 2;
   string reference_id = 3;
   string ip_address = 4;
   string user_agent = 5;
@@ -241,7 +164,6 @@ message EarningRequest {
   oneof attributes {
     TransactionAttributes transaction = 6;
   }
-
 }
 
 message EarningResponse {
@@ -261,22 +183,26 @@ message StatusEarningResponse {
   google.protobuf.Timestamp created_at = 4;
 }
 
+// ──────────────────────────────
+//  Redemption API
+// ──────────────────────────────
+
 message RedeemValidationRequest {
-  string organization_id = 1;
+  string tenant_id = 1;
   string user_id = 2;
   string reward_id = 3;
-  google.protobuf.Struct attributes = 4; // flexible payload (e.g., item list, order info)
+  google.protobuf.Struct attributes = 4;
 }
 
 message RedeemValidationResponse {
   bool is_valid = 1;
-  string message = 2; // misal "Insufficient point" atau "Reward not available"
+  string message = 2;
   int64 point_required = 3;
-  google.type.Money reward_value = 4;
+  Money reward_value = 4;
 }
 
 message RedeemRequest {
-  string organization_id = 1;
+  string tenant_id = 1;
   string user_id = 2;
   RewardType reward_type = 3;
   string reward_id = 4;
@@ -301,7 +227,7 @@ message StatusRedeemResponse {
   Status status = 3;
   string reward_id = 4;
   RewardType reward_type = 5;
-  google.type.Money reward_value = 6;
+  Money reward_value = 6;
   int64 point_deducted = 7;
   google.protobuf.Timestamp redeemed_at = 8;
   google.protobuf.Struct data = 9;

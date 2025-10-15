@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package smallbiznis.transaction.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznisapis/smallbiznis/transaction/v1;transactionv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+// ========================================================
+// ENUMS
+// ========================================================
+
+enum TransactionStatus {
+  TRANSACTION_STATUS_UNSPECIFIED = 0;
+  TRANSACTION_STATUS_PENDING = 1;
+  TRANSACTION_STATUS_SUCCESS = 2;
+  TRANSACTION_STATUS_FAILED = 3;
+  TRANSACTION_STATUS_CANCELLED = 4;
+  TRANSACTION_STATUS_REFUNDED = 5;
+}
+
+enum PaymentMethod {
+  PAYMENT_METHOD_UNSPECIFIED = 0;
+  PAYMENT_METHOD_CASH = 1;
+  PAYMENT_METHOD_CARD = 2;
+  PAYMENT_METHOD_QRIS = 3;
+  PAYMENT_METHOD_TRANSFER = 4;
+  PAYMENT_METHOD_WALLET = 5;
+}
+
+enum ChannelType {
+  CHANNEL_TYPE_UNSPECIFIED = 0;
+  CHANNEL_TYPE_ONLINE = 1;
+  CHANNEL_TYPE_POS = 2;
+  CHANNEL_TYPE_API = 3;
+}
+
+// ========================================================
+// MESSAGES
+// ========================================================
+
+// Transaction entity
+message Transaction {
+  string transaction_id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+  string order_id = 4; // optional external reference
+
+  double amount = 5;
+  string currency = 6;
+
+  TransactionStatus status = 7;
+  PaymentMethod payment_method = 8;
+  ChannelType channel = 9;
+
+  google.protobuf.Struct metadata = 10;
+
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+// ========================================================
+// REQUESTS / RESPONSES
+// ========================================================
+
+message CreateTransactionRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  string order_id = 3;
+  double amount = 4;
+  string currency = 5;
+  PaymentMethod payment_method = 6;
+  ChannelType channel = 7;
+  google.protobuf.Struct metadata = 8;
+}
+
+message CreateTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message GetTransactionRequest {
+  string tenant_id = 1;
+  string transaction_id = 2;
+}
+
+message GetTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message ListTransactionsRequest {
+  string tenant_id = 1;
+  int32 limit = 2;
+  string cursor = 3;
+  TransactionStatus filter_status = 4;
+}
+
+message ListTransactionsResponse {
+  repeated Transaction transactions = 1;
+  string next_cursor = 2;
+}
+
+message UpdateTransactionStatusRequest {
+  string tenant_id = 1;
+  string transaction_id = 2;
+  TransactionStatus status = 3;
+}
+
+message UpdateTransactionStatusResponse {
+  Transaction transaction = 1;
+}
+
+// ========================================================
+// SERVICE DEFINITION
+// ========================================================
+
+service TransactionService {
+  // Create a new transaction
+  rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionResponse) {
+    option (google.api.http) = {
+      post: "/v1/transactions"
+      body: "*"
+    };
+  }
+
+  // Get a single transaction
+  rpc GetTransaction(GetTransactionRequest) returns (GetTransactionResponse) {
+    option (google.api.http) = {
+      get: "/v1/transactions/{transaction_id}"
+    };
+  }
+
+  // List transactions (paginated)
+  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/transactions"
+    };
+  }
+
+  // Update status (used for marking success/failed/refunded)
+  rpc UpdateTransactionStatus(UpdateTransactionStatusRequest) returns (UpdateTransactionStatusResponse) {
+    option (google.api.http) = {
+      patch: "/v1/transactions/{transaction_id}/status"
+      body: "*"
+    };
+  }
+}
+
+// ========================================================
+// EVENT SCHEMA
+// ========================================================
+
+// This message can be emitted to Kafka/NATS/Asynq for downstream processing
+message TransactionEvent {
+  string tenant_id = 1;
+  string transaction_id = 2;
+  string user_id = 3;
+  double amount = 4;
+  string currency = 5;
+  ChannelType channel = 6;
+  TransactionStatus status = 7;
+  google.protobuf.Struct metadata = 8;
+  google.protobuf.Timestamp created_at = 9;
+}

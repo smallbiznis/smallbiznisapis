@@ -54,7 +54,6 @@ message Transaction {
   TransactionStatus status = 7;
   PaymentMethod payment_method = 8;
   ChannelType channel = 9;
-
   google.protobuf.Struct metadata = 10;
 
   google.protobuf.Timestamp created_at = 11;
@@ -72,8 +71,7 @@ message CreateTransactionRequest {
   double amount = 4;
   string currency = 5;
   PaymentMethod payment_method = 6;
-  ChannelType channel = 7;
-  google.protobuf.Struct metadata = 8;
+  google.protobuf.Struct metadata = 7;
 }
 
 message CreateTransactionResponse {

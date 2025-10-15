@@ -2,64 +2,95 @@ syntax = "proto3";
 
 package smallbiznis.voucher.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznisapis/voucher/v1;voucherv1";
+option go_package = "github.com/smallbiznis/smallbiznisapis/smallbiznis/voucher/v1;voucherv1";
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
 
-// Voucher represents a redeemable entity.
+// ========================================================
+// ENUMS
+// ========================================================
+
+enum DiscountType {
+  DISCOUNT_TYPE_UNSPECIFIED = 0;
+  FIXED = 1;
+  PERCENT = 2;
+  FREE_ITEM = 3;
+  CUSTOM = 4;
+}
+
+enum IssuanceStatus {
+  ISSUANCE_STATUS_UNSPECIFIED = 0;
+  ISSUED = 1;
+  REDEEMED = 2;
+  EXPIRED = 3;
+  CANCELED = 4;
+}
+
+// ========================================================
+// ENTITIES
+// ========================================================
+
+// Voucher represents a redeemable entity (linked to a campaign).
 message Voucher {
   string voucher_id = 1;
   string tenant_id = 2;
   string campaign_id = 3;
   string code = 4;
   string name = 5;
-  string discount_type = 6; // fixed, percent, free_item, custom
+  DiscountType discount_type = 6;
   double discount_value = 7;
   string currency = 8;
   int32 stock = 9;
   int32 remaining_stock = 10;
   google.protobuf.Timestamp expiry_date = 11;
   bool is_active = 12;
-  google.protobuf.Timestamp created_at = 15;
-  google.protobuf.Timestamp updated_at = 16;
+  google.protobuf.Struct metadata = 13;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp updated_at = 15;
 }
 
+// VoucherCampaign represents logical grouping of vouchers.
 message VoucherCampaign {
   string campaign_id = 1;
   string tenant_id = 2;
   string name = 3;
   string description = 4;
   string type = 5; // discount, cashback, etc.
-  int32 total_stock = 6;
-  int32 remaining_stock = 7;
-  bool is_active = 8;
-  google.protobuf.Timestamp start_at = 9;
-  google.protobuf.Timestamp end_at = 10;
-  string dsl_expression = 11; // CEL expression for eligibility
-  string metadata_json = 12;
-  google.protobuf.Timestamp created_at = 13;
-  google.protobuf.Timestamp updated_at = 14;
-  string code = 15;
+  string code = 6;
+  int32 total_stock = 7;
+  int32 remaining_stock = 8;
+  bool is_active = 9;
+  google.protobuf.Timestamp start_at = 10;
+  google.protobuf.Timestamp end_at = 11;
+  string dsl_expression = 12; // CEL expression for eligibility
+  google.protobuf.Struct metadata = 13;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp updated_at = 15;
 }
 
+// VoucherIssuance represents voucher assigned to a user.
 message VoucherIssuance {
   string issuance_id = 1;
   string tenant_id = 2;
   string voucher_id = 3;
   string user_id = 4;
-  string status = 5; // issued, redeemed, expired, canceled
+  IssuanceStatus status = 5;
   google.protobuf.Timestamp issued_at = 6;
   google.protobuf.Timestamp redeemed_at = 7;
   string order_id = 8;
-  string metadata_json = 9;
+  google.protobuf.Struct metadata = 9;
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
 }
 
-// VoucherService handles all voucher operations.
+// ========================================================
+// SERVICE
+// ========================================================
+
 service VoucherService {
-  // Create a new voucher.
+  // Create a new voucher (admin only)
   rpc CreateVoucher(CreateVoucherRequest) returns (Voucher) {
     option (google.api.http) = {
       post: "/v1/vouchers"
@@ -67,21 +98,21 @@ service VoucherService {
     };
   }
 
-  // Get a voucher by code.
+  // Get a voucher by its unique code
   rpc GetVoucher(GetVoucherRequest) returns (Voucher) {
     option (google.api.http) = {
       get: "/v1/vouchers/{code}"
     };
   }
 
-  // List vouchers (with optional filters)
+  // List vouchers for tenant (with optional filters)
   rpc ListVouchers(ListVouchersRequest) returns (ListVouchersResponse) {
     option (google.api.http) = {
       get: "/v1/vouchers"
     };
   }
 
-  // Evaluate eligibility of vouchers based on DSL expression.
+  // Evaluate voucher eligibility using DSL/CEL
   rpc EvaluateVouchers(EvaluateVouchersRequest) returns (EvaluateVouchersResponse) {
     option (google.api.http) = {
       post: "/v1/vouchers:evaluate"
@@ -89,7 +120,7 @@ service VoucherService {
     };
   }
 
-  // Issue voucher to a user (atomic issuance).
+  // Issue voucher to a specific user (manual or auto)
   rpc IssueVoucher(IssueVoucherRequest) returns (VoucherIssuance) {
     option (google.api.http) = {
       post: "/v1/vouchers:issue"
@@ -97,16 +128,25 @@ service VoucherService {
     };
   }
 
-  // Redeem a voucher (mark as used).
+  // Redeem voucher (mark as used)
   rpc RedeemVoucher(RedeemVoucherRequest) returns (VoucherIssuance) {
     option (google.api.http) = {
       post: "/v1/vouchers:redeem"
       body: "*"
     };
   }
+
+  // List all vouchers issued to a user
+  rpc ListMyVouchers(ListMyVouchersRequest) returns (ListMyVouchersResponse) {
+    option (google.api.http) = {
+      get: "/v1/myvouchers"
+    };
+  }
 }
 
-// ========== Requests & Responses ==========
+// ========================================================
+// REQUESTS / RESPONSES
+// ========================================================
 
 message CreateVoucherRequest {
   string tenant_id = 1;
@@ -132,7 +172,7 @@ message ListVouchersResponse {
 message EvaluateVouchersRequest {
   string tenant_id = 1;
   string user_id = 2;
-  map<string, string> context = 3; // dynamic attributes from order
+  google.protobuf.Struct context = 3; // transaction, user, etc.
 }
 
 message EvaluateVouchersResponse {
@@ -155,4 +195,15 @@ message RedeemVoucherRequest {
   string tenant_id = 1;
   string user_id = 2;
   string voucher_code = 3;
+  string order_id = 4;
+}
+
+message ListMyVouchersRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  string status = 3; // optional filter
+}
+
+message ListMyVouchersResponse {
+  repeated VoucherIssuance vouchers = 1;
 }

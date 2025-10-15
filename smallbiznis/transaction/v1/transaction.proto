@@ -8,6 +8,9 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
+// Internal Common
+import "smallbiznis/common/money.proto";
+
 // ========================================================
 // ENUMS
 // ========================================================
@@ -46,18 +49,19 @@ message Transaction {
   string transaction_id = 1;
   string tenant_id = 2;
   string user_id = 3;
-  string order_id = 4; // optional external reference
 
-  double amount = 5;
-  string currency = 6;
+  // Optional external reference, e.g., POS or e-commerce order ID
+  string order_id = 4;
 
-  TransactionStatus status = 7;
-  PaymentMethod payment_method = 8;
-  ChannelType channel = 9;
-  google.protobuf.Struct metadata = 10;
+  smallbiznis.common.Money amount = 5;
 
-  google.protobuf.Timestamp created_at = 11;
-  google.protobuf.Timestamp updated_at = 12;
+  TransactionStatus status = 6;
+  PaymentMethod payment_method = 7;
+  ChannelType channel = 8;
+  google.protobuf.Struct metadata = 9;
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
 }
 
 // ========================================================
@@ -68,10 +72,9 @@ message CreateTransactionRequest {
   string tenant_id = 1;
   string user_id = 2;
   string order_id = 3;
-  double amount = 4;
-  string currency = 5;
-  PaymentMethod payment_method = 6;
-  google.protobuf.Struct metadata = 7;
+  smallbiznis.common.Money amount = 4;
+  PaymentMethod payment_method = 5;
+  google.protobuf.Struct metadata = 6;
 }
 
 message CreateTransactionResponse {
@@ -149,15 +152,14 @@ service TransactionService {
 // EVENT SCHEMA
 // ========================================================
 
-// This message can be emitted to Kafka/NATS/Asynq for downstream processing
+// Emitted to message broker (Kafka/NATS/Asynq) when transaction completes or updates.
 message TransactionEvent {
   string tenant_id = 1;
   string transaction_id = 2;
   string user_id = 3;
-  double amount = 4;
-  string currency = 5;
-  ChannelType channel = 6;
-  TransactionStatus status = 7;
-  google.protobuf.Struct metadata = 8;
-  google.protobuf.Timestamp created_at = 9;
+  smallbiznis.common.Money amount = 4;
+  ChannelType channel = 5;
+  TransactionStatus status = 6;
+  google.protobuf.Struct metadata = 7;
+  google.protobuf.Timestamp created_at = 8;
 }

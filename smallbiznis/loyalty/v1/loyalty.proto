@@ -9,6 +9,9 @@ import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
+// Internal Common
+import "smallbiznis/common/money.proto";
+
 // OpenAPI top-level config
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
@@ -99,21 +102,12 @@ enum RewardType {
 }
 
 // ──────────────────────────────
-//  Common types
-// ──────────────────────────────
-
-message Money {
-  string currency_code = 1; // e.g. "IDR"
-  int64 amount = 2;         // value in minor units (e.g. cents)
-}
-
-// ──────────────────────────────
 //  Transaction attributes
 // ──────────────────────────────
 
 message TransactionAttributes {
   string category = 1;          // must be "transaction"
-  Money amount = 2;             // total after discount
+  smallbiznis.common.Money amount = 2;             // total after discount
   string reference_id = 3;      // order/invoice ID
   string reward_name = 4;       // for display
   string item_category = 5;
@@ -134,8 +128,8 @@ message TransactionItem {
   string name = 2;
   string category = 3;
   int32 qty = 4;
-  Money price = 5;
-  Money total = 6;
+  smallbiznis.common.Money price = 5;
+  smallbiznis.common.Money total = 6;
 }
 
 // ──────────────────────────────
@@ -198,7 +192,7 @@ message RedeemValidationResponse {
   bool is_valid = 1;
   string message = 2;
   int64 point_required = 3;
-  Money reward_value = 4;
+  smallbiznis.common.Money reward_value = 4;
 }
 
 message RedeemRequest {
@@ -227,7 +221,7 @@ message StatusRedeemResponse {
   Status status = 3;
   string reward_id = 4;
   RewardType reward_type = 5;
-  Money reward_value = 6;
+  smallbiznis.common.Money reward_value = 6;
   int64 point_deducted = 7;
   google.protobuf.Timestamp redeemed_at = 8;
   google.protobuf.Struct data = 9;

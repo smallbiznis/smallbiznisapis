@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.voucher.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznisapis/gen/go/voucher/v1;voucherv1";
+option go_package = "github.com/smallbiznis/smallbiznisapis/voucher/v1;voucherv1";
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";

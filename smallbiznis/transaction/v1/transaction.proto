@@ -44,6 +44,24 @@ enum ChannelType {
 // MESSAGES
 // ========================================================
 
+message TransactionItem {
+  string item_id = 1;                          // optional: return server-generated ID
+  string transaction_id = 2;                   // optional: set by server
+  string tenant_id = 3;                        // optional: set by server
+
+  string sku = 4;
+  string name = 5;
+  string category = 6;
+
+  int32 qty = 7;
+  smallbiznis.common.v1.Money price = 8;      // per unit (minor units)
+  smallbiznis.common.v1.Money total = 9;      // qty * price (server may compute)
+
+  google.protobuf.Struct metadata = 10;        // e.g. variants, notes
+  google.protobuf.Timestamp created_at = 11;   // server-populated
+  google.protobuf.Timestamp updated_at = 12;   // server-populated
+}
+
 // Transaction entity
 message Transaction {
   string transaction_id = 1;
@@ -63,6 +81,7 @@ message Transaction {
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
   string transaction_code = 12;
+  repeated TransactionItem items = 13;
 }
 
 // ========================================================

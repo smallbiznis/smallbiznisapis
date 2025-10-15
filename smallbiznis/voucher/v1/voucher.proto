@@ -90,6 +90,20 @@ message VoucherIssuance {
 // ========================================================
 
 service VoucherService {
+    // List voucher campaigns (for evaluation or admin)
+  rpc ListCampaigns(ListCampaignsRequest) returns (ListCampaignsResponse) {
+    option (google.api.http) = {
+      get: "/v1/campaigns"
+    };
+  }
+
+  // Get single campaign details by code or id
+  rpc GetCampaign(GetCampaignRequest) returns (VoucherCampaign) {
+    option (google.api.http) = {
+      get: "/v1/campaigns/{campaign_id}"
+    };
+  }
+
   // Create a new voucher (admin only)
   rpc CreateVoucher(CreateVoucherRequest) returns (Voucher) {
     option (google.api.http) = {
@@ -147,6 +161,22 @@ service VoucherService {
 // ========================================================
 // REQUESTS / RESPONSES
 // ========================================================
+
+message ListCampaignsRequest {
+  string tenant_id = 1;
+  bool only_active = 2; // if true, filter by start_at <= now <= end_at
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message ListCampaignsResponse {
+  repeated VoucherCampaign campaigns = 1;
+}
+
+message GetCampaignRequest {
+  string tenant_id = 1;
+  string campaign_id = 2;
+}
 
 message CreateVoucherRequest {
   string tenant_id = 1;

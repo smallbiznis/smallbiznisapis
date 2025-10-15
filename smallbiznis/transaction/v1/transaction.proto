@@ -54,8 +54,8 @@ message TransactionItem {
   string category = 6;
 
   int32 qty = 7;
-  smallbiznis.common.v1.Money price = 8;      // per unit (minor units)
-  smallbiznis.common.v1.Money total = 9;      // qty * price (server may compute)
+  smallbiznis.common.Money price = 8;      // per unit (minor units)
+  smallbiznis.common.Money total = 9;      // qty * price (server may compute)
 
   google.protobuf.Struct metadata = 10;        // e.g. variants, notes
   google.protobuf.Timestamp created_at = 11;   // server-populated

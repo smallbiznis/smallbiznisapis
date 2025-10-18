@@ -41,6 +41,18 @@ service PointService {
     description: "APIs for managing loyalty earning and redemption flows"
   };
 
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
+    option (google.api.http) = {
+      get: "/v1/points:balance"
+    };
+  };
+
+  rpc GetExpiringPoints(GetExpiringPointsRequest) returns (GetExpiringPointsResponse) {
+    option (google.api.http) = {
+      get: "/v1/points:expiring"
+    };
+  }
+
   rpc Earning(EarningRequest) returns (EarningResponse) {
     option (google.api.http) = {
       post: "/v1/earning"
@@ -56,14 +68,14 @@ service PointService {
 
   rpc EarningPreview(EarningPreviewRequest) returns (EarningPreviewResponse) {
     option (google.api.http) = {
-      post: "/v1/earning/preview"
+      post: "/v1/earning:preview"
       body: "*"
     };
   }
 
   rpc ValidateRedemption(RedeemValidationRequest) returns (RedeemValidationResponse) {
     option (google.api.http) = {
-      post: "/v1/redemption/validate"
+      post: "/v1/redemption:validate"
       body: "*"
     };
   }
@@ -225,4 +237,30 @@ message StatusRedeemResponse {
   int64 point_deducted = 7;
   google.protobuf.Timestamp redeemed_at = 8;
   google.protobuf.Struct data = 9;
+}
+
+message GetBalanceRequest {
+  string member_id = 1;
+  string tenant_id = 2;
+}
+
+message GetBalanceResponse {
+  int64 balance = 1;
+  google.protobuf.Timestamp last_updated_at = 2;
+}
+
+message GetExpiringPointsRequest {
+  string tenant_id = 1;
+  string member_id = 2;
+  int32 within_days = 3; // contoh: 7, 30, default 7
+}
+
+message GetExpiringPointsResponse {
+  int64 total_expiring_points = 1;
+  repeated ExpiringPointBatch batches = 2;
+}
+
+message ExpiringPointBatch {
+  string expire_date = 1; // "2025-12-31"
+  int64 total_points = 2;
 }

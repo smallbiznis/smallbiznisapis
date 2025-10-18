@@ -5,101 +5,38 @@ package smallbiznis.ledger.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/ledger/v1;ledgerv1";
 
 import "google/protobuf/timestamp.proto";
-import "google/api/annotations.proto";
-import "protoc-gen-openapiv2/options/annotations.proto";
+// import "google/api/annotations.proto";
+// import "protoc-gen-openapiv2/options/annotations.proto";
 
 // OpenAPI (Swagger v2) top-level config
-option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  info: {
-    title: "SmallBiznis API";
-    version: "1.0";
-    description: "Multi-tenant, global-ready Organization & Onboarding APIs";
-    contact: { name: "SmallBiznis project"; url: "https://github.com/smallbiznis"; email: "taufiktriantono4@gmail.com"; };
-  };
-  host: "api.smallbiznis.test"
-  schemes: HTTPS;
-  base_path: "/api";
-  consumes: "application/json";
-  produces: "application/json";
-};
+// option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+//   info: {
+//     title: "SmallBiznis API";
+//     version: "1.0";
+//     description: "Multi-tenant, global-ready Organization & Onboarding APIs";
+//     contact: { name: "SmallBiznis project"; url: "https://github.com/smallbiznis"; email: "taufiktriantono4@gmail.com"; };
+//   };
+//   host: "api.smallbiznis.test"
+//   schemes: HTTPS;
+//   base_path: "/api";
+//   consumes: "application/json";
+//   produces: "application/json";
+// };
 
 service LedgerService {
 
-  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
-    name: "Ledger"
-    description: "APIs for manage organization and sub organization (create, update, list, delete)"
-  };
+  // option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+  //   name: "Ledger"
+  //   description: "APIs for manage organization and sub organization (create, update, list, delete)"
+  // };
 
-  rpc AddEntry(AddEntryRequest) returns (LedgerEntry) {
-    option (google.api.http) = {
-      post: "/v1/entries"
-      body: "*"
-    };
-
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Ledger"
-      operation_id: "Ledger_Add_Entry"
-      summary: "Create an Entry"
-      description: "Creates a new entry with the provided attributes. Returns the created entry on success."
-      // Uncomment if you use JWT/Bearer
-      // security: { security_requirement: { key: "BearerAuth" } }
-      parameters: {
-        headers: {
-          name: "X-Tenant-ID";
-          description: "Tenant context identifier";
-          type: STRING;
-          required: true;
-        };
-      };
-    };
-  };
+  rpc AddEntry(AddEntryRequest) returns (LedgerEntry){}
 
   rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
 
-  rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse) {
-    option (google.api.http) = {
-      get: "/v1/entries"
-    };
+  rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse) {}
 
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Ledger"
-      operation_id: "Ledger_List"
-      summary: "List entry"
-      description: "Returns a paginated list of entry. Use query parameters such as `cursor` and `limit` when available."
-      // security: { security_requirement: { key: "BearerAuth" } }
-      parameters: {
-        headers: {
-          name: "X-Tenant-ID";
-          description: "Tenant context identifier";
-          type: STRING;
-          required: true;
-        };
-      };
-    };
-  };
-
-  rpc GetEntry(GetEntryRequest) returns (LedgerEntry) {
-
-    option (google.api.http) = {
-      get: "/v1/entries/{id}"
-    };
-
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      tags: "Ledger"
-      operation_id: "Ledger_Get_Entry"
-      summary: "Get entry details"
-      description: "Retrieves an entry by its unique identifier. Returns 404 if the entry does not exist."
-      // security: { security_requirement: { key: "BearerAuth" } }
-      parameters: {
-        headers: {
-          name: "X-Tenant-ID";
-          description: "Tenant context identifier";
-          type: STRING;
-          required: true;
-        };
-      };
-    };
-  };
+  rpc GetEntry(GetEntryRequest) returns (LedgerEntry) {}
 
   rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
 

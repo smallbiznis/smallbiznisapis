@@ -47,6 +47,8 @@ service PointService {
     };
   };
 
+  rpc RunExpiryJob(RunExpiryJobRequest) returns (RunExpiryJobResponse);
+
   rpc GetExpiringPoints(GetExpiringPointsRequest) returns (GetExpiringPointsResponse) {
     option (google.api.http) = {
       get: "/v1/points:expiring"
@@ -263,4 +265,27 @@ message GetExpiringPointsResponse {
 message ExpiringPointBatch {
   string expire_date = 1; // "2025-12-31"
   int64 total_points = 2;
+}
+
+// Request untuk menjalankan proses expiry poin per tenant
+message RunExpiryJobRequest {
+  string tenant_id = 1;  // wajib: ID tenant
+  google.protobuf.Timestamp run_at = 2; // optional: waktu eksekusi manual, default now
+  bool dry_run = 3;  // kalau true → hanya simulasi (tanpa update ledger)
+}
+
+// Response hasil dari expiry job
+message RunExpiryJobResponse {
+  string job_id = 1;                // ID job untuk audit/log
+  int64 total_expired_points = 2;   // total poin yang dihapus
+  int64 total_members_affected = 3; // berapa member yang kena expiry
+  string status = 4;                // success / failed / partial
+  google.protobuf.Timestamp completed_at = 5;
+  repeated ExpiredMember members = 6; // daftar member yang kena expiry (opsional)
+}
+
+// Data member yang poinnya expired
+message ExpiredMember {
+  string member_id = 1;
+  int64 expired_points = 2;
 }

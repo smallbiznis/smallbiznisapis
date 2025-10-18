@@ -17,27 +17,27 @@ import "smallbiznis/common/money.proto";
 
 enum TransactionStatus {
   TRANSACTION_STATUS_UNSPECIFIED = 0;
-  TRANSACTION_STATUS_PENDING = 1;
-  TRANSACTION_STATUS_SUCCESS = 2;
-  TRANSACTION_STATUS_FAILED = 3;
-  TRANSACTION_STATUS_CANCELLED = 4;
-  TRANSACTION_STATUS_REFUNDED = 5;
+  PENDING = 1;
+  SUCCESS = 2;
+  FAILED = 3;
+  CANCELLED = 4;
+  REFUNDED = 5;
 }
 
 enum PaymentMethod {
   PAYMENT_METHOD_UNSPECIFIED = 0;
-  PAYMENT_METHOD_CASH = 1;
-  PAYMENT_METHOD_CARD = 2;
-  PAYMENT_METHOD_QRIS = 3;
-  PAYMENT_METHOD_TRANSFER = 4;
-  PAYMENT_METHOD_WALLET = 5;
+  CASH = 1;
+  CARD = 2;
+  QRIS = 3;
+  TRANSFER = 4; // Virtual Account
+  WALLET = 5; // E-Money
 }
 
 enum ChannelType {
   CHANNEL_TYPE_UNSPECIFIED = 0;
-  CHANNEL_TYPE_ONLINE = 1;
-  CHANNEL_TYPE_POS = 2;
-  CHANNEL_TYPE_API = 3;
+  ONLINE = 1;
+  POS = 2;
+  API = 3;
 }
 
 // ========================================================

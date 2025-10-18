@@ -76,6 +76,7 @@ message GetTenantRequest {
 message ListTenantsRequest {
   string cursor = 1;
   int32 limit = 2;
+  string status = 3;
 }
 
 message ListTenantsResponse {

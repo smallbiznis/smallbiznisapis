@@ -64,7 +64,7 @@ message TransactionItem {
 
 // Transaction entity
 message Transaction {
-  string transaction_id = 1;
+  string id = 1;
   string tenant_id = 2;
   string user_id = 3;
 
@@ -80,7 +80,7 @@ message Transaction {
 
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
-  string transaction_code = 12;
+  string transaction_id = 12;
   repeated TransactionItem items = 13;
 }
 

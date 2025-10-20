@@ -11,6 +11,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 
 // Internal Common
 import "smallbiznis/common/money.proto";
+import "smallbiznis/transaction/v1/transaction.proto";
 
 // OpenAPI top-level config
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
@@ -119,21 +120,23 @@ enum RewardType {
 //  Transaction attributes
 // ──────────────────────────────
 
+// Transaksi yang dikirim ke rule engine
 message TransactionAttributes {
-  string category = 1;          // must be "transaction"
-  smallbiznis.common.Money amount = 2;             // total after discount
-  string reference_id = 3;      // order/invoice ID
-  string reward_name = 4;       // for display
+  string category = 1; // e.g., "transaction"
+  smallbiznis.common.Money amount = 2;
+  string order_id = 3;
+  string reward_name = 4;
   string item_category = 5;
   string sub_category = 6;
-  string payment_method = 7;
-  string channel = 8;
+  smallbiznis.transaction.v1.PaymentMethod payment_method = 7;
+  smallbiznis.transaction.v1.ChannelType channel = 8;
+
   string brand_id = 9;
   string merchant_id = 10;
   string outlet_id = 11;
   string promo_id = 12;
 
-  repeated TransactionItem items = 13;
+  repeated smallbiznis.transaction.v1.TransactionItem items = 13;
   google.protobuf.Struct metadata = 14;
 }
 
@@ -165,12 +168,13 @@ message EarningPreviewResponse {
 message EarningRequest {
   string user_id = 1;
   string tenant_id = 2;
-  string reference_id = 3;
+  string reference_id = 3; // transaction.id atau order_id
   string ip_address = 4;
   string user_agent = 5;
+  string event_type = 6;
 
   oneof attributes {
-    TransactionAttributes transaction = 6;
+    TransactionAttributes transaction = 7;
   }
 }
 

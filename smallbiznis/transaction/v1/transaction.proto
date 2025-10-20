@@ -45,34 +45,23 @@ enum ChannelType {
 // ========================================================
 
 message TransactionItem {
-  string item_id = 1;                          // optional: return server-generated ID
-  string transaction_id = 2;                   // optional: set by server
-  string tenant_id = 3;                        // optional: set by server
-
-  string sku = 4;
-  string name = 5;
-  string category = 6;
-
-  int32 qty = 7;
-  smallbiznis.common.Money price = 8;      // per unit (minor units)
-  smallbiznis.common.Money total = 9;      // qty * price (server may compute)
-
-  google.protobuf.Struct metadata = 10;        // e.g. variants, notes
-  google.protobuf.Timestamp created_at = 11;   // server-populated
-  google.protobuf.Timestamp updated_at = 12;   // server-populated
+  string item_id = 1;
+  string sku = 2;
+  string name = 3;
+  string category = 4;
+  int32 qty = 5;
+  smallbiznis.common.Money price = 6;
+  smallbiznis.common.Money total = 7;
+  google.protobuf.Struct metadata = 8;
 }
 
-// Transaction entity
 message Transaction {
   string id = 1;
   string tenant_id = 2;
   string user_id = 3;
-
-  // Optional external reference, e.g., POS or e-commerce order ID
   string order_id = 4;
 
   smallbiznis.common.Money amount = 5;
-
   TransactionStatus status = 6;
   PaymentMethod payment_method = 7;
   ChannelType channel = 8;
@@ -80,13 +69,22 @@ message Transaction {
 
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
-  string transaction_id = 12;
-  repeated TransactionItem items = 13;
+  repeated TransactionItem items = 12;
 }
 
 // ========================================================
 // REQUESTS / RESPONSES
 // ========================================================
+
+message CreateTransactionItemRequest {
+  string sku = 1;
+  string name = 2;
+  string category = 3;
+  int32 qty = 4;
+  smallbiznis.common.Money price = 5;
+  smallbiznis.common.Money total = 6;
+  google.protobuf.Struct metadaa = 7;
+}
 
 message CreateTransactionRequest {
   string tenant_id = 1;
@@ -95,7 +93,7 @@ message CreateTransactionRequest {
   smallbiznis.common.Money amount = 4;
   PaymentMethod payment_method = 5;
   google.protobuf.Struct metadata = 6;
-  repeated TransactionItem items = 7;
+  repeated CreateTransactionItemRequest items = 7;
 }
 
 message CreateTransactionResponse {

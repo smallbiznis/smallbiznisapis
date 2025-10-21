@@ -42,7 +42,7 @@ service PointService {
     description: "APIs for managing loyalty earning and redemption flows"
   };
 
-  rpc AddPoint() returns ();
+  rpc AddPoint(AddPointsRequest) returns (AddPointsResponse);
 
   rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
     option (google.api.http) = {

@@ -159,12 +159,17 @@ message AddPointsRequest {
   string tenant_id = 1;
   string user_id = 2;
   int64 points = 3;
-  string reason = 4;
-  string reference_id = 5;
+  string reference_id = 4; // order_id / event_id
+  string rule_id = 5;      // optional - rule yang memicu reward
+  string campaign_id = 6;  // optional - campaign asal reward
+  string reward_name = 7;  // human readable name, ex: "Welcome Bonus"
+  string description = 8;  // free text description
+  google.protobuf.Struct metadata = 9; // extra attributes
+  int32 expire_days = 10;  // opsional, hari sebelum kadaluarsa
 }
 
 message AddPointsResponse {
-  string user_id = 1;
+  string ledger_entry_id = 1;
   int64 points = 2;
 }
 

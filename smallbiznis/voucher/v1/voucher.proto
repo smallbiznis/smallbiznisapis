@@ -230,7 +230,7 @@ message IssueVoucherRequest {
 }
 
 message IssueVoucherResponse {
-  repeated VoucherIssuance vouchers = 1;
+  repeated Voucher vouchers = 1;
 }
 
 message RedeemVoucherRequest {

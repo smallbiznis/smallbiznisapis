@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.campaign.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznisapis/smallbiznis/campaign/v1;campaignv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/campaign/v1;campaignv1";
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
@@ -57,12 +57,17 @@ message Campaign {
   string campaign_description = 5;
   CampaignRewardType campaign_reward_type = 6;
   CampaignEligibilityMode campaign_eligibility_mode = 7;
-  string dsl_expression = 8; // CEL expression untuk evaluasi eligibility (optional)
+
+  // 👉 Relasi ke Rule Engine
+  string rule_id = 8;
   CampaignStatus status = 9;
+  
   google.protobuf.Timestamp start_at = 10;
   google.protobuf.Timestamp end_at = 12;
-  google.protobuf.Struct reward_value = 13; // fleksibel, tergantung reward_type (misal {points:100}, {campaign_id:"123"}, dsb)
-  google.protobuf.Struct metadata = 14;
+
+  // 🎁 Reward definition
+  google.protobuf.Struct reward_value = 12; // fleksibel, tergantung reward_type (misal {points:100}, {campaign_id:"123"}, dsb)
+  google.protobuf.Struct metadata = 13;
   google.protobuf.Timestamp created_at = 15;
   google.protobuf.Timestamp updated_at = 16;
 }

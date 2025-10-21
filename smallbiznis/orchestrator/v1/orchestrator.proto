@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package smallbiznis.orchestrator.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/orchestrator/v1;orchestratorv1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ========================================================
+// ENUMS
+// ========================================================
+
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED = 0;
+  TRANSACTION = 1; // transaction POS/Online
+  SIGNUP = 2;      // new user
+  REFERRAL = 3;    // referral completed
+  BIRTHDAY = 4;    // birthday
+  REVIEW = 5;      // review / rate
+  CUSTOM = 6;      // custom
+}
+
+enum EarningStatus {
+  EARNING_STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  SUCCESS = 2;
+  FAILED = 3;
+}
+
+// ========================================================
+// ENTITIES
+// ========================================================
+
+// EarningEvent mewakili event yang bisa menghasilkan reward
+message EarningEvent {
+  string event_id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+  EventType event_type = 4; // e.g. "transaction", "signup", "referral"
+  string reference_id = 5;
+  google.protobuf.Struct attributes = 6; // event-specific payload (e.g. total_spent, payment_method, dll)
+  EarningStatus status = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// Hasil evaluasi dan eksekusi reward
+message EarningResult {
+  string campaign_id = 1;
+  string reward_type = 2; // POINT / VOUCHER / FREE_ITEM
+  google.protobuf.Struct reward_value = 3;
+  EarningStatus status = 4;
+  string message = 5;
+}
+
+// ========================================================
+// REQUESTS & RESPONSES
+// ========================================================
+
+// Input langsung dari event POS / referral / signup, dsb
+message ProcessEarningRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  string event_type = 3;
+  string reference_id = 4;
+  google.protobuf.Struct attributes = 5;
+}
+
+// Hasil evaluasi dari orchestrator
+message ProcessEarningResponse {
+  string trace_id = 1;
+  repeated EarningResult results = 2;
+  EarningStatus overall_status = 3;
+}
+
+// ========================================================
+// SERVICE DEFINITION
+// ========================================================
+
+service OrchestratorService {
+  // Entry point utama — dipanggil oleh POS/Referral service
+  rpc ProcessEarning(ProcessEarningRequest) returns (ProcessEarningResponse) {
+    option (google.api.http) = {
+      post: "/v1/orchestrator/earnings:process"
+      body: "*"
+    };
+  }
+}

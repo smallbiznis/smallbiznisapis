@@ -142,7 +142,7 @@ service VoucherService {
   }
 
   // Issue voucher to a specific user (manual or auto)
-  rpc IssueVoucher(IssueVoucherRequest) returns (VoucherIssuance) {
+  rpc IssueVoucher(IssueVoucherRequest) returns (IssueVoucherResponse) {
     option (google.api.http) = {
       post: "/v1/vouchers:issue"
       body: "*"
@@ -225,7 +225,12 @@ message VoucherEligibilityResult {
 message IssueVoucherRequest {
   string tenant_id = 1;
   string user_id = 2;
-  string voucher_code = 3;
+  string campaign_id = 3;
+  int32 count = 4; // default 1
+}
+
+message IssueVoucherResponse {
+  repeated VoucherIssuance vouchers = 1;
 }
 
 message RedeemVoucherRequest {

@@ -158,13 +158,14 @@ message TransactionItem {
 message AddPointsRequest {
   string tenant_id = 1;
   string user_id = 2;
-  int32 points = 3;
+  int64 points = 3;
   string reason = 4;
+  string reference_id = 5;
 }
 
 message AddPointsResponse {
   string user_id = 1;
-  int32 points = 2;
+  int64 points = 2;
 }
 
 message EarningPreviewRequest {

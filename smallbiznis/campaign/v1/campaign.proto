@@ -66,8 +66,8 @@ message Campaign {
   google.protobuf.Timestamp end_at = 12;
 
   // 🎁 Reward definition
-  google.protobuf.Struct reward_value = 12; // fleksibel, tergantung reward_type (misal {points:100}, {campaign_id:"123"}, dsb)
-  google.protobuf.Struct metadata = 13;
+  google.protobuf.Struct reward_value = 13; // fleksibel, tergantung reward_type (misal {points:100}, {campaign_id:"123"}, dsb)
+  google.protobuf.Struct metadata = 14;
   google.protobuf.Timestamp created_at = 15;
   google.protobuf.Timestamp updated_at = 16;
 }

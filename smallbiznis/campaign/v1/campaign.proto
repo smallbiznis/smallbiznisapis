@@ -1,0 +1,190 @@
+syntax = "proto3";
+
+package smallbiznis.campaign.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznisapis/smallbiznis/campaign/v1;campaignv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/api/resource.proto";
+import "google/protobuf/struct.proto";
+
+// ========================================================
+// ENUMS
+// ========================================================
+
+// Jenis reward yang diberikan oleh campaign.
+enum CampaignRewardType {
+  CAMPAIGN_REWARD_TYPE_UNSPECIFIED = 0;
+  VOUCHER = 1;
+  POINT = 2;
+  CASHBACK = 3;
+  FREE_ITEM = 4;
+  CUSTOM = 5;
+}
+
+// Status campaign (aktif, nonaktif, dll.)
+enum CampaignStatus {
+  CAMPAIGN_STATUS_UNSPECIFIED = 0;
+  DRAFT = 1;
+  ACTIVE = 2;
+  INACTIVE = 3;
+  EXPIRED = 4;
+}
+
+// Mode penentuan eligibility (manual atau pakai rule)
+enum CampaignEligibilityMode {
+  CAMPAIGN_ELIGIBILITY_MODE_UNSPECIFIED = 0;
+  MANUAL = 1;
+  RULE = 2;
+}
+
+// ========================================================
+// ENTITIES
+// ========================================================
+
+// Campaign mewakili satu strategi reward (mis. promo, event, dsb)
+message Campaign {
+  option (google.api.resource) = {
+    type: "campaigns.smallbiznis.com/Campaign"
+    pattern: "v1/campaigns/{campaign_id}"
+  };
+
+  string campaign_id = 1;
+  string tenant_id = 2;
+  string campaign_code = 3;
+  string campaign_name = 4;
+  string campaign_description = 5;
+  CampaignRewardType campaign_reward_type = 6;
+  CampaignEligibilityMode campaign_eligibility_mode = 7;
+  string dsl_expression = 8; // CEL expression untuk evaluasi eligibility (optional)
+  CampaignStatus status = 9;
+  google.protobuf.Timestamp start_at = 10;
+  google.protobuf.Timestamp end_at = 12;
+  google.protobuf.Struct reward_value = 13; // fleksibel, tergantung reward_type (misal {points:100}, {campaign_id:"123"}, dsb)
+  google.protobuf.Struct metadata = 14;
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
+}
+
+// ========================================================
+// REQUESTS & RESPONSES
+// ========================================================
+
+message CreateCampaignRequest {
+  string tenant_id = 1;
+  string name = 2;
+  string description = 3;
+  CampaignRewardType reward_type = 4;
+  CampaignEligibilityMode eligibility_mode = 5;
+  string dsl_expression = 6;
+  google.protobuf.Timestamp start_at = 7;
+  google.protobuf.Timestamp end_at = 8;
+  google.protobuf.Struct reward_value = 9;
+  google.protobuf.Struct metadata = 10;
+}
+
+message UpdateCampaignRequest {
+  string campaign_id = 1;
+  string tenant_id = 2;
+  string name = 3;
+  string description = 4;
+  CampaignRewardType reward_type = 5;
+  CampaignEligibilityMode eligibility_mode = 6;
+  string dsl_expression = 7;
+  google.protobuf.Timestamp start_at = 8;
+  google.protobuf.Timestamp end_at = 9;
+  google.protobuf.Struct reward_value = 10;
+  google.protobuf.Struct metadata = 11;
+  CampaignStatus status = 12;
+}
+
+message GetCampaignRequest {
+  string tenant_id = 1;
+  string campaign_id = 2;
+}
+
+message ListCampaignsRequest {
+  string tenant_id = 1;
+  bool only_active = 2;
+}
+
+message ListCampaignsResponse {
+  repeated Campaign campaigns = 1;
+}
+
+message DeleteCampaignRequest {
+  string tenant_id = 1;
+  string campaign_id = 2;
+}
+
+message CloneCampaignRequest {
+  string tenant_id = 1;
+  string campaign_id = 2;
+  string new_name = 3;
+}
+
+message GetActiveCampaignsRequest {
+  string tenant_id = 1;
+}
+
+message GetActiveCampaignsResponse {
+  repeated Campaign campaigns = 1;
+}
+
+// ========================================================
+// SERVICE
+// ========================================================
+
+service CampaignService {
+
+  // Create new campaign
+  rpc CreateCampaign(CreateCampaignRequest) returns (Campaign) {
+    option (google.api.http) = {
+      post: "/v1/campaigns"
+      body: "*"
+    };
+  }
+
+  // Update campaign info
+  rpc UpdateCampaign(UpdateCampaignRequest) returns (Campaign) {
+    option (google.api.http) = {
+      patch: "/v1/campaigns/{campaign_id}"
+      body: "*"
+    };
+  }
+
+  // Get single campaign
+  rpc GetCampaign(GetCampaignRequest) returns (Campaign) {
+    option (google.api.http) = {
+      get: "/v1/campaigns/{campaign_id}"
+    };
+  }
+
+  // List all campaigns (optionally only active)
+  rpc ListCampaigns(ListCampaignsRequest) returns (ListCampaignsResponse) {
+    option (google.api.http) = {
+      get: "/v1/campaigns"
+    };
+  }
+
+  // Delete campaign
+  rpc DeleteCampaign(DeleteCampaignRequest) returns (.google.protobuf.Struct) {
+    option (google.api.http) = {
+      delete: "/v1/campaigns/{campaign_id}"
+    };
+  }
+
+  rpc CloneCampaign(CloneCampaignRequest) returns (Campaign) {
+    option (google.api.http) = {
+      post: "/v1/campaigns/{campaign_id}:clone"
+      body: "*"
+    };
+  }
+
+  rpc GetActiveCampaigns(GetActiveCampaignsRequest) returns (GetActiveCampaignsResponse) {
+    option (google.api.http) = {
+      get: "/v1/{tenant_id}/campaigns:active"
+    };
+  }
+}

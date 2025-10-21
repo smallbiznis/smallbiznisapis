@@ -12,19 +12,10 @@ import "google/protobuf/struct.proto";
 // ENUMS
 // ========================================================
 
-enum CampaignType {
-  CAMPAIGN_TYPE_UNSPECIFIED = 0;
-  CAMPAIGN_DISCOUNT = 1;
-  CAMPAIGN_CASHBACK = 2;
-  CAMPAIGN_FREE_ITEM = 3;
-}
-
 enum DiscountType {
   DISCOUNT_TYPE_UNSPECIFIED = 0;
   FIXED = 1;
-  PERCENT = 2;
-  FREE_ITEM = 3;
-  CUSTOM = 4;
+  PERCENTAGE = 2;
 }
 
 enum IssuanceStatus {
@@ -44,37 +35,19 @@ message Voucher {
   string voucher_id = 1;
   string tenant_id = 2;
   string campaign_id = 3;
-  string code = 4;
-  string name = 5;
-  DiscountType discount_type = 6;
-  double discount_value = 7;
-  string currency = 8;
-  int32 stock = 9;
-  int32 remaining_stock = 10;
-  google.protobuf.Timestamp expiry_date = 11;
-  bool is_active = 12;
-  google.protobuf.Struct metadata = 13;
-  google.protobuf.Timestamp created_at = 14;
-  google.protobuf.Timestamp updated_at = 15;
-}
+  string voucher_code = 4;
+  string voucher_name = 5;
 
-// VoucherCampaign represents logical grouping of vouchers.
-message VoucherCampaign {
-  string campaign_id = 1;
-  string tenant_id = 2;
-  string name = 3;
-  string description = 4;
-  CampaignType type = 5; // discount, cashback, etc.
-  string code = 6;
-  int32 total_stock = 7;
-  int32 remaining_stock = 8;
-  bool is_active = 9;
-  google.protobuf.Timestamp start_at = 10;
-  google.protobuf.Timestamp end_at = 11;
-  string dsl_expression = 12; // CEL expression for eligibility
-  google.protobuf.Struct metadata = 13;
-  google.protobuf.Timestamp created_at = 14;
-  google.protobuf.Timestamp updated_at = 15;
+  DiscountType discount_type = 6;
+  double discount_value = 7;         // 10.0 (percent) atau 50000.0 (fixed)
+  string currency_code = 8;          // hanya relevan kalau FIXED
+
+  google.protobuf.Timestamp expiry_date = 9;
+  bool never_expires = 10;
+  bool is_active = 11;
+  google.protobuf.Struct metadata = 12;
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
 }
 
 // VoucherIssuance represents voucher assigned to a user.
@@ -97,19 +70,6 @@ message VoucherIssuance {
 // ========================================================
 
 service VoucherService {
-    // List voucher campaigns (for evaluation or admin)
-  rpc ListCampaigns(ListCampaignsRequest) returns (ListCampaignsResponse) {
-    option (google.api.http) = {
-      get: "/v1/campaigns"
-    };
-  }
-
-  // Get single campaign details by code or id
-  rpc GetCampaign(GetCampaignRequest) returns (VoucherCampaign) {
-    option (google.api.http) = {
-      get: "/v1/campaigns/{campaign_id}"
-    };
-  }
 
   // Create a new voucher (admin only)
   rpc CreateVoucher(CreateVoucherRequest) returns (Voucher) {
@@ -168,22 +128,6 @@ service VoucherService {
 // ========================================================
 // REQUESTS / RESPONSES
 // ========================================================
-
-message ListCampaignsRequest {
-  string tenant_id = 1;
-  bool only_active = 2; // if true, filter by start_at <= now <= end_at
-  int32 limit = 3;
-  int32 offset = 4;
-}
-
-message ListCampaignsResponse {
-  repeated VoucherCampaign campaigns = 1;
-}
-
-message GetCampaignRequest {
-  string tenant_id = 1;
-  string campaign_id = 2;
-}
 
 message CreateVoucherRequest {
   string tenant_id = 1;

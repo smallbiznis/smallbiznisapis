@@ -33,26 +33,28 @@ enum EarningStatus {
 // ENTITIES
 // ========================================================
 
-// EarningEvent mewakili event yang bisa menghasilkan reward
+// Event yang bisa menghasilkan reward (misal transaksi)
 message EarningEvent {
   string event_id = 1;
   string tenant_id = 2;
   string user_id = 3;
-  EventType event_type = 4; // e.g. "transaction", "signup", "referral"
+  EventType event_type = 4;
   string reference_id = 5;
-  google.protobuf.Struct attributes = 6; // event-specific payload (e.g. total_spent, payment_method, dll)
+  google.protobuf.Struct attributes = 6; // event-specific data
   EarningStatus status = 7;
   google.protobuf.Timestamp created_at = 8;
   google.protobuf.Timestamp updated_at = 9;
 }
 
-// Hasil evaluasi dan eksekusi reward
+// Hasil evaluasi & eksekusi reward
 message EarningResult {
   string campaign_id = 1;
-  string reward_type = 2; // POINT / VOUCHER / FREE_ITEM
-  google.protobuf.Struct reward_value = 3;
-  EarningStatus status = 4;
-  string message = 5;
+  bool matched = 2;
+  string reward_type = 3; // POINT / VOUCHER / FREE_ITEM
+  google.protobuf.Struct reward_value = 4;
+  string executor_service = 5; // loyalty / voucher / notification
+  EarningStatus status = 6;
+  string message = 7;
 }
 
 // ========================================================

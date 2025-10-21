@@ -42,6 +42,8 @@ service PointService {
     description: "APIs for managing loyalty earning and redemption flows"
   };
 
+  rpc AddPoint() returns ();
+
   rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
     option (google.api.http) = {
       get: "/v1/points:balance"
@@ -152,6 +154,18 @@ message TransactionItem {
 // ──────────────────────────────
 //  Earning API
 // ──────────────────────────────
+
+message AddPointsRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  int32 points = 3;
+  string reason = 4;
+}
+
+message AddPointsResponse {
+  string user_id = 1;
+  int32 points = 2;
+}
 
 message EarningPreviewRequest {
   string user_id = 1;

@@ -19,7 +19,8 @@ enum EventType {
   REFERRAL = 3;    // referral completed
   BIRTHDAY = 4;    // birthday
   REVIEW = 5;      // review / rate
-  CUSTOM = 6;      // custom
+  CAMPAIGN = 6;
+  CUSTOM = 7;      // custom
 }
 
 enum EarningStatus {

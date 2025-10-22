@@ -61,7 +61,7 @@ message EarningResult {
 // EVENT SCHEMA
 // ========================================================
 
-message TransactionEvent {
+message TransactionAttribute {
 
   string category_id = 1;
   string sub_category_id = 2;

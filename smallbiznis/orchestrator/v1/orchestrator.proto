@@ -72,13 +72,19 @@ message TransactionAttribute {
 
   string promo_id = 6;
 
-  string payment_method = 7;
-  string channel = 8;
+  string channel = 7;
+  string payment_method = 8;
 
-  google.protobuf.Struct metadata = 9;
-  google.protobuf.Timestamp transaction_at = 10;
+  int64 sub_total = 9;
+  int64 discount_total = 10;
+  int64 tax_total = 11;
+  int64 shipping_fee = 12;
+  int64 grand_total = 13;
 
-  repeated TransactionItem items = 11;
+  google.protobuf.Struct metadata = 14;
+  google.protobuf.Timestamp transaction_at = 15;
+
+  repeated TransactionItem items = 16;
 
 }
 

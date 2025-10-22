@@ -40,9 +40,13 @@ enum RuleStatus {
 
 enum RuleTriggerType {
   RULE_TRIGGER_TYPE_UNSPECIFIED = 0;
-  USER_SIGNUP = 1;
-  PURCHASE = 2;
-  CAMPAIGN = 3;
+  PURCHASE = 1;
+  SIGNUP = 2;
+  REFERRAL = 3;    // referral completed
+  BIRTHDAY = 4;    // birthday
+  REVIEW = 5;      // review / rate
+  CAMPAIGN = 6;
+  CUSTOM = 7;      // custom
 }
 
 enum RuleActionType {

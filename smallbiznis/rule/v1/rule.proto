@@ -231,8 +231,9 @@ message RuleEvaluationResult {
 message BatchEvaluateRequest {
   string tenant_id = 1;
   repeated string rule_ids = 2;                // optional: hanya rule tertentu
-  google.protobuf.Struct context = 3;          // contoh: {"user_id": "123", "total_spent": 150000}
-  bool include_disabled = 4;                   // jika true, evaluasi rule non-aktif juga (untuk testing)
+  RuleTriggerType trigger = 3;
+  google.protobuf.Struct context = 4;          // contoh: {"user_id": "123", "total_spent": 150000}
+  bool include_disabled = 5;                   // jika true, evaluasi rule non-aktif juga (untuk testing)
 }
 
 // Represent hasil batch evaluasi

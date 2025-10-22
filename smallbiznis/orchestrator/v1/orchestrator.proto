@@ -58,6 +58,43 @@ message EarningResult {
 }
 
 // ========================================================
+// EVENT SCHEMA
+// ========================================================
+
+message TransactionEvent {
+
+  string category_id = 1;
+  string sub_category_id = 2;
+
+  string brand_id = 3;
+  string merchant_id = 4;
+  string outlet_id = 5;
+
+  string promo_id = 6;
+
+  string payment_method = 7;
+  string channel = 8;
+
+  google.protobuf.Struct metadata = 9;
+  google.protobuf.Timestamp transaction_at = 10;
+
+  repeated TransactionItem items = 11;
+
+}
+
+message TransactionItem {
+
+  string sku = 1;
+  string name = 2;
+  int64 qty = 3;
+  int64 unit_price = 4;
+  int64 total_price = 5;
+  google.protobuf.Struct metadata = 6;
+
+}
+
+
+// ========================================================
 // REQUESTS & RESPONSES
 // ========================================================
 
@@ -65,9 +102,15 @@ message EarningResult {
 message ProcessEarningRequest {
   string tenant_id = 1;
   string user_id = 2;
-  string event_type = 3;
+  EventType event_type = 3;
   string reference_id = 4;
-  google.protobuf.Struct attributes = 5;
+
+  oneof attributes {
+
+    TransactionAttribute transaction = 5;
+
+  }
+
 }
 
 // Hasil evaluasi dari orchestrator

@@ -14,7 +14,7 @@ import "google/api/annotations.proto";
 
 enum EventType {
   EVENT_TYPE_UNSPECIFIED = 0;
-  TRANSACTION = 1; // transaction POS/Online
+  PURCHASE = 1; // transaction POS/Online
   SIGNUP = 2;      // new user
   REFERRAL = 3;    // referral completed
   BIRTHDAY = 4;    // birthday

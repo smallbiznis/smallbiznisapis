@@ -79,15 +79,9 @@ message Campaign {
   google.protobuf.Timestamp updated_at = 19;
 }
 
-enum Mode {
-  MODE_UNSPECIFIED = 0;
-  PREGENERATED = 1;
-  GENERATED = 2;
-}
-
 // 🎁 Reward message definitions
 message VoucherReward {
-  Mode mode = 1;            // PREGENERATED / GENERATED
+  string mode = 1;            // PREGENERATED / GENERATED
   string voucher_pool_id = 2; // untuk PREGENERATED
   string template = 3;        // untuk GENERATED
   int32 count = 4;            // jumlah voucher per claim

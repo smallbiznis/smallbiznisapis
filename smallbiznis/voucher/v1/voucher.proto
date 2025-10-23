@@ -79,16 +79,14 @@ message VoucherIssuance {
   string issuance_id = 1;
   string tenant_id = 2;
   string voucher_id = 3;
-  string voucher_code = 4;
-  string user_id = 5;
-  IssuanceStatus status = 6;
-  google.protobuf.Timestamp issued_at = 7;
-  google.protobuf.Timestamp redeemed_at = 8;
-  string order_id = 9;
-  google.protobuf.Struct metadata = 10;
-  google.protobuf.Timestamp created_at = 11;
-  google.protobuf.Timestamp updated_at = 12;
-  string expiry_date = 13;
+  string user_id = 4;
+  IssuanceStatus status = 5;
+  google.protobuf.Timestamp issued_at = 6;
+  google.protobuf.Timestamp redeemed_at = 7;
+  string order_id = 8;
+  google.protobuf.Struct metadata = 9;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
 }
 
 // ========================================================

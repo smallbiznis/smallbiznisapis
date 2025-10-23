@@ -88,6 +88,7 @@ message VoucherIssuance {
   google.protobuf.Struct metadata = 10;
   google.protobuf.Timestamp created_at = 11;
   google.protobuf.Timestamp updated_at = 12;
+  string expiry_date = 13;
 }
 
 // ========================================================

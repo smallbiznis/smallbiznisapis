@@ -66,10 +66,42 @@ message Campaign {
   google.protobuf.Timestamp end_at = 12;
 
   // 🎁 Reward definition
-  google.protobuf.Struct reward_value = 13; // fleksibel, tergantung reward_type (misal {points:100}, {campaign_id:"123"}, dsb)
-  google.protobuf.Struct metadata = 14;
-  google.protobuf.Timestamp created_at = 15;
-  google.protobuf.Timestamp updated_at = 16;
+  // 💡 Oneof reward_value: tergantung reward_type
+  oneof reward_value {
+    VoucherReward voucher_reward = 13;
+    PointReward point_reward = 14;
+    CashbackReward cashback_reward = 15;
+    FreeItemReward free_item_reward = 16;
+  }
+
+  google.protobuf.Struct metadata = 17;
+  google.protobuf.Timestamp created_at = 18;
+  google.protobuf.Timestamp updated_at = 19;
+}
+
+// 🎁 Reward message definitions
+message VoucherReward {
+  string mode = 1;            // PREGENERATED / GENERATED
+  string voucher_pool_id = 2; // untuk PREGENERATED
+  string template = 3;        // untuk GENERATED
+  int32 count = 4;            // jumlah voucher per claim
+  int32 expiry_days = 5;
+}
+
+message PointReward {
+  int32 points = 1;
+  string reference = 2;
+}
+
+message CashbackReward {
+  double amount = 1;
+  string currency = 2;
+}
+
+message FreeItemReward {
+  string item_code = 1;
+  string item_name = 2;
+  int32 quantity = 3;
 }
 
 // ========================================================

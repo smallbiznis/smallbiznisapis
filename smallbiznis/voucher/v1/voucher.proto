@@ -50,19 +50,44 @@ message Voucher {
   google.protobuf.Timestamp updated_at = 14;
 }
 
+message VoucherPool {
+  string pool_id = 1;
+  string tenant_id = 2;
+  string campaign_id = 3;
+  string name = 4;
+  int32 total_stock = 5;
+  int32 remaining_stock = 6;
+  bool is_active = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message VoucherPoolItem {
+  string item_id = 1;
+  string pool_id = 2;
+  string voucher_code = 3; // voucher_code must be unique within the pool (or tenant), enforced at storage level.
+  bool is_issued = 4;
+  string issued_to = 5;
+  google.protobuf.Timestamp issued_at = 6;
+  google.protobuf.Struct metadata = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
 // VoucherIssuance represents voucher assigned to a user.
 message VoucherIssuance {
   string issuance_id = 1;
   string tenant_id = 2;
   string voucher_id = 3;
-  string user_id = 4;
-  IssuanceStatus status = 5;
-  google.protobuf.Timestamp issued_at = 6;
-  google.protobuf.Timestamp redeemed_at = 7;
-  string order_id = 8;
-  google.protobuf.Struct metadata = 9;
-  google.protobuf.Timestamp created_at = 10;
-  google.protobuf.Timestamp updated_at = 11;
+  string voucher_code = 4;
+  string user_id = 5;
+  IssuanceStatus status = 6;
+  google.protobuf.Timestamp issued_at = 7;
+  google.protobuf.Timestamp redeemed_at = 8;
+  string order_id = 9;
+  google.protobuf.Struct metadata = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
 }
 
 // ========================================================
@@ -71,25 +96,36 @@ message VoucherIssuance {
 
 service VoucherService {
 
-  // Create a new voucher (admin only)
-  rpc CreateVoucher(CreateVoucherRequest) returns (Voucher) {
+  // Admin: create voucher pool
+  rpc CreateVoucherPool(CreateVoucherPoolRequest) returns (VoucherPool) {
     option (google.api.http) = {
-      post: "/v1/vouchers"
+      post: "/v1/voucherpools"
       body: "*"
     };
   }
 
-  // Get a voucher by its unique code
-  rpc GetVoucher(GetVoucherRequest) returns (Voucher) {
+  // Admin: bulk import voucher codes to pool
+  rpc ImportVoucherPoolItems(ImportVoucherPoolItemsRequest) returns (ImportVoucherPoolItemsResponse) {
     option (google.api.http) = {
-      get: "/v1/vouchers/{code}"
+      post: "/v1/voucherpools/{pool_id}/items:import"
+      body: "*"
     };
   }
 
-  // List vouchers for tenant (with optional filters)
-  rpc ListVouchers(ListVouchersRequest) returns (ListVouchersResponse) {
+  // Admin: list voucher pool and items
+  rpc ListVoucherPools(ListVoucherPoolsRequest) returns (ListVoucherPoolsResponse) {
     option (google.api.http) = {
-      get: "/v1/vouchers"
+      get: "/v1/voucherpools"
+    };
+  }
+
+  rpc GetVoucherPoolStock(GetVoucherPoolStockRequest) returns (GetVoucherPoolStockResponse) {
+    option (google.api.http) = { get: "/v1/voucherpools/{pool_id}:stock" };
+  }
+
+  rpc ListVoucherPoolItems(ListVoucherPoolItemsRequest) returns (ListVoucherPoolItemsResponse) {
+    option (google.api.http) = {
+      get: "/v1/voucherpools/{pool_id}/items"
     };
   }
 
@@ -129,25 +165,52 @@ service VoucherService {
 // REQUESTS / RESPONSES
 // ========================================================
 
-message CreateVoucherRequest {
+message CreateVoucherPoolRequest {
   string tenant_id = 1;
-  Voucher voucher = 2;
+  string campaign_id = 2;
+  string name = 3;
 }
 
-message GetVoucherRequest {
+message ImportVoucherPoolItemsRequest {
   string tenant_id = 1;
-  string code = 2;
+  string pool_id = 2;
+  repeated string voucher_codes = 3;
 }
 
-message ListVouchersRequest {
+message ImportVoucherPoolItemsResponse {
+  int32 imported = 1;
+}
+
+message ListVoucherPoolsRequest {
   string tenant_id = 1;
   bool only_active = 2;
-  int32 limit = 3;
-  int32 offset = 4;
 }
 
-message ListVouchersResponse {
-  repeated Voucher vouchers = 1;
+message ListVoucherPoolsResponse {
+  repeated VoucherPool pools = 1;
+}
+
+message ListVoucherPoolItemsRequest {
+  string tenant_id = 1;
+  string pool_id = 2;
+  int32  limit = 3;         // default 50
+  string cursor = 4;        // opaque (base64), optional
+}
+
+message ListVoucherPoolItemsResponse {
+  repeated VoucherPoolItem items = 1;
+  string next_cursor = 2;
+}
+
+message GetVoucherPoolStockRequest {
+  string tenant_id = 1;
+  string pool_id = 2;
+}
+
+message GetVoucherPoolStockResponse {
+  string pool_id = 1;
+  int32  remaining_stock = 2;
+  bool   is_active = 3;
 }
 
 message EvaluateVouchersRequest {
@@ -170,11 +233,12 @@ message IssueVoucherRequest {
   string tenant_id = 1;
   string user_id = 2;
   string campaign_id = 3;
-  int32 count = 4; // default 1
+  int32  count = 4;              // default 1
+  string idempotency_key = 5;    // optional for safe retries
 }
 
 message IssueVoucherResponse {
-  repeated Voucher vouchers = 1;
+  repeated VoucherIssuance issuances = 1;  // return per-user instances
 }
 
 message RedeemVoucherRequest {
@@ -186,10 +250,14 @@ message RedeemVoucherRequest {
 
 message ListMyVouchersRequest {
   string tenant_id = 1;
-  string user_id = 2;
-  string status = 3; // optional filter
+  string user_id   = 2;
+  IssuanceStatus status = 3;  // optional filter (enum, bukan string)
+  string campaign_id = 4;     // optional
+  int32  limit = 5;
+  string cursor = 6;
 }
 
 message ListMyVouchersResponse {
   repeated VoucherIssuance vouchers = 1;
+  string next_cursor = 2;
 }

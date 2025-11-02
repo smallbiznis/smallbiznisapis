@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package smallbiznis.common;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/common;common";
+
+message Money {
+  string currency_code = 1; // e.g. "IDR"
+  int64 amount = 2;         // value in minor units (e.g. cents)
+}

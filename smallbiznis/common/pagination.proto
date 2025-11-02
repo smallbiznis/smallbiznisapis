@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package smallbiznis.common;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/common;common";
+
+message CursorRequest {
+  string cursor = 1; // opaque cursor provided by previous response
+  int32 limit = 2; // optional page size override
+}
+
+message CursorResponse {
+  string next_cursor = 1;
+  string prev_cursor = 2;
+  bool has_more = 3;
+  int32 total_count = 4;
+}

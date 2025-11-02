@@ -99,17 +99,19 @@ message WorkflowNodeRun {
 
 message WorkflowConnector {
   string id = 1;
-  string app_id = 2;               // e.g. app.loyalty
-  string name = 3;
-  string developer = 4;
-  string category = 5;
-  string description = 6;
-  string homepage_url = 7;
-  string icon_url = 8;
-  google.protobuf.Struct manifest = 9; // JSON manifest: methods, scopes, events
-  repeated string scopes = 10;
-  google.protobuf.Timestamp created_at = 11;
-  google.protobuf.Timestamp updated_at = 12;
+  string tenant_id = 2;
+  string app_id = 3;               // e.g. app.loyalty
+  string name = 4;
+  string developer = 5;
+  string category = 6;
+  string description = 7;
+  string homepage_url = 8;
+  string icon_url = 9;
+  google.protobuf.Struct manifest = 10; // JSON manifest: methods, scopes, events
+  repeated string scopes = 11;
+  bool is_published = 12;
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
 }
 
 message WorkflowConnectorInstall {

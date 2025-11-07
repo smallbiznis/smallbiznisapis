@@ -44,8 +44,8 @@ enum ConnectorType {
 // WORKFLOW CORE ENTITIES
 // =======================
 message WorkflowDefinition {
-  int64 id = 1;
-  int64 tenant_id = 2;
+  string id = 1;
+  string tenant_id = 2;
   string name = 3;
   string description = 4;
   string trigger_event = 5;
@@ -58,8 +58,8 @@ message WorkflowDefinition {
 }
 
 message WorkflowNode {
-  int64 id = 1;
-  int64 workflow_id = 2;
+  string id = 1;
+  string workflow_id = 2;
   string node_id = 3;
   WorkflowNodeType type = 4;
   string label = 5;
@@ -75,8 +75,8 @@ message WorkflowNode {
 }
 
 message WorkflowEdge {
-  int64 id = 1;
-  int64 workflow_id = 2;
+  string id = 1;
+  string workflow_id = 2;
   string source = 3;
   string target = 4;
   string label = 5;
@@ -84,9 +84,9 @@ message WorkflowEdge {
 }
 
 message WorkflowRun {
-  int64 id = 1;
-  int64 workflow_id = 2;
-  int64 tenant_id = 3;
+  string id = 1;
+  string workflow_id = 2;
+  string tenant_id = 3;
   string trigger_event = 4;
   google.protobuf.Struct trigger_payload = 5;
   WorkflowRunStatus status = 6;
@@ -95,8 +95,8 @@ message WorkflowRun {
 }
 
 message WorkflowNodeRun {
-  int64 id = 1;
-  int64 run_id = 2;
+  string id = 1;
+  string run_id = 2;
   string node_id = 3;
   WorkflowNodeType type = 4;
   string app_id = 5;
@@ -113,8 +113,8 @@ message WorkflowNodeRun {
 // =======================
 
 message WorkflowConnector {
-  int64 id = 1;
-  int64 tenant_id = 2;
+  string id = 1;
+  string tenant_id = 2;
   string app_id = 3;              // e.g. gmail
   string developer = 4;           // e.g. Google LLC
   string name = 5;                // e.g. Gmail
@@ -183,8 +183,8 @@ message ConnectorOption {
 // INSTALLATION PER TENANT
 // =======================
 message WorkflowConnectorInstall {
-  int64 id = 1;
-  int64 tenant_id = 2;
+  string id = 1;
+  string tenant_id = 2;
   int64 connector_id = 3;
   string install_token = 4;
   google.protobuf.Struct settings = 5;
@@ -199,8 +199,8 @@ message WorkflowConnectorInstall {
 // EVENT SUBSCRIPTIONS
 // =======================
 message WorkflowConnectorEvent {
-  int64 id = 1;
-  int64 connector_id = 2;
+  string id = 1;
+  string connector_id = 2;
   string event_key = 3;           // e.g. new_email
   string target_url = 4;
   google.protobuf.Struct sample_payload = 5;
@@ -220,7 +220,7 @@ service WorkflowService {
 }
 
 message ListDefinitionsRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 }
 
 message ListDefinitionsResponse {
@@ -228,7 +228,7 @@ message ListDefinitionsResponse {
 }
 
 message GetDefinitionRequest {
-  int64 id = 1;
+  string id = 1;
 }
 
 message CreateDefinitionRequest {
@@ -240,5 +240,5 @@ message UpdateDefinitionRequest {
 }
 
 message DeleteDefinitionRequest {
-  int64 id = 1;
+  string id = 1;
 }

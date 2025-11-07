@@ -3,260 +3,242 @@ syntax = "proto3";
 package smallbiznis.workflow.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/workflow/v1;workflowv1";
 
-import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 
-// ========================================================
+// =======================
 // ENUMS
-// ========================================================
-
+// =======================
 enum WorkflowStatus {
   WORKFLOW_STATUS_UNSPECIFIED = 0;
   DRAFT = 1;
   ACTIVE = 2;
   INACTIVE = 3;
-  ARCHIVE = 4;
 }
 
-enum NodeType {
-  NODE_TYPE_UNSPECIFIED = 0;
+enum WorkflowRunStatus {
+  WORKFLOW_RUN_STATUS_UNSPECIFIED = 0;
+  RUNNING = 1;
+  SUCCESS = 2;
+  FAILED = 3;
+}
+
+enum WorkflowNodeType {
+  WORKFLOW_NODE_TYPE_UNSPECIFIED = 0;
   TRIGGER = 1;
   CONDITION = 2;
-  CONNECTOR = 3;
+  ACTION = 3;
   WAIT = 4;
 }
 
-// ========================================================
-// ENTITIES
-// ========================================================
+enum ConnectorType {
+  CONNECTOR_TYPE_UNSPECIFIED = 0;
+  PRODUCT = 1;        // internal app: loyalty, voucher
+  COMMUNICATION = 2;  // Gmail, WhatsApp, Telegram
+  CALENDAR = 3;       // Google Calendar
+  UTILITY = 4;        // Webhook, Schedule, Delay
+  LOGIC = 5;          // Built-in (Condition, Split, Path)
+}
 
-// ---------- Workflow Definitions ----------
+// =======================
+// WORKFLOW CORE ENTITIES
+// =======================
 message WorkflowDefinition {
-  string id = 1;
-  string tenant_id = 2;
+  int64 id = 1;
+  int64 tenant_id = 2;
   string name = 3;
   string description = 4;
   string trigger_event = 5;
   WorkflowStatus status = 6;
-  google.protobuf.Struct flow_json = 7;
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
+  int32 version = 7;
+  google.protobuf.Struct flow_json = 8;
+  google.protobuf.Timestamp published_at = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
 }
 
-// ---------- Workflow Node ----------
 message WorkflowNode {
-  string id = 1;
-  string workflow_id = 2;
+  int64 id = 1;
+  int64 workflow_id = 2;
   string node_id = 3;
-  NodeType type = 4;
+  WorkflowNodeType type = 4;
   string label = 5;
-  google.protobuf.Struct config = 6;
-  google.protobuf.Struct position = 7;
-  google.protobuf.Timestamp created_at = 8;
+  string app_id = 6;        // connector app id, e.g. gmail
+  string method_key = 7;    // trigger/action key, e.g. new_email
+  google.protobuf.Struct config = 8;
+  string condition_expression = 9;
+  string wait_duration = 10;
+  string next_on_success = 11;
+  string next_on_failure = 12;
+  google.protobuf.Struct position = 13;
+  google.protobuf.Timestamp created_at = 14;
 }
 
-// ---------- Workflow Edge ----------
 message WorkflowEdge {
-  string id = 1;
-  string workflow_id = 2;
+  int64 id = 1;
+  int64 workflow_id = 2;
   string source = 3;
   string target = 4;
   string label = 5;
   google.protobuf.Timestamp created_at = 6;
 }
 
-// ---------- Workflow Run ----------
 message WorkflowRun {
-  string id = 1;
-  string workflow_id = 2;
-  string tenant_id = 3;
+  int64 id = 1;
+  int64 workflow_id = 2;
+  int64 tenant_id = 3;
   string trigger_event = 4;
   google.protobuf.Struct trigger_payload = 5;
-  string status = 6;
+  WorkflowRunStatus status = 6;
   google.protobuf.Timestamp started_at = 7;
   google.protobuf.Timestamp completed_at = 8;
 }
 
-// ---------- Workflow Node Run ----------
 message WorkflowNodeRun {
-  string id = 1;
-  string run_id = 2;
+  int64 id = 1;
+  int64 run_id = 2;
   string node_id = 3;
-  NodeType type = 4;
-  string service = 5;
-  string method = 6;
+  WorkflowNodeType type = 4;
+  string app_id = 5;
+  string method_key = 6;
   google.protobuf.Struct input = 7;
   google.protobuf.Struct output = 8;
-  string status = 9;
+  WorkflowRunStatus status = 9;
   string error_message = 10;
   google.protobuf.Timestamp executed_at = 11;
 }
 
-// ========================================================
-// CONNECTOR (APP-STYLE ala Slack)
-// ========================================================
+// =======================
+// CONNECTOR SYSTEM
+// =======================
 
 message WorkflowConnector {
-  string id = 1;
-  string tenant_id = 2;
-  string app_id = 3;               // e.g. app.loyalty
-  string name = 4;
-  string developer = 5;
-  string category = 6;
+  int64 id = 1;
+  int64 tenant_id = 2;
+  string app_id = 3;              // e.g. gmail
+  string developer = 4;           // e.g. Google LLC
+  string name = 5;                // e.g. Gmail
+  ConnectorType category = 6;     // e.g. COMMUNICATION
   string description = 7;
   string homepage_url = 8;
   string icon_url = 9;
-  google.protobuf.Struct manifest = 10; // JSON manifest: methods, scopes, events
+  ConnectorManifest manifest = 10;
   repeated string scopes = 11;
   bool is_published = 12;
-  google.protobuf.Timestamp created_at = 13;
-  google.protobuf.Timestamp updated_at = 14;
+  bool verified = 13;
+  double rating = 14;
+  int64 install_count = 15;
+  google.protobuf.Timestamp created_at = 16;
+  google.protobuf.Timestamp updated_at = 17;
 }
 
+// =======================
+// CONNECTOR MANIFEST
+// =======================
+message ConnectorManifest {
+  repeated ConnectorTrigger triggers = 1;
+  repeated ConnectorAction actions = 2;
+  repeated ConnectorSearch searches = 3;
+}
+
+message ConnectorTrigger {
+  string key = 1;                 // e.g. new_email
+  string label = 2;               // e.g. New Email
+  string description = 3;
+  string type = 4;                // polling | instant
+  repeated ConnectorParam parameters = 5;
+  google.protobuf.Struct sample_output = 6;
+}
+
+message ConnectorAction {
+  string key = 1;                 // e.g. send_email
+  string label = 2;               // e.g. Send Email
+  string description = 3;
+  repeated ConnectorParam parameters = 4;
+  google.protobuf.Struct sample_output = 5;
+}
+
+message ConnectorSearch {
+  string key = 1;
+  string label = 2;
+  string description = 3;
+  repeated ConnectorParam parameters = 4;
+  google.protobuf.Struct sample_output = 5;
+}
+
+message ConnectorParam {
+  string key = 1;
+  string label = 2;
+  string type = 3;                // string | number | boolean | select | json
+  bool required = 4;
+  repeated ConnectorOption options = 5;
+}
+
+message ConnectorOption {
+  string label = 1;
+  string value = 2;
+}
+
+// =======================
+// INSTALLATION PER TENANT
+// =======================
 message WorkflowConnectorInstall {
-  string id = 1;
-  string tenant_id = 2;
-  string connector_id = 3;
+  int64 id = 1;
+  int64 tenant_id = 2;
+  int64 connector_id = 3;
   string install_token = 4;
   google.protobuf.Struct settings = 5;
-  bool is_enabled = 6;
-  google.protobuf.Timestamp installed_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  string external_account = 6;
+  string account_label = 7;
+  bool is_enabled = 8;
+  google.protobuf.Timestamp installed_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
 }
 
+// =======================
+// EVENT SUBSCRIPTIONS
+// =======================
 message WorkflowConnectorEvent {
-  string id = 1;
-  string connector_id = 2;
-  string event_key = 3;
+  int64 id = 1;
+  int64 connector_id = 2;
+  string event_key = 3;           // e.g. new_email
   string target_url = 4;
-  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Struct sample_payload = 5;
+  bool is_active = 6;
+  google.protobuf.Timestamp created_at = 7;
 }
 
-// ========================================================
-// REQUESTS & RESPONSES
-// ========================================================
-
-// --- Workflow CRUD ---
-message CreateWorkflowRequest {
-  WorkflowDefinition workflow = 1;
-}
-message CreateWorkflowResponse {
-  WorkflowDefinition workflow = 1;
-}
-
-message ListWorkflowsRequest {
-  string tenant_id = 1;
-  WorkflowStatus status = 2;
-}
-message ListWorkflowsResponse {
-  repeated WorkflowDefinition workflows = 1;
-}
-
-message GetWorkflowRequest {
-  string id = 1;
-}
-message GetWorkflowResponse {
-  WorkflowDefinition workflow = 1;
-}
-
-message UpdateWorkflowRequest {
-  WorkflowDefinition workflow = 1;
-}
-message UpdateWorkflowResponse {
-  WorkflowDefinition workflow = 1;
-}
-
-message ExecuteWorkflowRequest {
-  string tenant_id = 1;
-  string workflow_id = 2;
-  google.protobuf.Struct payload = 3;
-}
-message ExecuteWorkflowResponse {
-  string run_id = 1;
-  bool success = 2;
-  string message = 3;
-}
-
-// --- Connector Catalog & Install ---
-message ListConnectorsResponse {
-  repeated WorkflowConnector connectors = 1;
-}
-
-message InstallConnectorRequest {
-  string tenant_id = 1;
-  string app_id = 2; // Reference connector.app_id
-  google.protobuf.Struct settings = 3;
-}
-
-message InstallConnectorResponse {
-  WorkflowConnectorInstall install = 1;
-}
-
-message ListTenantConnectorsRequest {
-  string tenant_id = 1;
-}
-
-message ListTenantConnectorsResponse {
-  repeated WorkflowConnector connectors = 1;
-}
-
-// ========================================================
-// SERVICE DEFINITION
-// ========================================================
-
+// =======================
+// SERVICE DEFINITIONS
+// =======================
 service WorkflowService {
-  // Workflow CRUD
-  rpc CreateWorkflow(CreateWorkflowRequest) returns (CreateWorkflowResponse) {
-    option (google.api.http) = {
-      post: "/workflows"
-      body: "workflow"
-    };
-  }
+  rpc ListDefinitions (ListDefinitionsRequest) returns (ListDefinitionsResponse);
+  rpc GetDefinition (GetDefinitionRequest) returns (WorkflowDefinition);
+  rpc CreateDefinition (CreateDefinitionRequest) returns (WorkflowDefinition);
+  rpc UpdateDefinition (UpdateDefinitionRequest) returns (WorkflowDefinition);
+  rpc DeleteDefinition (DeleteDefinitionRequest) returns (google.protobuf.Struct);
+}
 
-  rpc ListWorkflows(ListWorkflowsRequest) returns (ListWorkflowsResponse) {
-    option (google.api.http) = {
-      get: "/workflows"
-    };
-  }
+message ListDefinitionsRequest {
+  int64 tenant_id = 1;
+}
 
-  rpc GetWorkflow(GetWorkflowRequest) returns (GetWorkflowResponse) {
-    option (google.api.http) = {
-      get: "/workflows/{id}"
-    };
-  }
+message ListDefinitionsResponse {
+  repeated WorkflowDefinition items = 1;
+}
 
-  rpc UpdateWorkflow(UpdateWorkflowRequest) returns (UpdateWorkflowResponse) {
-    option (google.api.http) = {
-      put: "/workflows/{workflow.id}"
-      body: "workflow"
-    };
-  }
+message GetDefinitionRequest {
+  int64 id = 1;
+}
 
-  rpc ExecuteWorkflow(ExecuteWorkflowRequest) returns (ExecuteWorkflowResponse) {
-    option (google.api.http) = {
-      post: "/workflows/{workflow_id}/execute"
-      body: "*"
-    };
-  }
+message CreateDefinitionRequest {
+  WorkflowDefinition definition = 1;
+}
 
-  // Connector Catalog & Installation
-  rpc ListConnectors(google.protobuf.Struct) returns (ListConnectorsResponse) {
-    option (google.api.http) = {
-      get: "/connectors"
-    };
-  }
+message UpdateDefinitionRequest {
+  WorkflowDefinition definition = 1;
+}
 
-  rpc InstallConnector(InstallConnectorRequest) returns (InstallConnectorResponse) {
-    option (google.api.http) = {
-      post: "/tenants/{tenant_id}/connectors/{app_id}/install"
-      body: "settings"
-    };
-  }
-
-  rpc ListTenantConnectors(ListTenantConnectorsRequest) returns (ListTenantConnectorsResponse) {
-    option (google.api.http) = {
-      get: "/tenants/{tenant_id}/connectors"
-    };
-  }
+message DeleteDefinitionRequest {
+  int64 id = 1;
 }

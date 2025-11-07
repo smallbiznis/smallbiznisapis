@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package smallbiznis.controlplane.billing.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/controlplane/billing/v1;billingv1";
+
+// ======================================
+// BillingService
+// ======================================
+service BillingService {
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription) {
+    option (google.api.http) = {
+      post: "/v1/subscriptions"
+      body: "*"
+    };
+  }
+
+  rpc GetSubscription(GetSubscriptionRequest) returns (Subscription) {
+    option (google.api.http) = {
+      get: "/v1/subscriptions/{subscription_id}"
+    };
+  }
+
+  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/subscriptions"
+    };
+  }
+
+  rpc HandleWebhook(HandleWebhookRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/billing/webhook"
+      body: "*"
+    };
+  }
+}
+
+message Plan {
+  string plan_id = 1;
+  string plan_name = 2;
+  string stripe_product_id = 3;
+  bool active = 5;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+enum RecurringInterval {
+  DAY = 0;
+  MONTH = 1;
+  WEEK = 2;
+  YEAR = 3;
+}
+
+message Recurring {
+  RecurringInterval interval = 1;
+  int32 interval_count = 2;
+}
+
+message Price {
+  string price_id = 1;
+  string plan_id = 2;
+  string stripe_price_id = 3;
+  int32 unit_amount = 4;
+  string currency = 5;
+  string lookup_key = 6;
+  bool is_visible = 7;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+message Subscription {
+  string subscription_id = 1;
+  string tenant_id = 2;
+  string stripe_customer_id = 3;
+  string stripe_subscription_id = 4;
+  google.protobuf.Timestamp current_period_start = 6;
+  google.protobuf.Timestamp current_period_end = 7;
+  bool cancel_at_period = 8;
+  google.protobuf.Timestamp cancel_at = 9;
+  google.protobuf.Timestamp trial_start = 10;
+  google.protobuf.Timestamp trial_end = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+message SubscriptionItem {
+  string subscription_item_id = 1;
+  string subscription_id = 2;
+  Plan plan = 3;
+  Price Price = 4;
+  int32 amount = 5;
+  RecurringInterval interval = 6;
+  int32 interval_count = 7;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+message CreateSubscriptionRequest {
+  string tenant_id = 1;
+  string price_id = 2;
+}
+
+message GetSubscriptionRequest {
+  string subscription_id = 1;
+}
+
+message ListSubscriptionsRequest {
+  string tenant_id = 1;
+}
+
+message ListSubscriptionsResponse {
+  repeated Subscription subscriptions = 1;
+}
+
+message HandleWebhookRequest {
+  string payload = 1;
+}

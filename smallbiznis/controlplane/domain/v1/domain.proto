@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package smallbiznis.controlplane.domain.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/controlplane/domain/v1;domainv1";
+
+// ======================================
+// DomainService
+// ======================================
+service DomainService {
+  rpc VerifyDomain(VerifyDomainRequest) returns (VerifyDomainResponse) {
+    option (google.api.http) = {
+      post: "/v1/domains:verify"
+      body: "*"
+    };
+  }
+
+  rpc GetDomain(GetDomainRequest) returns (Domain) {
+    option (google.api.http) = {
+      get: "/v1/domains/{domain_id}"
+    };
+  }
+
+  rpc ListDomains(ListDomainsRequest) returns (ListDomainsResponse) {
+    option (google.api.http) = {
+      get: "/v1/domains"
+    };
+  }
+}
+
+message Domain {
+  string domain_id = 1;
+  string tenant_id = 2;
+  string hostname = 3;
+  bool verified = 4;
+  string verification_code = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message VerifyDomainRequest {
+  string tenant_id = 1;
+  string hostname = 2;
+}
+
+message VerifyDomainResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetDomainRequest {
+  string domain_id = 1;
+}
+
+message ListDomainsRequest {
+  string tenant_id = 1;
+}
+
+message ListDomainsResponse {
+  repeated Domain domains = 1;
+}

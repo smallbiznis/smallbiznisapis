@@ -241,8 +241,7 @@ service WorkflowService {
     // ---- WORKFLOW CRUD ----
     rpc ListDefinitions (ListDefinitionsRequest) returns (ListDefinitionsResponse) {
       option (google.api.http) = {
-        post: "/v1/workflows"
-        body: "*"
+        get: "/v1/workflows"
       };
 
       option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -376,7 +375,7 @@ service WorkflowService {
 
     rpc CreateInstall (CreateInstallRequest) returns (WorkflowConnectorInstall) {
       option (google.api.http) = {
-        post: "/v1/tenants/{tenant_id}/connectors:installs"
+        post: "/v1/tenants/{install.tenant_id}/connectors:installs"
         body: "*"
       };
 
@@ -417,7 +416,7 @@ service WorkflowService {
 
     rpc GetRun (GetRunRequest) returns (WorkflowRun) {
       option (google.api.http) = {
-        get: "/v1/runs/{id}"
+        get: "/v1/runs/{run_id}"
       };
 
       option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -430,7 +429,7 @@ service WorkflowService {
 
     rpc ReplayRun (ReplayRunRequest) returns (WorkflowRun) {
       option (google.api.http) = {
-        post: "/v1/runs/{id}:replay"
+        post: "/v1/runs/{run_id}:replay"
         body: "*"
       };
 
@@ -506,7 +505,7 @@ message ListRunsResponse {
   repeated WorkflowRun runs = 1;
 }
 message GetRunRequest {
-  string id = 1;
+  string run_id = 1;
 }
 message ReplayRunRequest {
   string run_id = 1;

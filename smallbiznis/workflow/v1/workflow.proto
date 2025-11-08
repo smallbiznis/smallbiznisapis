@@ -151,6 +151,7 @@ message ConnectorTrigger {
   repeated ConnectorParam parameters = 5;
   google.protobuf.Struct sample_input = 6;
   google.protobuf.Struct sample_output = 7;
+  ConnectorMethodMeta ui_steps = 8;
 }
 
 message ConnectorAction {
@@ -160,6 +161,7 @@ message ConnectorAction {
   repeated ConnectorParam parameters = 4;
   google.protobuf.Struct sample_input = 5;
   google.protobuf.Struct sample_output = 6;
+  ConnectorMethodMeta ui_steps = 7;
 }
 
 message ConnectorSearch {
@@ -168,6 +170,7 @@ message ConnectorSearch {
   string description = 3;
   repeated ConnectorParam parameters = 4;
   google.protobuf.Struct sample_output = 5;
+  ConnectorMethodMeta ui_steps = 6;
 }
 
 message ConnectorParam {
@@ -181,6 +184,12 @@ message ConnectorParam {
 message ConnectorOption {
   string label = 1;
   string value = 2;
+}
+
+message ConnectorMethodMeta {
+  bool has_setup = 1;
+  bool has_configure = 2;
+  bool has_test = 3;
 }
 
 // =======================

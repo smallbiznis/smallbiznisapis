@@ -482,9 +482,22 @@ message ListConnectorsRequest {
   bool only_published = 3;
   string search = 4;
 }
-message ListConnectorsResponse {
-  repeated WorkflowConnector connectors = 1;
+
+message WorkflowConnectorSummary {
+  string id = 1;
+  string app_id = 2;
+  string name = 3;
+  string icon_url = 4;
+  string category = 5;
+  int32 trigger_count = 6;
+  int32 action_count = 7;
+  int32 search_count = 8;
 }
+
+message ListConnectorsResponse {
+  repeated WorkflowConnectorSummary connectors = 1;
+}
+
 message GetConnectorRequest {
   string id = 1;
 }

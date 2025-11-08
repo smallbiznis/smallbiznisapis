@@ -149,8 +149,8 @@ message ConnectorTrigger {
   string description = 3;
   string type = 4;                // polling | instant
   repeated ConnectorParam parameters = 5;
-  google.protobuf.Struct sample_input = 5;
-  google.protobuf.Struct sample_output = 6;
+  google.protobuf.Struct sample_input = 6;
+  google.protobuf.Struct sample_output = 7;
 }
 
 message ConnectorAction {

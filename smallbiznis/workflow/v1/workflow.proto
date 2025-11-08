@@ -3,8 +3,11 @@ syntax = "proto3";
 package smallbiznis.workflow.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/workflow/v1;workflowv1";
 
-import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 // =======================
 // ENUMS
@@ -48,13 +51,12 @@ message WorkflowDefinition {
   string tenant_id = 2;
   string name = 3;
   string description = 4;
-  string trigger_event = 5;
-  WorkflowStatus status = 6;
-  int32 version = 7;
-  google.protobuf.Struct flow_json = 8;
-  google.protobuf.Timestamp published_at = 9;
-  google.protobuf.Timestamp created_at = 10;
-  google.protobuf.Timestamp updated_at = 11;
+  WorkflowStatus status = 5;
+  int32 version = 6;
+  google.protobuf.Struct flow_json = 7;
+  google.protobuf.Timestamp published_at = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
 }
 
 message WorkflowNode {
@@ -208,15 +210,237 @@ message WorkflowConnectorEvent {
   google.protobuf.Timestamp created_at = 7;
 }
 
+// OpenAPI top-level config
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "SmallBiznis API";
+    version: "1.0";
+    description: "Multi-tenant, global-ready Organization & Onboarding APIs";
+    contact: {
+      name: "SmallBiznis project";
+      url: "https://github.com/smallbiznis";
+      email: "taufiktriantono4@gmail.com";
+    };
+  };
+  host: "api.smallbiznis.test";
+  schemes: HTTPS;
+  base_path: "/api";
+  consumes: "application/json";
+  produces: "application/json";
+};
+
 // =======================
 // SERVICE DEFINITIONS
 // =======================
 service WorkflowService {
-  rpc ListDefinitions (ListDefinitionsRequest) returns (ListDefinitionsResponse);
-  rpc GetDefinition (GetDefinitionRequest) returns (WorkflowDefinition);
-  rpc CreateDefinition (CreateDefinitionRequest) returns (WorkflowDefinition);
-  rpc UpdateDefinition (UpdateDefinitionRequest) returns (WorkflowDefinition);
-  rpc DeleteDefinition (DeleteDefinitionRequest) returns (google.protobuf.Struct);
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+      name: "Workflow"
+      description: "API for managing workflow"
+    };
+
+    // ---- WORKFLOW CRUD ----
+    rpc ListDefinitions (ListDefinitionsRequest) returns (ListDefinitionsResponse) {
+      option (google.api.http) = {
+        post: "/v1/workflows"
+        body: "*"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Workflow"
+        summary: "Create a new workflow"
+        description: ""
+        operation_id: "Workflow_Create"
+      };
+    };
+
+    rpc GetDefinition (GetDefinitionRequest) returns (WorkflowDefinition) {
+      option (google.api.http) = {
+        get: "/v1/workflows/{id}"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Workflow"
+        summary: "Get a workflow"
+        description: ""
+        operation_id: "Workflow_Get"
+      };
+    };
+
+    rpc CreateDefinition (CreateDefinitionRequest) returns (WorkflowDefinition) {
+      option (google.api.http) = {
+        post: "/v1/workflows"
+        body: "*"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Workflow"
+        summary: "Create a new workflow"
+        description: ""
+        operation_id: "Workflow_Create"
+      };
+    };
+
+    rpc UpdateDefinition (UpdateDefinitionRequest) returns (WorkflowDefinition) {
+      option (google.api.http) = {
+        put: "/v1/workflows/{definition.id}"
+        body: "*"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Workflow"
+        summary: "Update a workflow"
+        description: ""
+        operation_id: "Workflow_Update"
+      };
+    };
+
+    rpc DeleteDefinition (DeleteDefinitionRequest) returns (google.protobuf.Struct) {
+      option (google.api.http) = {
+        delete: "/v1/workflows/{id}"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Workflow"
+        summary: "Delete a workflow"
+        description: ""
+        operation_id: "Workflow_Delete"
+      };
+    };
+
+    // ---- CONNECTORS ----
+    rpc ListConnectors (ListConnectorsRequest) returns (ListConnectorsResponse) {
+      option (google.api.http) = {
+        get: "/v1/connectors"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Connector"
+        summary: "List connectors"
+        description: ""
+        operation_id: "Connector_List"
+      };
+    };
+
+    rpc GetConnector (GetConnectorRequest) returns (WorkflowConnector) {
+      option (google.api.http) = {
+        get: "/v1/connectors/{id}"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Connector"
+        summary: "Get a connector"
+        description: ""
+        operation_id: "Connector_Get"
+      };
+    };
+
+    rpc ListConnectorTriggers (GetConnectorRequest) returns (ListConnectorTriggersResponse) {
+      option (google.api.http) = {
+        get: "/v1/connectors/{id}/triggers"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Connector"
+        summary: "List connector triggers"
+        description: ""
+        operation_id: "Connector_ListTriggers"
+      };
+    };
+
+    rpc ListConnectorActions (GetConnectorRequest) returns (ListConnectorActionsResponse) {
+      option (google.api.http) = {
+        get: "/v1/connectors/{id}/actions"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Connector"
+        summary: "List connector actions"
+        description: ""
+        operation_id: "Connector_ListActions"
+      };
+    };
+
+    // ---- INSTALLATIONS ----
+    rpc ListInstalls (ListInstallsRequest) returns (ListInstallsResponse) {
+      option (google.api.http) = {
+        get: "/v1/tenants/{tenant_id}/connectors:installs"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Connector"
+        summary: "List connector installations"
+        description: ""
+        operation_id: "Connector_ListInstalls"
+      };
+    };
+
+    rpc CreateInstall (CreateInstallRequest) returns (WorkflowConnectorInstall) {
+      option (google.api.http) = {
+        post: "/v1/tenants/{tenant_id}/connectors:installs"
+        body: "*"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Connector"
+        summary: "Create connector installation"
+        description: ""
+        operation_id: "Connector_CreateInstall"
+      };
+    };
+
+    // rpc DeleteInstall (DeleteInstallRequest) returns (google.protobuf.Empty) {
+    //   option (google.api.http) = {
+    //     delete: "/v1/connectors/{id}/installs/{install_id}"
+    //   };
+
+    //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+    //     tags: "Connector"
+    //     summary: "Delete connector installation"
+    //     description: ""
+    //     operation_id: "Connector_DeleteInstall"
+    //   };
+    // };
+
+    // ---- RUNS ----
+    rpc ListRuns (ListRunsRequest) returns (ListRunsResponse) {
+      option (google.api.http) = {
+        get: "/v1/runs"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Run"
+        summary: "List workflow runs"
+        description: ""
+        operation_id: "Run_ListRuns"
+      };
+    };
+
+    rpc GetRun (GetRunRequest) returns (WorkflowRun) {
+      option (google.api.http) = {
+        get: "/v1/runs/{id}"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Run"
+        summary: "Get workflow run"
+        description: ""
+        operation_id: "Run_GetRun"
+      };
+    };
+
+    rpc ReplayRun (ReplayRunRequest) returns (WorkflowRun) {
+      option (google.api.http) = {
+        post: "/v1/runs/{id}:replay"
+        body: "*"
+      };
+
+      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+        tags: "Run"
+        summary: "Replay workflow run"
+        description: ""
+        operation_id: "Run_ReplayRun"
+      };
+    };
 }
 
 message ListDefinitionsRequest {
@@ -241,4 +465,49 @@ message UpdateDefinitionRequest {
 
 message DeleteDefinitionRequest {
   string id = 1;
+}
+
+message ListConnectorsRequest {
+  string tenant_id = 1;
+  string category = 2;
+  bool only_published = 3;
+}
+message ListConnectorsResponse {
+  repeated WorkflowConnector connectors = 1;
+}
+message GetConnectorRequest {
+  string id = 1;
+}
+message ListConnectorTriggersResponse {
+  repeated ConnectorTrigger triggers = 1;
+}
+message ListConnectorActionsResponse {
+  repeated ConnectorAction actions = 1;
+}
+
+message ListInstallsRequest {
+  string tenant_id = 1;
+}
+message ListInstallsResponse {
+  repeated WorkflowConnectorInstall installs = 1;
+}
+message CreateInstallRequest {
+  WorkflowConnectorInstall install = 1;
+}
+message DeleteInstallRequest {
+  string id = 1;
+}
+
+message ListRunsRequest {
+  string workflow_id = 1;
+  string tenant_id = 2;
+}
+message ListRunsResponse {
+  repeated WorkflowRun runs = 1;
+}
+message GetRunRequest {
+  string id = 1;
+}
+message ReplayRunRequest {
+  string run_id = 1;
 }

@@ -187,7 +187,7 @@ message ConnectorOption {
 message WorkflowConnectorInstall {
   string id = 1;
   string tenant_id = 2;
-  int64 connector_id = 3;
+  string connector_id = 3;
   string install_token = 4;
   google.protobuf.Struct settings = 5;
   string external_account = 6;

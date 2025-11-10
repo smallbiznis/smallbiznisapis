@@ -66,7 +66,7 @@ message WorkflowNode {
   string workflow_id = 2;
   WorkflowNodeType type = 3;
   string label = 4;
-  string app_id = 5;                  // connector app id (e.g. whatsapp)
+  string connector_id = 5;                  // connector app id (e.g. whatsapp)
   string method_key = 6;              // trigger/action key
   google.protobuf.Struct config = 7;  // JSON config per node
   string condition_expression = 8;
@@ -107,7 +107,7 @@ message WorkflowNodeRun {
   string run_id = 2;
   string node_id = 3;
   WorkflowNodeType type = 4;
-  string app_id = 5;
+  string connector_id = 5;
   string method_key = 6;
   google.protobuf.Struct input = 7;
   google.protobuf.Struct output = 8;
@@ -122,7 +122,7 @@ message WorkflowNodeRun {
 message WorkflowConnector {
   string id = 1;
   string tenant_id = 2;
-  string app_id = 3;
+  string connector_id = 3;
   string developer = 4;
   string name = 5;
   ConnectorType category = 6;
@@ -304,14 +304,14 @@ message CreateNodeRequest {
   string workflow_id = 1;
   string type = 2;
   string label = 3;
-  string app_id = 4;
+  string connector_id = 4;
   string method_key = 5;
 }
 message UpdateNodeRequest {
   string id = 1;
   google.protobuf.Struct config = 2;
   string label = 3;
-  string app_id = 4;
+  string connector_id = 4;
   string method_key = 5;
   string condition_expression = 6;
   string wait_duration = 7;

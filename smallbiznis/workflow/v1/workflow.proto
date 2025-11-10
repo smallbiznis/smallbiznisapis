@@ -222,6 +222,14 @@ service WorkflowService {
   // =====================================================
   // CONNECTOR MANAGEMENT
   // =====================================================
+  rpc Listconnector(ListConnectorRequest) returns (ListConnectorResponse) {
+    option (google.api.http) = { get: "/v1/connectors" };
+  }
+
+  rpc GetConnector(GetConnectorRequest) returns (WorkflowConnector) {
+    option (google.api.http) = { get: "/v1/connectors/{id}" };
+  }
+
   rpc ListConnectorTriggers (GetConnectorRequest) returns (ListConnectorTriggersResponse) {
     option (google.api.http) = { get: "/v1/connectors/{id}/triggers" };
   }
@@ -300,6 +308,14 @@ service WorkflowService {
 // =====================================================
 // REQUESTS & RESPONSES
 // =====================================================
+message ListConnectorRequest {
+
+}
+
+message ListConnectorResponse {
+  repeated Connector connectors = 1;
+}
+
 message GetConnectorRequest {
   string id = 1;
 }

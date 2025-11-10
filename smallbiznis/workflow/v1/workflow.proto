@@ -9,9 +9,9 @@ import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-// =======================
+// =====================================================
 // ENUMS
-// =======================
+// =====================================================
 enum WorkflowStatus {
   WORKFLOW_STATUS_UNSPECIFIED = 0;
   DRAFT = 1;
@@ -29,23 +29,23 @@ enum WorkflowRunStatus {
 enum WorkflowNodeType {
   WORKFLOW_NODE_TYPE_UNSPECIFIED = 0;
   TRIGGER = 1;
-  CONDITION = 2;
-  ACTION = 3;
+  ACTION = 2;
+  CONDITION = 3;
   WAIT = 4;
 }
 
 enum ConnectorType {
   CONNECTOR_TYPE_UNSPECIFIED = 0;
-  PRODUCT = 1;        // internal app: loyalty, voucher
-  COMMUNICATION = 2;  // Gmail, WhatsApp, Telegram
-  CALENDAR = 3;       // Google Calendar
-  UTILITY = 4;        // Webhook, Schedule, Delay
-  LOGIC = 5;          // Built-in (Condition, Split, Path)
+  PRODUCT = 1;
+  COMMUNICATION = 2;
+  CALENDAR = 3;
+  UTILITY = 4;
+  LOGIC = 5;
 }
 
-// =======================
-// WORKFLOW CORE ENTITIES
-// =======================
+// =====================================================
+// CORE ENTITIES
+// =====================================================
 message WorkflowDefinition {
   string id = 1;
   string tenant_id = 2;
@@ -53,27 +53,29 @@ message WorkflowDefinition {
   string description = 4;
   WorkflowStatus status = 5;
   int32 version = 6;
-  google.protobuf.Struct flow_json = 7;
-  google.protobuf.Timestamp published_at = 8;
-  google.protobuf.Timestamp created_at = 9;
-  google.protobuf.Timestamp updated_at = 10;
+  google.protobuf.Timestamp published_at = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 }
 
+// =====================================================
+// GRAPH ENTITIES (permanent tables)
+// =====================================================
 message WorkflowNode {
   string id = 1;
   string workflow_id = 2;
-  string node_id = 3;
-  WorkflowNodeType type = 4;
-  string label = 5;
-  string app_id = 6;        // connector app id, e.g. gmail
-  string method_key = 7;    // trigger/action key, e.g. new_email
-  google.protobuf.Struct config = 8;
-  string condition_expression = 9;
-  string wait_duration = 10;
-  string next_on_success = 11;
-  string next_on_failure = 12;
-  google.protobuf.Struct position = 13;
-  google.protobuf.Timestamp created_at = 14;
+  WorkflowNodeType type = 3;
+  string label = 4;
+  string app_id = 5;                  // connector app id (e.g. whatsapp)
+  string method_key = 6;              // trigger/action key
+  google.protobuf.Struct config = 7;  // JSON config per node
+  string condition_expression = 8;
+  string wait_duration = 9;
+  string next_on_success = 10;
+  string next_on_failure = 11;
+  google.protobuf.Struct position = 12;
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
 }
 
 message WorkflowEdge {
@@ -83,8 +85,12 @@ message WorkflowEdge {
   string target = 4;
   string label = 5;
   google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
 }
 
+// =====================================================
+// WORKFLOW RUNTIME
+// =====================================================
 message WorkflowRun {
   string id = 1;
   string workflow_id = 2;
@@ -110,17 +116,16 @@ message WorkflowNodeRun {
   google.protobuf.Timestamp executed_at = 11;
 }
 
-// =======================
+// =====================================================
 // CONNECTOR SYSTEM
-// =======================
-
+// =====================================================
 message WorkflowConnector {
   string id = 1;
   string tenant_id = 2;
-  string app_id = 3;              // e.g. gmail
-  string developer = 4;           // e.g. Google LLC
-  string name = 5;                // e.g. Gmail
-  ConnectorType category = 6;     // e.g. COMMUNICATION
+  string app_id = 3;
+  string developer = 4;
+  string name = 5;
+  ConnectorType category = 6;
   string description = 7;
   string homepage_url = 8;
   string icon_url = 9;
@@ -132,11 +137,9 @@ message WorkflowConnector {
   int64 install_count = 15;
   google.protobuf.Timestamp created_at = 16;
   google.protobuf.Timestamp updated_at = 17;
+  bool is_default = 18;
 }
 
-// =======================
-// CONNECTOR MANIFEST
-// =======================
 message ConnectorManifest {
   repeated ConnectorTrigger triggers = 1;
   repeated ConnectorAction actions = 2;
@@ -144,24 +147,22 @@ message ConnectorManifest {
 }
 
 message ConnectorTrigger {
-  string key = 1;                 // e.g. new_email
-  string label = 2;               // e.g. New Email
+  string key = 1;
+  string label = 2;
   string description = 3;
-  string type = 4;                // polling | instant
+  string type = 4;
   repeated ConnectorParam parameters = 5;
   google.protobuf.Struct sample_input = 6;
   google.protobuf.Struct sample_output = 7;
-  ConnectorMethodMeta ui_steps = 8;
 }
 
 message ConnectorAction {
-  string key = 1;                 // e.g. send_email
-  string label = 2;               // e.g. Send Email
+  string key = 1;
+  string label = 2;
   string description = 3;
   repeated ConnectorParam parameters = 4;
   google.protobuf.Struct sample_input = 5;
   google.protobuf.Struct sample_output = 6;
-  ConnectorMethodMeta ui_steps = 7;
 }
 
 message ConnectorSearch {
@@ -170,13 +171,12 @@ message ConnectorSearch {
   string description = 3;
   repeated ConnectorParam parameters = 4;
   google.protobuf.Struct sample_output = 5;
-  ConnectorMethodMeta ui_steps = 6;
 }
 
 message ConnectorParam {
   string key = 1;
   string label = 2;
-  string type = 3;                // string | number | boolean | select | json
+  string type = 3;
   bool required = 4;
   repeated ConnectorOption options = 5;
 }
@@ -186,15 +186,9 @@ message ConnectorOption {
   string value = 2;
 }
 
-message ConnectorMethodMeta {
-  bool has_setup = 1;
-  bool has_configure = 2;
-  bool has_test = 3;
-}
-
-// =======================
+// =====================================================
 // INSTALLATION PER TENANT
-// =======================
+// =====================================================
 message WorkflowConnectorInstall {
   string id = 1;
   string tenant_id = 2;
@@ -208,329 +202,138 @@ message WorkflowConnectorInstall {
   google.protobuf.Timestamp updated_at = 10;
 }
 
-// =======================
+// =====================================================
 // EVENT SUBSCRIPTIONS
-// =======================
+// =====================================================
 message WorkflowConnectorEvent {
   string id = 1;
   string connector_id = 2;
-  string event_key = 3;           // e.g. new_email
+  string event_key = 3;
   string target_url = 4;
   google.protobuf.Struct sample_payload = 5;
   bool is_active = 6;
   google.protobuf.Timestamp created_at = 7;
 }
 
-// OpenAPI top-level config
-option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  info: {
-    title: "SmallBiznis API";
-    version: "1.0";
-    description: "Multi-tenant, global-ready Organization & Onboarding APIs";
-    contact: {
-      name: "SmallBiznis project";
-      url: "https://github.com/smallbiznis";
-      email: "taufiktriantono4@gmail.com";
-    };
-  };
-  host: "api.smallbiznis.test";
-  schemes: HTTPS;
-  base_path: "/api";
-  consumes: "application/json";
-  produces: "application/json";
-};
-
-// =======================
-// SERVICE DEFINITIONS
-// =======================
+// =====================================================
+// SERVICE: WORKFLOW DEFINITIONS
+// =====================================================
 service WorkflowService {
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
-      name: "Workflow"
-      description: "API for managing workflow"
-    };
+  rpc ListDefinitions (ListDefinitionsRequest) returns (ListDefinitionsResponse) {
+    option (google.api.http) = { get: "/v1/workflows" };
+  }
 
-    // ---- WORKFLOW CRUD ----
-    rpc ListDefinitions (ListDefinitionsRequest) returns (ListDefinitionsResponse) {
-      option (google.api.http) = {
-        get: "/v1/workflows"
-      };
+  rpc GetDefinition (GetDefinitionRequest) returns (WorkflowDefinition) {
+    option (google.api.http) = { get: "/v1/workflows/{id}" };
+  }
 
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Workflow"
-        summary: "List workflows"
-        operation_id: "Workflow_List"
-      };
-    };
+  rpc CreateDefinition (CreateDefinitionRequest) returns (WorkflowDefinition) {
+    option (google.api.http) = { post: "/v1/workflows" body: "*" };
+  }
 
-    rpc GetDefinition (GetDefinitionRequest) returns (WorkflowDefinition) {
-      option (google.api.http) = {
-        get: "/v1/workflows/{id}"
-      };
+  rpc UpdateDefinition (UpdateDefinitionRequest) returns (WorkflowDefinition) {
+    option (google.api.http) = { put: "/v1/workflows/{definition.id}" body: "*" };
+  }
 
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Workflow"
-        summary: "Get a workflow"
-        description: "Get a workflow by ID"
-        operation_id: "Workflow_Get"
-      };
-    };
+  rpc DeleteDefinition (DeleteDefinitionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/workflows/{id}" };
+  }
 
-    rpc CreateDefinition (CreateDefinitionRequest) returns (WorkflowDefinition) {
-      option (google.api.http) = {
-        post: "/v1/workflows"
-        body: "*"
-      };
+  rpc ListRuns (ListRunsRequest) returns (ListRunsResponse) {
+    option (google.api.http) = { get: "/v1/runs" };
+  }
 
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Workflow"
-        summary: "Create a new workflow"
-        description: "Create a new workflow"
-        operation_id: "Workflow_Create"
-      };
-    };
+  rpc GetRun (GetRunRequest) returns (WorkflowRun) {
+    option (google.api.http) = { get: "/v1/runs/{run_id}" };
+  }
 
-    rpc UpdateDefinition (UpdateDefinitionRequest) returns (WorkflowDefinition) {
-      option (google.api.http) = {
-        put: "/v1/workflows/{definition.id}"
-        body: "*"
-      };
+  rpc ReplayRun (ReplayRunRequest) returns (WorkflowRun) {
+    option (google.api.http) = { post: "/v1/runs/{run_id}:replay" body: "*" };
+  }
 
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Workflow"
-        summary: "Update a workflow"
-        description: "Update a workflow by ID"
-        operation_id: "Workflow_Update"
-      };
-    };
 
-    rpc DeleteDefinition (DeleteDefinitionRequest) returns (google.protobuf.Struct) {
-      option (google.api.http) = {
-        delete: "/v1/workflows/{id}"
-      };
+  rpc ListNodes (ListNodesRequest) returns (ListNodesResponse) {
+    option (google.api.http) = { get: "/v1/workflows/{workflow_id}/nodes" };
+  }
 
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Workflow"
-        summary: "Delete a workflow"
-        description: "Delete a workflow by ID"
-        operation_id: "Workflow_Delete"
-      };
-    };
+  // =====================================================
+  // WORKFLOW GRAPH (Nodes & Edges CRUD)
+  // =====================================================
+  rpc CreateNode (CreateNodeRequest) returns (WorkflowNode) {
+    option (google.api.http) = { post: "/v1/workflows/{workflow_id}/nodes" body: "*" };
+  }
 
-    // ---- CONNECTORS ----
-    rpc ListConnectors (ListConnectorsRequest) returns (ListConnectorsResponse) {
-      option (google.api.http) = {
-        get: "/v1/connectors"
-      };
+  rpc UpdateNode (UpdateNodeRequest) returns (WorkflowNode) {
+    option (google.api.http) = { patch: "/v1/nodes/{id}" body: "*" };
+  }
 
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Connector"
-        summary: "List connectors"
-        description: ""
-        operation_id: "Connector_List"
-      };
-    };
+  rpc DeleteNode (DeleteNodeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/nodes/{id}" };
+  }
 
-    rpc GetConnector (GetConnectorRequest) returns (WorkflowConnector) {
-      option (google.api.http) = {
-        get: "/v1/connectors/{id}"
-      };
+  rpc ListEdges (ListEdgesRequest) returns (ListEdgesResponse) {
+    option (google.api.http) = { get: "/v1/workflows/{workflow_id}/edges" };
+  }
 
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Connector"
-        summary: "Get a connector"
-        description: ""
-        operation_id: "Connector_Get"
-      };
-    };
+  rpc CreateEdge (CreateEdgeRequest) returns (WorkflowEdge) {
+    option (google.api.http) = { post: "/v1/workflows/{workflow_id}/edges" body: "*" };
+  }
 
-    rpc ListConnectorTriggers (GetConnectorRequest) returns (ListConnectorTriggersResponse) {
-      option (google.api.http) = {
-        get: "/v1/connectors/{id}/triggers"
-      };
-
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Connector"
-        summary: "List connector triggers"
-        description: ""
-        operation_id: "Connector_ListTriggers"
-      };
-    };
-
-    rpc ListConnectorActions (GetConnectorRequest) returns (ListConnectorActionsResponse) {
-      option (google.api.http) = {
-        get: "/v1/connectors/{id}/actions"
-      };
-
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Connector"
-        summary: "List connector actions"
-        description: ""
-        operation_id: "Connector_ListActions"
-      };
-    };
-
-    // ---- INSTALLATIONS ----
-    rpc ListInstalls (ListInstallsRequest) returns (ListInstallsResponse) {
-      option (google.api.http) = {
-        get: "/v1/tenants/{tenant_id}/connectors:installs"
-      };
-
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Connector"
-        summary: "List connector installations"
-        description: ""
-        operation_id: "Connector_ListInstalls"
-      };
-    };
-
-    rpc CreateInstall (CreateInstallRequest) returns (WorkflowConnectorInstall) {
-      option (google.api.http) = {
-        post: "/v1/tenants/{install.tenant_id}/connectors:installs"
-        body: "*"
-      };
-
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Connector"
-        summary: "Create connector installation"
-        description: ""
-        operation_id: "Connector_CreateInstall"
-      };
-    };
-
-    // rpc DeleteInstall (DeleteInstallRequest) returns (google.protobuf.Empty) {
-    //   option (google.api.http) = {
-    //     delete: "/v1/connectors/{id}/installs/{install_id}"
-    //   };
-
-    //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    //     tags: "Connector"
-    //     summary: "Delete connector installation"
-    //     description: ""
-    //     operation_id: "Connector_DeleteInstall"
-    //   };
-    // };
-
-    // ---- RUNS ----
-    rpc ListRuns (ListRunsRequest) returns (ListRunsResponse) {
-      option (google.api.http) = {
-        get: "/v1/runs"
-      };
-
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Run"
-        summary: "List workflow runs"
-        description: ""
-        operation_id: "Run_ListRuns"
-      };
-    };
-
-    rpc GetRun (GetRunRequest) returns (WorkflowRun) {
-      option (google.api.http) = {
-        get: "/v1/runs/{run_id}"
-      };
-
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Run"
-        summary: "Get workflow run"
-        description: ""
-        operation_id: "Run_GetRun"
-      };
-    };
-
-    rpc ReplayRun (ReplayRunRequest) returns (WorkflowRun) {
-      option (google.api.http) = {
-        post: "/v1/runs/{run_id}:replay"
-        body: "*"
-      };
-
-      option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-        tags: "Run"
-        summary: "Replay workflow run"
-        description: ""
-        operation_id: "Run_ReplayRun"
-      };
-    };
+  rpc DeleteEdge (DeleteEdgeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = { delete: "/v1/edges/{id}" };
+  }
 }
 
+// =====================================================
+// REQUESTS & RESPONSES
+// =====================================================
 message ListDefinitionsRequest {
   string tenant_id = 1;
 }
-
 message ListDefinitionsResponse {
   repeated WorkflowDefinition items = 1;
 }
+message GetDefinitionRequest { string id = 1; }
+message CreateDefinitionRequest { WorkflowDefinition definition = 1; }
+message UpdateDefinitionRequest { WorkflowDefinition definition = 1; }
+message DeleteDefinitionRequest { string id = 1; }
 
-message GetDefinitionRequest {
+message ListNodesRequest { string workflow_id = 1; }
+message ListNodesResponse { repeated WorkflowNode nodes = 1; }
+message CreateNodeRequest {
+  string workflow_id = 1;
+  string type = 2;
+  string label = 3;
+  string app_id = 4;
+  string method_key = 5;
+}
+message UpdateNodeRequest {
   string id = 1;
+  google.protobuf.Struct config = 2;
+  string label = 3;
+  string app_id = 4;
+  string method_key = 5;
+  string condition_expression = 6;
+  string wait_duration = 7;
+  string next_on_success = 8;
+  string next_on_failure = 9;
 }
+message DeleteNodeRequest { string id = 1; }
 
-message CreateDefinitionRequest {
-  WorkflowDefinition definition = 1;
+message ListEdgesRequest { string workflow_id = 1; }
+message ListEdgesResponse { repeated WorkflowEdge edges = 1; }
+message CreateEdgeRequest {
+  string workflow_id = 1;
+  string source = 2;
+  string target = 3;
+  string label = 4;
 }
-
-message UpdateDefinitionRequest {
-  WorkflowDefinition definition = 1;
-}
-
-message DeleteDefinitionRequest {
-  string id = 1;
-}
-
-message ListConnectorsRequest {
-  string tenant_id = 1;
-  string category = 2;
-  bool only_published = 3;
-  string search = 4;
-}
-
-message WorkflowConnectorSummary {
-  string id = 1;
-  string app_id = 2;
-  string name = 3;
-  string icon_url = 4;
-  string category = 5;
-  int32 trigger_count = 6;
-  int32 action_count = 7;
-  int32 search_count = 8;
-}
-
-message ListConnectorsResponse {
-  repeated WorkflowConnectorSummary connectors = 1;
-}
-
-message GetConnectorRequest {
-  string id = 1;
-}
-message ListConnectorTriggersResponse {
-  repeated ConnectorTrigger triggers = 1;
-}
-message ListConnectorActionsResponse {
-  repeated ConnectorAction actions = 1;
-}
-
-message ListInstallsRequest {
-  string tenant_id = 1;
-}
-message ListInstallsResponse {
-  repeated WorkflowConnectorInstall installs = 1;
-}
-message CreateInstallRequest {
-  WorkflowConnectorInstall install = 1;
-}
-message DeleteInstallRequest {
-  string id = 1;
-}
+message DeleteEdgeRequest { string id = 1; }
 
 message ListRunsRequest {
   string workflow_id = 1;
   string tenant_id = 2;
 }
-message ListRunsResponse {
-  repeated WorkflowRun runs = 1;
-}
-message GetRunRequest {
-  string run_id = 1;
-}
-message ReplayRunRequest {
-  string run_id = 1;
-}
+message ListRunsResponse { repeated WorkflowRun runs = 1; }
+message GetRunRequest { string run_id = 1; }
+message ReplayRunRequest { string run_id = 1; }

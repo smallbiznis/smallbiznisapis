@@ -313,7 +313,7 @@ message ListConnectorRequest {
 }
 
 message ListConnectorResponse {
-  repeated Connector connectors = 1;
+  repeated WorkflowConnector connectors = 1;
 }
 
 message GetConnectorRequest {

@@ -122,7 +122,7 @@ message WorkflowNodeRun {
 message WorkflowConnector {
   string id = 1;
   string tenant_id = 2;
-  string connector_id = 3;
+  string app_id = 3;
   string developer = 4;
   string name = 5;
   ConnectorType category = 6;

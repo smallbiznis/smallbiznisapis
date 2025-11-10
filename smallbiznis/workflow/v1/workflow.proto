@@ -219,6 +219,20 @@ message WorkflowConnectorEvent {
 // SERVICE: WORKFLOW DEFINITIONS
 // =====================================================
 service WorkflowService {
+  // =====================================================
+  // CONNECTOR MANAGEMENT
+  // =====================================================
+  rpc ListConnectorTriggers (GetConnectorRequest) returns (ListConnectorTriggersResponse) {
+    option (google.api.http) = { get: "/v1/connectors/{id}/triggers" };
+  }
+
+  rpc ListConnectorActions (GetConnectorRequest) returns (ListConnectorActionsResponse) {
+    option (google.api.http) = { get: "/v1/connectors/{id}/actions" };
+  }
+
+  // =====================================================
+  // WORKFLOW MANAGEMENT
+  // =====================================================
   rpc ListDefinitions (ListDefinitionsRequest) returns (ListDefinitionsResponse) {
     option (google.api.http) = { get: "/v1/workflows" };
   }
@@ -250,7 +264,6 @@ service WorkflowService {
   rpc ReplayRun (ReplayRunRequest) returns (WorkflowRun) {
     option (google.api.http) = { post: "/v1/runs/{run_id}:replay" body: "*" };
   }
-
 
   rpc ListNodes (ListNodesRequest) returns (ListNodesResponse) {
     option (google.api.http) = { get: "/v1/workflows/{workflow_id}/nodes" };
@@ -287,6 +300,16 @@ service WorkflowService {
 // =====================================================
 // REQUESTS & RESPONSES
 // =====================================================
+message GetConnectorRequest {
+  string id = 1;
+}
+message ListConnectorTriggersResponse {
+  repeated ConnectorTrigger triggers = 1;
+}
+
+message ListConnectorActionsResponse {
+  repeated ConnectorAction actions = 1;
+}
 message ListDefinitionsRequest {
   string tenant_id = 1;
 }

@@ -36,11 +36,9 @@ enum WorkflowNodeType {
 
 enum ConnectorType {
   CONNECTOR_TYPE_UNSPECIFIED = 0;
-  PRODUCT = 1;
-  COMMUNICATION = 2;
-  CALENDAR = 3;
-  UTILITY = 4;
-  LOGIC = 5;
+  FLOW_CONTROL = 1;
+  PRODUCT = 2;
+  UTILITY = 3;
 }
 
 // =====================================================
@@ -215,27 +213,72 @@ message WorkflowConnectorEvent {
   google.protobuf.Timestamp created_at = 7;
 }
 
+// OpenAPI top-level config
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "SmallBiznis API";
+    version: "1.0";
+    description: "Multi-tenant, global-ready Organization & Onboarding APIs";
+    contact: {
+      name: "SmallBiznis project";
+      url: "https://github.com/smallbiznis";
+      email: "taufiktriantono4@gmail.com";
+    };
+  };
+  host: "api.smallbiznis.test";
+  schemes: HTTPS;
+  base_path: "/api";
+  consumes: "application/json";
+  produces: "application/json";
+};
+
 // =====================================================
 // SERVICE: WORKFLOW DEFINITIONS
 // =====================================================
 service WorkflowService {
-  // =====================================================
-  // CONNECTOR MANAGEMENT
-  // =====================================================
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    name: "Workflow"
+    description: "API for managing automation workflow"
+  };
+
   rpc Listconnector(ListConnectorRequest) returns (ListConnectorResponse) {
     option (google.api.http) = { get: "/v1/connectors" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      summary: "List connectors"
+      description: ""
+      operation_id: "Connector_List"
+    };
   }
 
   rpc GetConnector(GetConnectorRequest) returns (WorkflowConnector) {
     option (google.api.http) = { get: "/v1/connectors/{id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      summary: "Get a connector"
+      description: ""
+      operation_id: "Connector_Get"
+    };
   }
 
   rpc ListConnectorTriggers (GetConnectorRequest) returns (ListConnectorTriggersResponse) {
     option (google.api.http) = { get: "/v1/connectors/{id}/triggers" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      summary: "List triggers"
+      description: ""
+      operation_id: "Trigger_List"
+    };
   }
 
   rpc ListConnectorActions (GetConnectorRequest) returns (ListConnectorActionsResponse) {
     option (google.api.http) = { get: "/v1/connectors/{id}/actions" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      summary: "List actions"
+      description: ""
+      operation_id: "Action_List"
+    };
   }
 
   // =====================================================
@@ -243,14 +286,32 @@ service WorkflowService {
   // =====================================================
   rpc ListDefinitions (ListDefinitionsRequest) returns (ListDefinitionsResponse) {
     option (google.api.http) = { get: "/v1/workflows" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      summary: "List workflows"
+      description: ""
+      operation_id: "Workflow_List"
+    };
   }
 
   rpc GetDefinition (GetDefinitionRequest) returns (WorkflowDefinition) {
     option (google.api.http) = { get: "/v1/workflows/{id}" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      summary: "Get workflow"
+      description: ""
+      operation_id: "Workflow_Get"
+    };
   }
 
   rpc CreateDefinition (CreateDefinitionRequest) returns (WorkflowDefinition) {
     option (google.api.http) = { post: "/v1/workflows" body: "*" };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      tags: "Workflow"
+      summary: "Create a new workflow"
+      description: ""
+      operation_id: "Workflow_Create"
+    };
   }
 
   rpc UpdateDefinition (UpdateDefinitionRequest) returns (WorkflowDefinition) {

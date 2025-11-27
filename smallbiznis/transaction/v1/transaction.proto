@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+package smallbiznis.transaction.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/transaction/v1;transactionv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+// Supported transaction channels (not payment methods).
+enum TransactionChannel {
+  TRANSACTION_CHANNEL_UNSPECIFIED = 0;
+  ONLINE_STORE = 1;
+  OFFLINE_STORE = 2;
+  MARKETPLACE = 3;
+  SOCIAL_COMMERCE = 4;
+  PHONE_ORDER = 5;
+}
+
+// Transaction lifecycle states.
+enum TransactionStatus {
+  TRANSACTION_STATUS_UNSPECIFIED = 0;
+  CREATED = 1;
+  CONFIRMED = 2;
+  FULFILLED = 3;
+  CANCELED = 4;
+  REFUNDED = 5;
+}
+
+// Payment channels (how customer pays).
+enum PaymentChannel {
+  PAYMENT_CHANNEL_UNSPECIFIED = 0;
+  CASH = 1;
+  BANK_TRANSFER = 2;
+  CREDIT_CARD = 3;
+  E_WALLET = 4;
+  VIRTUAL_ACCOUNT = 5;
+  COD = 6;
+}
+
+// Payment providers/gateways.
+enum PaymentProvider {
+  PAYMENT_PROVIDER_UNSPECIFIED = 0;
+  XENDIT = 1;
+  MIDTRANS = 2;
+  STRIPE = 3;
+  PAYPAL = 4;
+  MANUAL = 5;
+}
+
+message LineItem {
+  string sku = 1;
+  string name = 2;
+  int64  quantity = 3;
+  int64  price_cents = 4;
+  string currency_code = 5;
+}
+
+message Transaction {
+  string transaction_id = 1;
+  int64  tenant_id = 2;
+  TransactionChannel channel = 3;
+  TransactionStatus  status = 4;
+  PaymentChannel payment_channel = 5;
+  PaymentProvider payment_provider = 6;
+  string payment_reference = 7;
+  int64  total_cents = 8;
+  string currency_code = 9;
+  repeated LineItem items = 10;
+  google.protobuf.Struct metadata = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+message CreateTransactionRequest {
+  int64  tenant_id = 1;
+  TransactionChannel channel = 2;
+  PaymentChannel payment_channel = 3;
+  PaymentProvider payment_provider = 4;
+  string payment_reference = 5;
+  repeated LineItem items = 6;
+  string currency_code = 7;
+  google.protobuf.Struct metadata = 8;
+}
+
+message CreateTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message GetTransactionRequest {
+  int64  tenant_id = 1;
+  string transaction_id = 2;
+}
+
+message ListTransactionsRequest {
+  int64 tenant_id = 1;
+  TransactionChannel channel = 2; // optional filter
+  TransactionStatus status = 3;   // optional filter
+  int32 limit = 4;
+  string page_token = 5;
+}
+
+message ListTransactionsResponse {
+  repeated Transaction transactions = 1;
+  string next_page_token = 2;
+}
+
+message UpdateTransactionStatusRequest {
+  int64 tenant_id = 1;
+  string transaction_id = 2;
+  TransactionStatus status = 3;
+}
+
+message UpdateTransactionStatusResponse {
+  Transaction transaction = 1;
+}
+
+service TransactionService {
+  rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionResponse) {
+    option (google.api.http) = {
+      post: "/v1/transactions"
+      body: "*"
+    };
+  }
+
+  rpc GetTransaction(GetTransactionRequest) returns (Transaction) {
+    option (google.api.http) = { get: "/v1/transactions/{transaction_id}" };
+  }
+
+  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse) {
+    option (google.api.http) = { get: "/v1/transactions" };
+  }
+
+  rpc UpdateTransactionStatus(UpdateTransactionStatusRequest) returns (UpdateTransactionStatusResponse) {
+    option (google.api.http) = {
+      patch: "/v1/transactions/{transaction_id}"
+      body: "*"
+    };
+  }
+}

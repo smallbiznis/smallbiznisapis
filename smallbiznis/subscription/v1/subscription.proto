@@ -1,0 +1,173 @@
+syntax = "proto3";
+
+package smallbiznis.subscription.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/subscription/v1;subscriptionv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+// =====================================
+// ENUMS
+// =====================================
+
+enum SubscriptionStatus {
+  SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
+  ACTIVE     = 1;
+  PAST_DUE   = 2;
+  CANCELED   = 3;
+  EXPIRED    = 4;
+}
+
+// Billing cycle for a plan.
+enum BillingCycle {
+  BILLING_CYCLE_UNSPECIFIED = 0;
+  MONTHLY = 1;
+  YEARLY  = 2;
+}
+
+// =====================================
+// MODELS
+// =====================================
+
+// Plan definition in the marketplace.
+message Plan {
+  string id = 1;                       // "starter", "pro", "enterprise"
+  string name = 2;
+  string description = 3;
+  BillingCycle cycle = 4;
+  int64 price_cents = 5;
+  string currency_code = 6;            // "IDR", "USD"
+
+  // Number-based limits ("max_workflows", "max_users", "max_automation")
+  map<string, int64> numeric_limits = 7;
+
+  // Feature flags ("custom_domain", "pos_enabled", "workflow_builder")
+  map<string, bool> feature_flags = 8;
+}
+
+// A tenant's subscription instance.
+message Subscription {
+  int64 tenant_id = 1;
+  string plan_id = 2;
+
+  SubscriptionStatus status = 3;
+  BillingCycle billing_cycle = 4;
+
+  google.protobuf.Timestamp start_at = 5;
+  google.protobuf.Timestamp end_at = 6;
+
+  // Seats / users under this plan (optional)
+  int32 seat_count = 7;
+
+  // Raw feature overrides (optional)
+  google.protobuf.Struct overrides = 8;
+}
+
+// =====================================
+// REQUESTS / RESPONSES
+// =====================================
+
+message GetPlanRequest {
+  string plan_id = 1;
+}
+
+message GetPlanResponse {
+  Plan plan = 1;
+}
+
+message ListPlansRequest {}
+
+message ListPlansResponse {
+  repeated Plan plans = 1;
+}
+
+message AssignSubscriptionRequest {
+  int64 tenant_id = 1;
+  string plan_id = 2;
+  BillingCycle cycle = 3;
+  int32 seat_count = 4;
+}
+
+message AssignSubscriptionResponse {
+  Subscription subscription = 1;
+}
+
+message GetSubscriptionRequest {
+  int64 tenant_id = 1;
+}
+
+message GetSubscriptionResponse {
+  Subscription subscription = 1;
+}
+
+// Decision: can this tenant access a feature?
+message CheckFeatureRequest {
+  int64 tenant_id = 1;
+  string feature_key = 2;        // "workflow_builder", "automation", etc
+}
+
+message CheckFeatureResponse {
+  bool allowed = 1;
+  string plan_id = 2;
+}
+
+// Decision: limit value (e.g. max workflows per day)
+message GetNumericLimitRequest {
+  int64 tenant_id = 1;
+  string limit_key = 2;          // "max_workflow_runs"
+}
+
+message GetNumericLimitResponse {
+  int64 value = 1;
+}
+
+// =====================================
+// SUBSCRIPTION SERVICE
+// =====================================
+
+service SubscriptionService {
+
+  rpc GetPlan(GetPlanRequest) returns (GetPlanResponse) {
+    option (google.api.http) = {
+      get: "/v1/subscription/plans/{plan_id}"
+    };
+  }
+
+  rpc ListPlans(ListPlansRequest) returns (ListPlansResponse) {
+    option (google.api.http) = {
+      get: "/v1/subscription/plans"
+    };
+  }
+
+  // Assign subscription to tenant
+  rpc AssignSubscription(AssignSubscriptionRequest)
+      returns (AssignSubscriptionResponse) {
+    option (google.api.http) = {
+      post: "/v1/subscription/assign"
+      body: "*"
+    };
+  }
+
+  rpc GetSubscription(GetSubscriptionRequest)
+      returns (GetSubscriptionResponse) {
+    option (google.api.http) = {
+      get: "/v1/subscription/tenant/{tenant_id}"
+    };
+  }
+
+  rpc CheckFeature(CheckFeatureRequest)
+      returns (CheckFeatureResponse) {
+    option (google.api.http) = {
+      get: "/v1/subscription/check-feature"
+    };
+  }
+
+  rpc GetNumericLimit(GetNumericLimitRequest)
+      returns (GetNumericLimitResponse) {
+    option (google.api.http) = {
+      get: "/v1/subscription/limit"
+    };
+  }
+}

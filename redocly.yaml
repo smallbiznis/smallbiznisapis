@@ -1,0 +1,9 @@
+
+apis:
+  core@v1:
+    root: docs/smallbiznis.swagger.json
+    rules:
+      no-ambiguous-paths: error
+
+extends:
+    - recommended

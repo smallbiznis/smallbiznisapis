@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package smallbiznis.analytic.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/analytic/v1;analyticv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ===================================
+// MODELS
+// ===================================
+
+// Single analytic event (track).
+message AnalyticEvent {
+  string id = 1;
+
+  int64 tenant_id = 2;
+
+  // event name: "order.created", "workflow.executed"
+  string event_name = 3;
+
+  // e.g. {"order_id":123, "amount":40000}
+  google.protobuf.Struct properties = 4;
+
+  // user session or actor
+  string user_id = 5;
+
+  google.protobuf.Timestamp occurred_at = 6;
+}
+
+// Ingest event
+message IngestEventRequest {
+  AnalyticEvent event = 1;
+}
+
+message IngestEventResponse {
+  bool success = 1;
+}
+
+// Query aggregated metrics
+message MetricQueryRequest {
+  int64 tenant_id = 1;
+
+  // metric type / event_name
+  string event_name = 2;
+
+  // optional filter (date range, product_id)
+  google.protobuf.Struct filter = 3;
+
+  // group by field (e.g. "day", "product_id")
+  string group_by = 4;
+
+  // limit results
+  int32 limit = 5;
+}
+
+message MetricResult {
+  string group = 1;
+  int64 count = 2;
+  double sum = 3;
+}
+
+message MetricQueryResponse {
+  repeated MetricResult results = 1;
+}
+
+// Query single funnel sequence
+message FunnelStep {
+  string event_name = 1;
+}
+
+message FunnelQueryRequest {
+  int64 tenant_id = 1;
+  repeated FunnelStep steps = 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+message FunnelQueryResponse {
+  // steps processed sequentially (step1→step2→step3)
+  repeated int64 counts = 1;
+}
+
+// ===================================
+// SERVICE
+// ===================================
+
+service AnalyticService {
+
+  rpc IngestEvent(IngestEventRequest)
+      returns (IngestEventResponse) {
+    option (google.api.http) = {
+      post: "/v1/analytic/events"
+      body: "*"
+    };
+  }
+
+  rpc QueryMetric(MetricQueryRequest)
+      returns (MetricQueryResponse) {
+    option (google.api.http) = {
+      post: "/v1/analytic/metrics:query"
+      body: "*"
+    };
+  }
+
+  rpc QueryFunnel(FunnelQueryRequest)
+      returns (FunnelQueryResponse) {
+    option (google.api.http) = {
+      post: "/v1/analytic/funnel:query"
+      body: "*"
+    };
+  }
+}

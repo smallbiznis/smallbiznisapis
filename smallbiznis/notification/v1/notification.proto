@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package smallbiznis.notification.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/notification/v1;notificationv1";
+
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// ===============================
+// ENUMS
+// ===============================
+
+enum NotificationChannel {
+  NOTIFICATION_CHANNEL_UNSPECIFIED = 0;
+  EMAIL       = 1;
+  SMS         = 2;
+  WHATSAPP    = 3;
+  PUSH        = 4;
+  WEBHOOK     = 5;
+}
+
+// ===============================
+// MODELS
+// ===============================
+
+// Generic request to send notification.
+message SendNotificationRequest {
+  int64 tenant_id = 1;
+  NotificationChannel channel = 2;
+
+  // Assignment of recipient depends on channel.
+  string to = 3; // email addr, phone number, token, webhook URL
+
+  // Title/subject for EMAIL and PUSH
+  string title = 4;
+
+  // Body template variables resolved on server.
+  string template_id = 5;
+
+  // Custom data for template rendering.
+  google.protobuf.Struct variables = 6;
+
+  // For debug/testing environments
+  bool dry_run = 7;
+}
+
+// Generic send response.
+message SendNotificationResponse {
+  bool success = 1;
+  string message_id = 2;
+  google.protobuf.Timestamp sent_at = 3;
+}
+
+// Manage templates
+message NotificationTemplate {
+  string id = 1;
+  string name = 2;
+  NotificationChannel channel = 3;
+
+  // Subject/title (email & push)
+  string title = 4;
+
+  // Content body (html/text/markdown)
+  string body = 5;
+
+  // Optional metadata
+  google.protobuf.Struct metadata = 6;
+}
+
+message CreateTemplateRequest {
+  int64 tenant_id = 1;
+  NotificationTemplate template = 2;
+}
+
+message CreateTemplateResponse {
+  NotificationTemplate template = 1;
+}
+
+message GetTemplateRequest {
+  int64 tenant_id = 1;
+  string template_id = 2;
+}
+
+message GetTemplateResponse {
+  NotificationTemplate template = 1;
+}
+
+message ListTemplatesRequest {
+  int64 tenant_id = 1;
+}
+
+message ListTemplatesResponse {
+  repeated NotificationTemplate templates = 1;
+}
+
+// ===============================
+// SERVICE
+// ===============================
+
+service NotificationService {
+
+  rpc SendNotification(SendNotificationRequest)
+      returns (SendNotificationResponse) {
+    option (google.api.http) = {
+      post: "/v1/notification/send"
+      body: "*"
+    };
+  }
+
+  rpc CreateTemplate(CreateTemplateRequest)
+      returns (CreateTemplateResponse) {
+    option (google.api.http) = {
+      post: "/v1/notification/templates"
+      body: "*"
+    };
+  }
+
+  rpc GetTemplate(GetTemplateRequest)
+      returns (GetTemplateResponse) {
+    option (google.api.http) = {
+      get: "/v1/notification/templates/{template_id}"
+    };
+  }
+
+  rpc ListTemplates(ListTemplatesRequest)
+      returns (ListTemplatesResponse) {
+    option (google.api.http) = {
+      get: "/v1/notification/templates"
+    };
+  }
+}

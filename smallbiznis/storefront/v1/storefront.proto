@@ -1,0 +1,371 @@
+syntax = "proto3";
+
+package smallbiznis.storefront.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/storefront/v1;storefrontv1";
+
+// =========================
+// Entities
+// =========================
+
+message Storefront {
+  int64 id = 1;
+  int64 tenant_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+  string status = 5; // ACTIVE, INACTIVE, DELETED
+  string name = 6;
+  string slug = 7;
+  int64 theme_id = 8;
+  string metadata_json = 9;
+}
+
+message Theme {
+  int64 id = 1;
+  int64 tenant_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+  string status = 5; // ACTIVE, INACTIVE, DELETED
+  string name = 6;
+  string description = 7;
+  string config_json = 8;
+}
+
+message Page {
+  int64 id = 1;
+  int64 tenant_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+  string status = 5; // ACTIVE, INACTIVE, DELETED
+  int64 storefront_id = 6;
+  string slug = 7;
+  string title = 8;
+  string content_json = 9;
+  string type = 10; // HOME, PRODUCT, CATEGORY, CUSTOM
+}
+
+message Navigation {
+  int64 id = 1;
+  int64 tenant_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+  string status = 5; // ACTIVE, INACTIVE, DELETED
+  int64 storefront_id = 6;
+  string label = 7;
+  string url = 8;
+  int32 order = 9;
+}
+
+// =========================
+// Storefront CRUD
+// =========================
+
+message CreateStorefrontRequest {
+  int64 tenant_id = 1;
+  string name = 2;
+  string slug = 3;
+  int64 theme_id = 4;
+  string metadata_json = 5;
+  string status = 6;
+}
+
+message CreateStorefrontResponse {
+  Storefront storefront = 1;
+}
+
+message GetStorefrontRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message GetStorefrontResponse {
+  Storefront storefront = 1;
+}
+
+message UpdateStorefrontRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+  string name = 3;
+  string slug = 4;
+  int64 theme_id = 5;
+  string metadata_json = 6;
+  string status = 7;
+}
+
+message UpdateStorefrontResponse {
+  Storefront storefront = 1;
+}
+
+message DeleteStorefrontRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message DeleteStorefrontResponse {
+  bool success = 1;
+}
+
+message ListStorefrontsRequest {
+  int64 tenant_id = 1;
+  string keyword = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListStorefrontsResponse {
+  repeated Storefront storefronts = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int64 total = 4;
+}
+
+// =========================
+// Theme CRUD
+// =========================
+
+message CreateThemeRequest {
+  int64 tenant_id = 1;
+  string name = 2;
+  string description = 3;
+  string config_json = 4;
+  string status = 5;
+}
+
+message CreateThemeResponse {
+  Theme theme = 1;
+}
+
+message GetThemeRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message GetThemeResponse {
+  Theme theme = 1;
+}
+
+message UpdateThemeRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+  string name = 3;
+  string description = 4;
+  string config_json = 5;
+  string status = 6;
+}
+
+message UpdateThemeResponse {
+  Theme theme = 1;
+}
+
+message DeleteThemeRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message DeleteThemeResponse {
+  bool success = 1;
+}
+
+message ListThemesRequest {
+  int64 tenant_id = 1;
+  string keyword = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+message ListThemesResponse {
+  repeated Theme themes = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int64 total = 4;
+}
+
+// =========================
+// Page CRUD
+// =========================
+
+message CreatePageRequest {
+  int64 tenant_id = 1;
+  int64 storefront_id = 2;
+  string slug = 3;
+  string title = 4;
+  string content_json = 5;
+  string type = 6;
+  string status = 7;
+}
+
+message CreatePageResponse {
+  Page page = 1;
+}
+
+message GetPageRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message GetPageResponse {
+  Page page = 1;
+}
+
+message UpdatePageRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+  int64 storefront_id = 3;
+  string slug = 4;
+  string title = 5;
+  string content_json = 6;
+  string type = 7;
+  string status = 8;
+}
+
+message UpdatePageResponse {
+  Page page = 1;
+}
+
+message DeletePageRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message DeletePageResponse {
+  bool success = 1;
+}
+
+message ListPagesRequest {
+  int64 tenant_id = 1;
+  int64 storefront_id = 2;
+  string keyword = 3;
+  int32 page = 4;
+  int32 page_size = 5;
+}
+
+message ListPagesResponse {
+  repeated Page pages = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int64 total = 4;
+}
+
+// =========================
+// Navigation CRUD
+// =========================
+
+message CreateNavigationRequest {
+  int64 tenant_id = 1;
+  int64 storefront_id = 2;
+  string label = 3;
+  string url = 4;
+  int32 order = 5;
+  string status = 6;
+}
+
+message CreateNavigationResponse {
+  Navigation navigation = 1;
+}
+
+message GetNavigationRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message GetNavigationResponse {
+  Navigation navigation = 1;
+}
+
+message UpdateNavigationRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+  int64 storefront_id = 3;
+  string label = 4;
+  string url = 5;
+  int32 order = 6;
+  string status = 7;
+}
+
+message UpdateNavigationResponse {
+  Navigation navigation = 1;
+}
+
+message DeleteNavigationRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message DeleteNavigationResponse {
+  bool success = 1;
+}
+
+message ListNavigationsRequest {
+  int64 tenant_id = 1;
+  int64 storefront_id = 2;
+  string keyword = 3;
+  int32 page = 4;
+  int32 page_size = 5;
+}
+
+message ListNavigationsResponse {
+  repeated Navigation navigations = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int64 total = 4;
+}
+
+// =========================
+// Additional Actions
+// =========================
+
+message PublishStorefrontRequest {
+  int64 tenant_id = 1;
+  int64 storefront_id = 2;
+}
+
+message PublishStorefrontResponse {
+  bool success = 1;
+  Storefront storefront = 2;
+}
+
+message DuplicateThemeRequest {
+  int64 tenant_id = 1;
+  int64 theme_id = 2;
+  string name = 3;
+  string description = 4;
+}
+
+message DuplicateThemeResponse {
+  Theme theme = 1;
+}
+
+// =========================
+// Service
+// =========================
+
+service StorefrontService {
+  rpc CreateStorefront(CreateStorefrontRequest) returns (CreateStorefrontResponse);
+  rpc GetStorefront(GetStorefrontRequest) returns (GetStorefrontResponse);
+  rpc UpdateStorefront(UpdateStorefrontRequest) returns (UpdateStorefrontResponse);
+  rpc DeleteStorefront(DeleteStorefrontRequest) returns (DeleteStorefrontResponse);
+  rpc ListStorefronts(ListStorefrontsRequest) returns (ListStorefrontsResponse);
+
+  rpc CreateTheme(CreateThemeRequest) returns (CreateThemeResponse);
+  rpc GetTheme(GetThemeRequest) returns (GetThemeResponse);
+  rpc UpdateTheme(UpdateThemeRequest) returns (UpdateThemeResponse);
+  rpc DeleteTheme(DeleteThemeRequest) returns (DeleteThemeResponse);
+  rpc ListThemes(ListThemesRequest) returns (ListThemesResponse);
+
+  rpc CreatePage(CreatePageRequest) returns (CreatePageResponse);
+  rpc GetPage(GetPageRequest) returns (GetPageResponse);
+  rpc UpdatePage(UpdatePageRequest) returns (UpdatePageResponse);
+  rpc DeletePage(DeletePageRequest) returns (DeletePageResponse);
+  rpc ListPages(ListPagesRequest) returns (ListPagesResponse);
+
+  rpc CreateNavigation(CreateNavigationRequest) returns (CreateNavigationResponse);
+  rpc GetNavigation(GetNavigationRequest) returns (GetNavigationResponse);
+  rpc UpdateNavigation(UpdateNavigationRequest) returns (UpdateNavigationResponse);
+  rpc DeleteNavigation(DeleteNavigationRequest) returns (DeleteNavigationResponse);
+  rpc ListNavigations(ListNavigationsRequest) returns (ListNavigationsResponse);
+
+  rpc PublishStorefront(PublishStorefrontRequest) returns (PublishStorefrontResponse);
+  rpc DuplicateTheme(DuplicateThemeRequest) returns (DuplicateThemeResponse);
+}

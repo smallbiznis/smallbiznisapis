@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package smallbiznis.ledger.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/ledger/v1;ledgerv1";
+
+import "google/protobuf/timestamp.proto";
+
+service LedgerService {
+
+  rpc AddEntry(AddEntryRequest) returns (LedgerEntry){}
+
+  rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
+
+  rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse) {}
+
+  rpc GetEntry(GetEntryRequest) returns (LedgerEntry) {}
+
+  rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
+
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {};
+}
+
+enum EntryType {
+  ENTRY_TYPE_UNSPECIFIED = 0;
+  CREDIT = 1;
+  DEBIT = 2;
+}
+
+message LedgerEntry {
+  string id = 1;
+  string tenant_id = 2;
+  string member_id = 3;
+  EntryType type = 4;
+  string transaction_id = 5;
+  string reference_id = 6;
+  int64 amount = 7;
+  string description = 8;
+  map<string, string> metadata = 9;
+  google.protobuf.Timestamp created_at = 10;
+}
+
+message AddEntryRequest {
+  string tenant_id = 1;
+  string member_id = 2;
+  EntryType type = 3; // fixed: was undefined type
+  int64 amount = 4;
+  string description = 5;
+  string reference_id = 6;
+  map<string, string> metadata = 7;
+}
+
+message RevertEntryRequest {
+  string entry_id = 1;
+  string reason = 2;
+}
+
+message ListEntriesRequest {
+  string tenant_id = 1;
+  string member_id = 2;
+}
+
+message ListEntriesResponse {
+  repeated LedgerEntry data = 1;
+}
+
+message GetEntryRequest {
+  string id = 1;
+}
+
+message VerifyChainRequest {
+  string tenant_id = 1;
+  string member_id = 2;
+}
+
+message VerifyChainResponse {
+  bool valid = 1;
+  string message = 2;
+}
+
+message GetBalanceRequest {
+  string member_id = 1;
+  string tenant_id = 2;
+}
+
+message GetBalanceResponse {
+  int64 balance = 1;
+  google.protobuf.Timestamp last_updated_at = 2;
+}

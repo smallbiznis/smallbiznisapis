@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package smallbiznis.product.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/product/v1;productv1";
+
+import "google/protobuf/timestamp.proto";
+
+// Product represents a product owned by a tenant.
+// Note: status is represented as a string with expected values: "ACTIVE", "INACTIVE", "ARCHIVED".
+message Product {
+  // Unique product ID (server-generated)
+  int64 id = 1;
+
+  // Tenant owning this product (multi-tenant support)
+  int64 tenant_id = 2;
+
+  // Stock Keeping Unit
+  string sku = 3;
+
+  // Human-readable product name
+  string name = 4;
+
+  // Detailed description
+  string description = 5;
+
+  // Product category identifier or name
+  string category = 6;
+
+  // Brand name
+  string brand = 7;
+
+  // Current status: expected values are "ACTIVE", "INACTIVE", "ARCHIVED"
+  string status = 8;
+
+  // Timestamps
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+// CreateProductRequest creates a new product for a tenant. The server will
+// generate the `id`, `created_at` and `updated_at` fields.
+message CreateProductRequest {
+  // Tenant id for multi-tenant isolation. Required.
+  int64 tenant_id = 1;
+
+  // Product payload. The `id`, `created_at`, `updated_at` will be ignored
+  // if set by the client; server will generate them.
+  Product product = 2;
+}
+
+message CreateProductResponse {
+  Product product = 1;
+}
+
+// GetProductRequest retrieves a product by id within a tenant.
+message GetProductRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+// UpdateProductRequest updates fields of an existing product. The product.id
+// must be set and tenant_id must match the owning tenant.
+message UpdateProductRequest {
+  int64 tenant_id = 1;
+  Product product = 2;
+}
+
+message UpdateProductResponse {
+  Product product = 1;
+}
+
+// DeleteProductRequest deletes a product belonging to tenant.
+message DeleteProductRequest {
+  int64 tenant_id = 1;
+  int64 id = 2;
+}
+
+message DeleteProductResponse {
+  // success indicates whether the deletion succeeded.
+  bool success = 1;
+}
+
+// ListProductsRequest lists products for a tenant. Supports simple paging.
+message ListProductsRequest {
+  // Tenant id is required to scope the query.
+  int64 tenant_id = 1;
+
+  // Optional filter by sku, name, category, brand or status (simple substring match)
+  string query = 2;
+
+  // Maximum number of items to return. Servers may enforce a maximum cap.
+  int32 limit = 3;
+
+  // Opaque page token returned by the previous ListProductsResponse.
+  string page_token = 4;
+}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+  string next_page_token = 2;
+}
+
+// ProductService defines product CRUD operations. All RPCs expect tenant-scoped
+// requests to ensure multi-tenant isolation.
+service ProductService {
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {}
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {}
+  rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse) {}
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse) {}
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse) {}
+}

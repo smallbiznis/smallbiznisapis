@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package smallbiznis.domain.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/domain/v1;domainv1";
+
+message Domain {
+  int64 id = 1;
+  int64 tenant_id = 2;
+  string domain = 3;
+  bool is_primary = 4;
+  string verification_status = 5; // UNVERIFIED, PENDING, VERIFIED, FAILED
+  string txt_record = 6;
+  google.protobuf.Timestamp verified_at = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  string status = 10; // ACTIVE, INACTIVE, DELETED
+}
+
+message CreateDomainRequest {
+  int64 tenant_id = 1;
+  string domain = 2;
+  bool is_primary = 3;
+  string txt_record = 4;
+  string status = 5;
+}
+
+message CreateDomainResponse {
+  Domain domain = 1;
+}
+
+message GetDomainRequest {
+  int64 id = 1;
+  int64 tenant_id = 2;
+}
+
+message GetDomainResponse {
+  Domain domain = 1;
+}
+
+message UpdateDomainRequest {
+  int64 id = 1;
+  int64 tenant_id = 2;
+  string domain = 3;
+  bool is_primary = 4;
+  string verification_status = 5;
+  string txt_record = 6;
+  google.protobuf.Timestamp verified_at = 7;
+  string status = 8;
+}
+
+message UpdateDomainResponse {
+  Domain domain = 1;
+}
+
+message DeleteDomainRequest {
+  int64 id = 1;
+  int64 tenant_id = 2;
+}
+
+message DeleteDomainResponse {
+  bool success = 1;
+}
+
+message ListDomainsRequest {
+  int64 tenant_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message ListDomainsResponse {
+  repeated Domain domains = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int64 total_count = 4;
+}
+
+message VerifyDomainRequest {
+  int64 id = 1;
+  int64 tenant_id = 2;
+}
+
+message VerifyDomainResponse {
+  Domain domain = 1;
+}
+
+service DomainService {
+  rpc CreateDomain(CreateDomainRequest) returns (CreateDomainResponse);
+  rpc GetDomain(GetDomainRequest) returns (GetDomainResponse);
+  rpc UpdateDomain(UpdateDomainRequest) returns (UpdateDomainResponse);
+  rpc DeleteDomain(DeleteDomainRequest) returns (DeleteDomainResponse);
+  rpc ListDomains(ListDomainsRequest) returns (ListDomainsResponse);
+  rpc VerifyDomain(VerifyDomainRequest) returns (VerifyDomainResponse);
+}

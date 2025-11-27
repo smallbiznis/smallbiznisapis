@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package smallbiznis.billing.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/billing/v1;billingv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+// ============================================
+// Models
+// ============================================
+
+message TrialStatus {
+  bool   enabled = 1;
+  bool   expired = 2;
+  int64  balance_cents = 3;
+  google.protobuf.Timestamp trial_start_at = 4;
+  google.protobuf.Timestamp trial_end_at   = 5;
+}
+
+message UsageEvent {
+  int64 tenant_id = 1;
+
+  // flexible usage type (no enums)
+  string usage_key = 2;
+  int64  amount = 3;          // number of units
+  google.protobuf.Struct metadata = 4; // flexible metadata
+}
+
+message RecordUsageResponse {
+  bool  success = 1;
+  int64 cost_cents = 2;       // how much was charged
+  int64 remaining_balance_cents = 3;
+}
+
+message InitTrialRequest {
+  int64 tenant_id = 1;
+  int64 initial_balance_cents = 2;
+  int32 trial_days = 3;
+}
+
+message InitTrialResponse {
+  TrialStatus trial = 1;
+}
+
+message GetTrialStatusRequest {
+  int64 tenant_id = 1;
+}
+
+message GetTrialStatusResponse {
+  TrialStatus trial = 1;
+}
+
+message CheckTrialAndBalanceRequest {
+  int64 tenant_id = 1;
+}
+
+message CheckTrialAndBalanceResponse {
+  bool trial_active = 1;
+  bool has_balance = 2;
+  bool allowed = 3;
+  TrialStatus trial = 4;
+}
+
+message GetBalanceRequest {
+  int64 tenant_id = 1;
+}
+
+message GetBalanceResponse {
+  int64 balance_cents = 1;
+}
+
+// ============================================
+// Billing Service
+// ============================================
+
+service BillingService {
+
+  // init trial (called after tenant creation)
+  rpc InitTrial(InitTrialRequest) returns (InitTrialResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/trial:init"
+      body: "*"
+    };
+  }
+
+  // used by console UI & middleware
+  rpc GetTrialStatus(GetTrialStatusRequest) returns (GetTrialStatusResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/trial/status"
+    };
+  }
+
+  // record usage (this calculates cost based on usage_key table)
+  rpc RecordUsage(UsageEvent) returns (RecordUsageResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/usage"
+      body: "*"
+    };
+  }
+
+  // check if action is allowed (trial active + has balance)
+  rpc CheckTrialAndBalance(CheckTrialAndBalanceRequest)
+       returns (CheckTrialAndBalanceResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/check"
+    };
+  }
+
+  // get balance only
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/balance"
+    };
+  }
+}

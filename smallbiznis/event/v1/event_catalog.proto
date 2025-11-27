@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package smallbiznis.event.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/smallbiznis/event/v1;eventv1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+/*
+ Event Catalog (SmallBiznis)
+ ---------------------------
+ Ini adalah daftar lengkap semua event resmi yang dipublikasikan antar microservice.
+
+ Setiap event memiliki:
+
+ - SUBJECT (string)     → nama topik NATS
+ - SOURCE  (string)     → service asal
+ - DESCRIPTION          → description singkat
+ - SCHEMA               → contoh payload di Data (Struct)
+
+ Semua service wajib pakai naming yang ada di enum ini.
+*/
+
+// ============================================================================
+// ENUM: Event Subjects (Topik NATS)
+// ============================================================================
+
+enum EventSubject {
+  EVENT_SUBJECT_UNSPECIFIED = 0;
+
+  // Voucher events
+  VOUCHER_USED            = 1;  // "voucher.used"
+
+  // Transaction events
+  TRANSACTION_ORDER_CREATED = 10;  // "transaction.order_created"
+
+  // Billing events
+  BILLING_USAGE_RECORDED  = 20;  // "billing.usage_recorded"
+
+  // Tenant events
+  TENANT_CREATED          = 30;  // "tenant.created"
+  TENANT_DELETED          = 31;  // "tenant.deleted"
+
+  // Product events
+  PRODUCT_UPDATED         = 40;  // "product.updated"
+
+  // Inventory events
+  INVENTORY_LOW_STOCK     = 50;  // "inventory.low_stock"
+
+  // Subscription events
+  SUBSCRIPTION_CHANGED    = 60;  // "subscription.changed"
+
+  // Domain events
+  DOMAIN_VERIFIED         = 70;  // "domain.verified"
+
+  // Notification events
+  NOTIFICATION_SENT       = 80;  // "notification.sent"
+}
+
+// ============================================================================
+// Event Catalog entries
+// ============================================================================
+
+message EventCatalogEntry {
+  // Subject enum
+  EventSubject subject = 1;
+
+  // NATS subject string (mirror)
+  string subject_str = 2;
+
+  // Service yang mem-publish event
+  string source_service = 3;
+
+  // Deskripsi singkat
+  string description = 4;
+
+  // Contoh payload
+  google.protobuf.Struct sample_payload = 5;
+}
+
+// ============================================================================
+// Daftar lengkap event
+// ============================================================================
+
+message EventCatalog {
+  repeated EventCatalogEntry events = 1;
+}
+
+// ============================================================================
+// Registry Service (read-only)
+// ============================================================================
+
+service EventCatalogService {
+  // List semua event yang tersedia
+  rpc ListEvents(google.protobuf.Struct) returns (EventCatalog) {}
+}

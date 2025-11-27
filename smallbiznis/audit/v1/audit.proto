@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package smallbiznis.audit.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/audit/v1;auditv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+// ===============================
+// MODELS
+// ===============================
+
+// Audit event type
+enum AuditAction {
+  AUDIT_ACTION_UNSPECIFIED = 0;
+
+  CREATED   = 1;
+  UPDATED   = 2;
+  DELETED   = 3;
+
+  LOGIN     = 10;
+  LOGOUT    = 11;
+
+  PERMISSION_CHANGED = 20;
+  SUBSCRIPTION_CHANGED = 21;
+  SYSTEM_EVENT = 99;
+}
+
+// Audit record
+message AuditRecord {
+  string id = 1;                    // uuid
+  int64 tenant_id = 2;              // multi-tenant support
+
+  AuditAction action = 3;
+  string resource_type = 4;         // "product", "order", "voucher", "user"
+  string resource_id = 5;           // string to support uuid/slugs
+
+  string actor_user_id = 6;         // user who caused the event
+  string actor_service = 7;         // internal service (e.g. "billing", "voucher")
+
+  google.protobuf.Timestamp occurred_at = 8;
+
+  // Optional payload (before/after values, metadata)
+  google.protobuf.Struct data = 9;
+}
+
+// ===============================
+// REQUEST & RESPONSE
+// ===============================
+
+message RecordAuditRequest {
+  AuditRecord record = 1;
+}
+
+message RecordAuditResponse {
+  bool success = 1;
+}
+
+message ListAuditRequest {
+  int64 tenant_id = 1;
+  string resource_type = 2;          // optional filter
+  string resource_id = 3;            // optional
+
+  int32 page = 4;
+  int32 page_size = 5;
+
+  google.protobuf.Timestamp from = 6;
+  google.protobuf.Timestamp to   = 7;
+}
+
+message ListAuditResponse {
+  repeated AuditRecord records = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+  int32 total_pages = 4;
+}
+
+// ===============================
+// SERVICE
+// ===============================
+
+service AuditService {
+
+  rpc RecordAudit(RecordAuditRequest)
+      returns (RecordAuditResponse) {
+    option (google.api.http) = {
+      post: "/v1/audit/record"
+      body: "*"
+    };
+  }
+
+  rpc ListAudit(ListAuditRequest)
+      returns (ListAuditResponse) {
+    option (google.api.http) = {
+      get: "/v1/audit/logs"
+    };
+  }
+}

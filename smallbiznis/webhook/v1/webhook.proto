@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package smallbiznis.webhook.v1;
+
+option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/webhook/v1;webhookv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ===============================
+// ENUM
+// ===============================
+
+enum WebhookStatus {
+  WEBHOOK_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  DISABLED = 2;
+}
+
+enum DeliveryStatus {
+  DELIVERY_STATUS_UNSPECIFIED = 0;
+  SUCCESS = 1;
+  FAILED = 2;
+  RETRYING = 3;
+}
+
+// ===============================
+// MODELS
+// ===============================
+
+// Webhook subscription
+message WebhookSubscription {
+  string id = 1;                // uuid
+  int64 tenant_id = 2;
+
+  // e.g. "order.created", "voucher.used"
+  repeated string event_types = 3;
+
+  string url = 4;
+  string secret = 5;            // HMAC verification
+
+  WebhookStatus status = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// Incoming event payload → can be forwarded to subscriber
+message WebhookEvent {
+  string id = 1;
+  string event_type = 2;
+  google.protobuf.Struct data = 3;
+  google.protobuf.Timestamp occurred_at = 4;
+}
+
+// Delivery log of webhook attempts
+message WebhookDelivery {
+  string id = 1;
+  string subscription_id = 2;
+  string event_id = 3;
+
+  DeliveryStatus status = 4;
+  int32 attempt = 5;
+
+  int32 http_status = 6;
+  string error_message = 7;
+
+  google.protobuf.Timestamp sent_at = 8;
+}
+
+// ===============================
+// REQUEST / RESPONSE
+// ===============================
+
+message CreateWebhookSubscriptionRequest {
+  int64 tenant_id = 1;
+  repeated string event_types = 2;
+  string url = 3;
+}
+
+message CreateWebhookSubscriptionResponse {
+  WebhookSubscription subscription = 1;
+}
+
+message ListWebhookSubscriptionsRequest {
+  int64 tenant_id = 1;
+}
+
+message ListWebhookSubscriptionsResponse {
+  repeated WebhookSubscription subscriptions = 1;
+}
+
+message DeleteWebhookSubscriptionRequest {
+  int64 tenant_id = 1;
+  string subscription_id = 2;
+}
+
+message DeleteWebhookSubscriptionResponse {
+  bool success = 1;
+}
+
+message TriggerWebhookRequest {
+  int64 tenant_id = 1;
+  WebhookEvent event = 2;
+}
+
+message TriggerWebhookResponse {
+  bool queued = 1;
+}
+
+message ListWebhookDeliveriesRequest {
+  string subscription_id = 1;
+}
+
+message ListWebhookDeliveriesResponse {
+  repeated WebhookDelivery deliveries = 1;
+}
+
+// ===============================
+// SERVICE
+// ===============================
+
+service WebhookService {
+
+  rpc CreateWebhookSubscription(CreateWebhookSubscriptionRequest)
+      returns (CreateWebhookSubscriptionResponse) {
+    option (google.api.http) = {
+      post: "/v1/webhook/subscriptions"
+      body: "*"
+    };
+  }
+
+  rpc ListWebhookSubscriptions(ListWebhookSubscriptionsRequest)
+      returns (ListWebhookSubscriptionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/webhook/subscriptions"
+    };
+  }
+
+  rpc DeleteWebhookSubscription(DeleteWebhookSubscriptionRequest)
+      returns (DeleteWebhookSubscriptionResponse) {
+    option (google.api.http) = {
+      delete: "/v1/webhook/subscriptions/{subscription_id}"
+    };
+  }
+
+  // Called by internal services to queue webhook delivery
+  rpc TriggerWebhook(TriggerWebhookRequest)
+      returns (TriggerWebhookResponse) {
+    option (google.api.http) = {
+      post: "/v1/webhook/trigger"
+      body: "*"
+    };
+  }
+
+  // For console UI to view logs
+  rpc ListWebhookDeliveries(ListWebhookDeliveriesRequest)
+      returns (ListWebhookDeliveriesResponse) {
+    option (google.api.http) = {
+      get: "/v1/webhook/deliveries"
+    };
+  }
+}

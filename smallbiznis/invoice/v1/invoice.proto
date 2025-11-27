@@ -1,0 +1,250 @@
+syntax = "proto3";
+
+package smallbiznis.invoice.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/invoice/v1;invoicev1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+
+// ============================================
+// Enums
+// ============================================
+
+enum InvoiceStatus {
+  INVOICE_STATUS_UNSPECIFIED   = 0;
+  INVOICE_STATUS_DRAFT         = 1;
+  INVOICE_STATUS_OPEN          = 2;
+  INVOICE_STATUS_PAID          = 3;
+  INVOICE_STATUS_VOID          = 4;
+  INVOICE_STATUS_UNCOLLECTIBLE = 5;
+}
+
+enum PaymentStatus {
+  PAYMENT_STATUS_UNSPECIFIED = 0;
+  PAYMENT_STATUS_PENDING     = 1;
+  PAYMENT_STATUS_SUCCEEDED   = 2;
+  PAYMENT_STATUS_FAILED      = 3;
+  PAYMENT_STATUS_REFUNDED    = 4;
+}
+
+enum InvoiceLineType {
+  INVOICE_LINE_TYPE_UNSPECIFIED = 0;
+  INVOICE_LINE_TYPE_RECURRING   = 1; // plan base fee
+  INVOICE_LINE_TYPE_USAGE       = 2; // usage/overage from billing
+  INVOICE_LINE_TYPE_ADJUSTMENT  = 3; // manual adjustment/credit
+  INVOICE_LINE_TYPE_TAX         = 4;
+  INVOICE_LINE_TYPE_DISCOUNT    = 5;
+}
+
+
+// ============================================
+// Models
+// ============================================
+
+message Money {
+  int64 amount_cents = 1;
+  string currency_code = 2; // "IDR", "USD", etc.
+}
+
+message InvoiceLineItem {
+  string id = 1;
+  string invoice_id = 2;
+
+  InvoiceLineType type = 3;
+
+  string description = 4;
+
+  // generic quantity x unit_price
+  double quantity = 5;
+  int64 unit_price_cents = 6;
+
+  int64 amount_cents = 7;
+
+  // optional linkage back to usage/billing system
+  string usage_key = 8;
+  int64 usage_units = 9;
+
+  google.protobuf.Timestamp period_start = 10;
+  google.protobuf.Timestamp period_end   = 11;
+
+  google.protobuf.Struct metadata = 12;
+}
+
+message Invoice {
+  string id = 1;
+  string tenant_id = 2;
+
+  // reference to subscription if applicable
+  string subscription_id = 3;
+
+  // human-friendly invoice number "INV-2025-000123"
+  string number = 4;
+
+  InvoiceStatus status = 5;
+  PaymentStatus payment_status = 6;
+
+  string currency_code = 7;
+
+  int64 subtotal_cents     = 8;
+  int64 tax_cents          = 9;
+  int64 discount_cents     = 10;
+  int64 total_cents        = 11;
+
+  int64 amount_paid_cents  = 12;
+  int64 amount_due_cents   = 13;
+
+  google.protobuf.Timestamp issued_at         = 14;
+  google.protobuf.Timestamp due_at            = 15;
+  google.protobuf.Timestamp period_start      = 16;
+  google.protobuf.Timestamp period_end        = 17;
+
+  string customer_email                        = 18;
+  string customer_name                         = 19;
+
+  google.protobuf.Struct metadata              = 20;
+}
+
+message PaymentRecord {
+  string id = 1;
+  string invoice_id = 2;
+
+  int64 amount_cents = 3;
+  string currency_code = 4;
+
+  PaymentStatus status = 5;
+
+  string provider = 6;          // "midtrans", "xendit", "stripe"
+  string provider_reference = 7;
+
+  google.protobuf.Timestamp paid_at = 8;
+  google.protobuf.Timestamp created_at = 9;
+
+  google.protobuf.Struct metadata = 10;
+}
+
+
+// Optional event envelope for invoice events
+message InvoiceEventEnvelope {
+  string event_id = 1;
+  string event_type = 2; // e.g. "smallbiznis.invoice.created.v1"
+  google.protobuf.Timestamp occurred_at = 3;
+  google.protobuf.Struct data = 4;
+  google.protobuf.Struct metadata = 5;
+}
+
+
+// ============================================
+// Requests / Responses
+// ============================================
+
+message GenerateInvoiceRequest {
+  string tenant_id = 1;
+
+  // billing period this invoice covers
+  google.protobuf.Timestamp period_start = 2;
+  google.protobuf.Timestamp period_end   = 3;
+
+  // if true, do not persist; just simulate (preview)
+  bool dry_run = 4;
+}
+
+message GenerateInvoiceResponse {
+  Invoice invoice = 1;
+  repeated InvoiceLineItem line_items = 2;
+}
+
+message GetInvoiceRequest {
+  string id = 1;
+}
+
+message GetInvoiceResponse {
+  Invoice invoice = 1;
+  repeated InvoiceLineItem line_items = 2;
+}
+
+message ListInvoicesRequest {
+  string tenant_id = 1;
+  InvoiceStatus status = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListInvoicesResponse {
+  repeated Invoice invoices = 1;
+  string next_page_token = 2;
+}
+
+message MarkInvoicePaidRequest {
+  string id = 1;
+
+  int64 amount_cents = 2;
+  string currency_code = 3;
+
+  string provider = 4;
+  string provider_reference = 5;
+
+  google.protobuf.Timestamp paid_at = 6;
+}
+
+message MarkInvoicePaidResponse {
+  Invoice invoice = 1;
+  PaymentRecord payment = 2;
+}
+
+message PreviewUpcomingInvoiceRequest {
+  string tenant_id = 1;
+}
+
+message PreviewUpcomingInvoiceResponse {
+  Invoice invoice = 1;
+  repeated InvoiceLineItem line_items = 2;
+}
+
+
+// ============================================
+// Invoice Service
+// ============================================
+
+service InvoiceService {
+
+  // Generate invoice for a tenant for a given period.
+  // Typically called by a scheduled billing job.
+  rpc GenerateInvoice(GenerateInvoiceRequest) returns (GenerateInvoiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/invoices:generate"
+      body: "*"
+    };
+  }
+
+  // Get invoice with its line items.
+  rpc GetInvoice(GetInvoiceRequest) returns (GetInvoiceResponse) {
+    option (google.api.http) = {
+      get: "/v1/invoices/{id}"
+    };
+  }
+
+  // List invoices for a tenant.
+  rpc ListInvoices(ListInvoicesRequest) returns (ListInvoicesResponse) {
+    option (google.api.http) = {
+      get: "/v1/invoices"
+    };
+  }
+
+  // Mark an invoice as paid after payment provider confirms success.
+  rpc MarkInvoicePaid(MarkInvoicePaidRequest) returns (MarkInvoicePaidResponse) {
+    option (google.api.http) = {
+      post: "/v1/invoices/{id}:mark-paid"
+      body: "*"
+    };
+  }
+
+  // Preview upcoming invoice for current period (without persisting).
+  rpc PreviewUpcomingInvoice(PreviewUpcomingInvoiceRequest) returns (PreviewUpcomingInvoiceResponse) {
+    option (google.api.http) = {
+      get: "/v1/invoices:preview-upcoming"
+    };
+  }
+}

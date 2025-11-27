@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.webhook.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/webhook/v1;webhookv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/webhook/v1;webhookv1";
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
@@ -32,7 +32,7 @@ enum DeliveryStatus {
 // Webhook subscription
 message WebhookSubscription {
   string id = 1;                // uuid
-  int64 tenant_id = 2;
+  string tenant_id = 2;
 
   // e.g. "order.created", "voucher.used"
   repeated string event_types = 3;
@@ -74,7 +74,7 @@ message WebhookDelivery {
 // ===============================
 
 message CreateWebhookSubscriptionRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   repeated string event_types = 2;
   string url = 3;
 }
@@ -84,7 +84,7 @@ message CreateWebhookSubscriptionResponse {
 }
 
 message ListWebhookSubscriptionsRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 }
 
 message ListWebhookSubscriptionsResponse {
@@ -92,7 +92,7 @@ message ListWebhookSubscriptionsResponse {
 }
 
 message DeleteWebhookSubscriptionRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   string subscription_id = 2;
 }
 
@@ -101,7 +101,7 @@ message DeleteWebhookSubscriptionResponse {
 }
 
 message TriggerWebhookRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   WebhookEvent event = 2;
 }
 

@@ -4,27 +4,27 @@ package smallbiznis.storefront.v1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/storefront/v1;storefrontv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/storefront/v1;storefrontv1";
 
 // =========================
 // Entities
 // =========================
 
 message Storefront {
-  int64 id = 1;
-  int64 tenant_id = 2;
+  string id = 1;
+  string tenant_id = 2;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
   string status = 5; // ACTIVE, INACTIVE, DELETED
   string name = 6;
   string slug = 7;
-  int64 theme_id = 8;
+  string theme_id = 8;
   string metadata_json = 9;
 }
 
 message Theme {
-  int64 id = 1;
-  int64 tenant_id = 2;
+  string id = 1;
+  string tenant_id = 2;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
   string status = 5; // ACTIVE, INACTIVE, DELETED
@@ -34,12 +34,12 @@ message Theme {
 }
 
 message Page {
-  int64 id = 1;
-  int64 tenant_id = 2;
+  string id = 1;
+  string tenant_id = 2;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
   string status = 5; // ACTIVE, INACTIVE, DELETED
-  int64 storefront_id = 6;
+  string storefront_id = 6;
   string slug = 7;
   string title = 8;
   string content_json = 9;
@@ -47,12 +47,12 @@ message Page {
 }
 
 message Navigation {
-  int64 id = 1;
-  int64 tenant_id = 2;
+  string id = 1;
+  string tenant_id = 2;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
   string status = 5; // ACTIVE, INACTIVE, DELETED
-  int64 storefront_id = 6;
+  string storefront_id = 6;
   string label = 7;
   string url = 8;
   int32 order = 9;
@@ -63,10 +63,10 @@ message Navigation {
 // =========================
 
 message CreateStorefrontRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   string name = 2;
   string slug = 3;
-  int64 theme_id = 4;
+  string theme_id = 4;
   string metadata_json = 5;
   string status = 6;
 }
@@ -76,8 +76,8 @@ message CreateStorefrontResponse {
 }
 
 message GetStorefrontRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message GetStorefrontResponse {
@@ -85,11 +85,11 @@ message GetStorefrontResponse {
 }
 
 message UpdateStorefrontRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
   string name = 3;
   string slug = 4;
-  int64 theme_id = 5;
+  string theme_id = 5;
   string metadata_json = 6;
   string status = 7;
 }
@@ -99,8 +99,8 @@ message UpdateStorefrontResponse {
 }
 
 message DeleteStorefrontRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message DeleteStorefrontResponse {
@@ -108,7 +108,7 @@ message DeleteStorefrontResponse {
 }
 
 message ListStorefrontsRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   string keyword = 2;
   int32 page = 3;
   int32 page_size = 4;
@@ -126,7 +126,7 @@ message ListStorefrontsResponse {
 // =========================
 
 message CreateThemeRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   string name = 2;
   string description = 3;
   string config_json = 4;
@@ -138,8 +138,8 @@ message CreateThemeResponse {
 }
 
 message GetThemeRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message GetThemeResponse {
@@ -147,8 +147,8 @@ message GetThemeResponse {
 }
 
 message UpdateThemeRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
   string name = 3;
   string description = 4;
   string config_json = 5;
@@ -160,8 +160,8 @@ message UpdateThemeResponse {
 }
 
 message DeleteThemeRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message DeleteThemeResponse {
@@ -169,7 +169,7 @@ message DeleteThemeResponse {
 }
 
 message ListThemesRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   string keyword = 2;
   int32 page = 3;
   int32 page_size = 4;
@@ -187,8 +187,8 @@ message ListThemesResponse {
 // =========================
 
 message CreatePageRequest {
-  int64 tenant_id = 1;
-  int64 storefront_id = 2;
+  string tenant_id = 1;
+  string storefront_id = 2;
   string slug = 3;
   string title = 4;
   string content_json = 5;
@@ -201,8 +201,8 @@ message CreatePageResponse {
 }
 
 message GetPageRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message GetPageResponse {
@@ -210,9 +210,9 @@ message GetPageResponse {
 }
 
 message UpdatePageRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
-  int64 storefront_id = 3;
+  string tenant_id = 1;
+  string id = 2;
+  string storefront_id = 3;
   string slug = 4;
   string title = 5;
   string content_json = 6;
@@ -225,8 +225,8 @@ message UpdatePageResponse {
 }
 
 message DeletePageRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message DeletePageResponse {
@@ -234,8 +234,8 @@ message DeletePageResponse {
 }
 
 message ListPagesRequest {
-  int64 tenant_id = 1;
-  int64 storefront_id = 2;
+  string tenant_id = 1;
+  string storefront_id = 2;
   string keyword = 3;
   int32 page = 4;
   int32 page_size = 5;
@@ -253,8 +253,8 @@ message ListPagesResponse {
 // =========================
 
 message CreateNavigationRequest {
-  int64 tenant_id = 1;
-  int64 storefront_id = 2;
+  string tenant_id = 1;
+  string storefront_id = 2;
   string label = 3;
   string url = 4;
   int32 order = 5;
@@ -266,8 +266,8 @@ message CreateNavigationResponse {
 }
 
 message GetNavigationRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message GetNavigationResponse {
@@ -275,9 +275,9 @@ message GetNavigationResponse {
 }
 
 message UpdateNavigationRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
-  int64 storefront_id = 3;
+  string tenant_id = 1;
+  string id = 2;
+  string storefront_id = 3;
   string label = 4;
   string url = 5;
   int32 order = 6;
@@ -289,8 +289,8 @@ message UpdateNavigationResponse {
 }
 
 message DeleteNavigationRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message DeleteNavigationResponse {
@@ -298,8 +298,8 @@ message DeleteNavigationResponse {
 }
 
 message ListNavigationsRequest {
-  int64 tenant_id = 1;
-  int64 storefront_id = 2;
+  string tenant_id = 1;
+  string storefront_id = 2;
   string keyword = 3;
   int32 page = 4;
   int32 page_size = 5;
@@ -317,8 +317,8 @@ message ListNavigationsResponse {
 // =========================
 
 message PublishStorefrontRequest {
-  int64 tenant_id = 1;
-  int64 storefront_id = 2;
+  string tenant_id = 1;
+  string storefront_id = 2;
 }
 
 message PublishStorefrontResponse {
@@ -327,8 +327,8 @@ message PublishStorefrontResponse {
 }
 
 message DuplicateThemeRequest {
-  int64 tenant_id = 1;
-  int64 theme_id = 2;
+  string tenant_id = 1;
+  string theme_id = 2;
   string name = 3;
   string description = 4;
 }

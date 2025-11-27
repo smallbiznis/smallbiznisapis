@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.billing.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/billing/v1;billingv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing/v1;billingv1";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
@@ -21,7 +21,7 @@ message TrialStatus {
 }
 
 message UsageEvent {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 
   // flexible usage type (no enums)
   string usage_key = 2;
@@ -36,7 +36,7 @@ message RecordUsageResponse {
 }
 
 message InitTrialRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   int64 initial_balance_cents = 2;
   int32 trial_days = 3;
 }
@@ -46,7 +46,7 @@ message InitTrialResponse {
 }
 
 message GetTrialStatusRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 }
 
 message GetTrialStatusResponse {
@@ -54,7 +54,7 @@ message GetTrialStatusResponse {
 }
 
 message CheckTrialAndBalanceRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 }
 
 message CheckTrialAndBalanceResponse {
@@ -65,7 +65,7 @@ message CheckTrialAndBalanceResponse {
 }
 
 message GetBalanceRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 }
 
 message GetBalanceResponse {

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.voucher.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/voucher/v1;voucherv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/voucher/v1;voucherv1";
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
@@ -32,9 +32,9 @@ enum IssuanceStatus {
 
 // Voucher represents a redeemable entity (linked to a campaign).
 message Voucher {
-  int64 voucher_id = 1;
-  int64 tenant_id = 2;
-  int64 campaign_id = 3;
+  string voucher_id = 1;
+  string tenant_id = 2;
+  string campaign_id = 3;
   string voucher_code = 4;
   string voucher_name = 5;
 
@@ -51,9 +51,9 @@ message Voucher {
 }
 
 message VoucherPool {
-  int64 pool_id = 1;
-  int64 tenant_id = 2;
-  int64 campaign_id = 3;
+  string pool_id = 1;
+  string tenant_id = 2;
+  string campaign_id = 3;
   string name = 4;
   int32 total_stock = 5;
   int32 remaining_stock = 6;
@@ -63,8 +63,8 @@ message VoucherPool {
 }
 
 message VoucherPoolItem {
-  int64 item_id = 1;
-  int64 pool_id = 2;
+  string item_id = 1;
+  string pool_id = 2;
   string voucher_code = 3; // voucher_code must be unique within the pool (or tenant), enforced at storage level.
   bool is_issued = 4;
   string issued_to = 5;
@@ -76,10 +76,10 @@ message VoucherPoolItem {
 
 // VoucherIssuance represents voucher assigned to a user.
 message VoucherIssuance {
-  int64 issuance_id = 1;
-  int64 tenant_id = 2;
-  int64 voucher_id = 3;
-  int64 user_id = 4;
+  string issuance_id = 1;
+  string tenant_id = 2;
+  string voucher_id = 3;
+  string user_id = 4;
   IssuanceStatus status = 5;
   google.protobuf.Timestamp issued_at = 6;
   google.protobuf.Timestamp redeemed_at = 7;
@@ -165,14 +165,14 @@ service VoucherService {
 // ========================================================
 
 message CreateVoucherPoolRequest {
-  int64 tenant_id = 1;
-  int64 campaign_id = 2;
+  string tenant_id = 1;
+  string campaign_id = 2;
   string name = 3;
 }
 
 message ImportVoucherPoolItemsRequest {
-  int64 tenant_id = 1;
-  int64 pool_id = 2;
+  string tenant_id = 1;
+  string pool_id = 2;
   repeated string voucher_codes = 3;
 }
 
@@ -181,7 +181,7 @@ message ImportVoucherPoolItemsResponse {
 }
 
 message ListVoucherPoolsRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   bool only_active = 2;
 }
 
@@ -190,8 +190,8 @@ message ListVoucherPoolsResponse {
 }
 
 message ListVoucherPoolItemsRequest {
-  int64 tenant_id = 1;
-  int64 pool_id = 2;
+  string tenant_id = 1;
+  string pool_id = 2;
   int32  limit = 3;         // default 50
   string cursor = 4;        // opaque (base64), optional
 }
@@ -202,19 +202,19 @@ message ListVoucherPoolItemsResponse {
 }
 
 message GetVoucherPoolStockRequest {
-  int64 tenant_id = 1;
-  int64 pool_id = 2;
+  string tenant_id = 1;
+  string pool_id = 2;
 }
 
 message GetVoucherPoolStockResponse {
-  int64 pool_id = 1;
+  string pool_id = 1;
   int32  remaining_stock = 2;
   bool   is_active = 3;
 }
 
 message EvaluateVouchersRequest {
-  int64 tenant_id = 1;
-  int64 user_id = 2;
+  string tenant_id = 1;
+  string user_id = 2;
   google.protobuf.Struct context = 3; // transaction, user, etc.
 }
 
@@ -229,9 +229,9 @@ message VoucherEligibilityResult {
 }
 
 message IssueVoucherRequest {
-  int64 tenant_id = 1;
-  int64 user_id = 2;
-  int64 campaign_id = 3;
+  string tenant_id = 1;
+  string user_id = 2;
+  string campaign_id = 3;
   int32  count = 4;              // default 1
   string idempotency_key = 5;    // optional for safe retries
 }
@@ -241,17 +241,17 @@ message IssueVoucherResponse {
 }
 
 message RedeemVoucherRequest {
-  int64 tenant_id = 1;
-  int64 user_id = 2;
+  string tenant_id = 1;
+  string user_id = 2;
   string voucher_code = 3;
   string order_id = 4;
 }
 
 message ListMyVouchersRequest {
-  int64 tenant_id = 1;
-  int64 user_id   = 2;
+  string tenant_id = 1;
+  string user_id   = 2;
   IssuanceStatus status = 3;  // optional filter (enum, bukan string)
-  int64 campaign_id = 4;     // optional
+  string campaign_id = 4;     // optional
   int32  limit = 5;
   string cursor = 6;
 }

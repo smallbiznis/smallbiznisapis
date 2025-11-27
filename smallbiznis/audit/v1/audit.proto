@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.audit.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/audit/v1;auditv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/audit/v1;auditv1";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
@@ -31,7 +31,7 @@ enum AuditAction {
 // Audit record
 message AuditRecord {
   string id = 1;                    // uuid
-  int64 tenant_id = 2;              // multi-tenant support
+  string tenant_id = 2;              // multi-tenant support
 
   AuditAction action = 3;
   string resource_type = 4;         // "product", "order", "voucher", "user"
@@ -59,7 +59,7 @@ message RecordAuditResponse {
 }
 
 message ListAuditRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   string resource_type = 2;          // optional filter
   string resource_id = 3;            // optional
 

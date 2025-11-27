@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.inventory.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/inventory/v1;inventoryv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1;inventoryv1";
 
 import "google/protobuf/timestamp.proto";
 
@@ -37,8 +37,8 @@ enum StockAlertLevel {
 
 // Entities
 message Location {
-	int64 id = 1;
-	int64 tenant_id = 2;
+	string id = 1;
+	string tenant_id = 2;
 	string name = 3;
 	LocationType type = 4;
 	string address = 5;
@@ -48,10 +48,10 @@ message Location {
 }
 
 message InventoryItem {
-	int64 id = 1;
-	int64 tenant_id = 2;
-	int64 product_id = 3;
-	int64 location_id = 4;
+	string id = 1;
+	string tenant_id = 2;
+	string product_id = 3;
+	string location_id = 4;
 	int64 available_qty = 5;
 	int64 reserved_qty = 6;
 	int64 safety_stock_threshold = 7;
@@ -59,11 +59,11 @@ message InventoryItem {
 }
 
 message InventoryMovement {
-	int64 id = 1;
-	int64 tenant_id = 2;
-	int64 product_id = 3;
-	int64 from_location_id = 4;
-	int64 to_location_id = 5;
+	string id = 1;
+	string tenant_id = 2;
+	string product_id = 3;
+	string from_location_id = 4;
+	string to_location_id = 5;
 	int64 quantity = 6;
 	MovementType movement_type = 7;
 	string reference = 8;
@@ -71,10 +71,10 @@ message InventoryMovement {
 }
 
 message StockAlert {
-	int64 id = 1;
-	int64 tenant_id = 2;
-	int64 product_id = 3;
-	int64 location_id = 4;
+	string id = 1;
+	string tenant_id = 2;
+	string product_id = 3;
+	string location_id = 4;
 	StockAlertLevel level = 5;
 	google.protobuf.Timestamp created_at = 6;
 }
@@ -84,9 +84,9 @@ message StockAlert {
 // -------------------------
 
 message AdjustStockRequest {
-	int64 tenant_id = 1;
-	int64 product_id = 2;
-	int64 location_id = 3;
+	string tenant_id = 1;
+	string product_id = 2;
+	string location_id = 3;
 	// New absolute available quantity
 	int64 quantity = 4;
 	string reason = 5;
@@ -99,10 +99,10 @@ message AdjustStockResponse {
 }
 
 message TransferStockRequest {
-	int64 tenant_id = 1;
-	int64 product_id = 2;
-	int64 from_location_id = 3;
-	int64 to_location_id = 4;
+	string tenant_id = 1;
+	string product_id = 2;
+	string from_location_id = 3;
+	string to_location_id = 4;
 	int64 quantity = 5;
 	string reference = 6;
 }
@@ -115,9 +115,9 @@ message TransferStockResponse {
 }
 
 message ReserveStockRequest {
-	int64 tenant_id = 1;
-	int64 product_id = 2;
-	int64 location_id = 3;
+	string tenant_id = 1;
+	string product_id = 2;
+	string location_id = 3;
 	int64 quantity = 4;
 	string reference = 5; // e.g. order id
 }
@@ -129,9 +129,9 @@ message ReserveStockResponse {
 }
 
 message ReleaseReservedStockRequest {
-	int64 tenant_id = 1;
-	int64 product_id = 2;
-	int64 location_id = 3;
+	string tenant_id = 1;
+	string product_id = 2;
+	string location_id = 3;
 	int64 quantity = 4;
 	string reference = 5;
 }
@@ -143,9 +143,9 @@ message ReleaseReservedStockResponse {
 }
 
 message ApplySaleRequest {
-	int64 tenant_id = 1;
-	int64 product_id = 2;
-	int64 location_id = 3;
+	string tenant_id = 1;
+	string product_id = 2;
+	string location_id = 3;
 	int64 quantity = 4;
 	bool consume_reserved = 5; // consume reserved stock first
 	string reference = 6;
@@ -158,9 +158,9 @@ message ApplySaleResponse {
 }
 
 message ApplyRefundRequest {
-	int64 tenant_id = 1;
-	int64 product_id = 2;
-	int64 location_id = 3;
+	string tenant_id = 1;
+	string product_id = 2;
+	string location_id = 3;
 	int64 quantity = 4;
 	string reference = 5;
 }
@@ -172,10 +172,10 @@ message ApplyRefundResponse {
 }
 
 message GetInventoryItemRequest {
-	int64 tenant_id = 1;
-	int64 id = 2; // optional: prefer id
-	int64 product_id = 3;
-	int64 location_id = 4;
+	string tenant_id = 1;
+	string id = 2; // optional: prefer id
+	string product_id = 3;
+	string location_id = 4;
 }
 
 message GetInventoryItemResponse {
@@ -183,9 +183,9 @@ message GetInventoryItemResponse {
 }
 
 message ListInventoryByProductRequest {
-	int64 tenant_id = 1;
-	int64 product_id = 2;
-	int64 location_id = 3; // optional
+	string tenant_id = 1;
+	string product_id = 2;
+	string location_id = 3; // optional
 	int32 limit = 4;
 	string page_token = 5;
 }
@@ -196,9 +196,9 @@ message ListInventoryByProductResponse {
 }
 
 message ListInventoryByLocationRequest {
-	int64 tenant_id = 1;
-	int64 location_id = 2;
-	int64 product_id = 3; // optional
+	string tenant_id = 1;
+	string location_id = 2;
+	string product_id = 3; // optional
 	int32 limit = 4;
 	string page_token = 5;
 }
@@ -225,9 +225,9 @@ service InventoryService {
 // MovementService
 // -------------------------
 message ListMovementsRequest {
-	int64 tenant_id = 1;
-	int64 product_id = 2;
-	int64 location_id = 3; // matches from OR to location
+	string tenant_id = 1;
+	string product_id = 2;
+	string location_id = 3; // matches from OR to location
 	google.protobuf.Timestamp start_time = 4;
 	google.protobuf.Timestamp end_time = 5;
 	int32 limit = 6;
@@ -247,9 +247,9 @@ service MovementService {
 // StockAlertService
 // -------------------------
 message ListStockAlertsRequest {
-	int64 tenant_id = 1;
-	int64 product_id = 2;
-	int64 location_id = 3;
+	string tenant_id = 1;
+	string product_id = 2;
+	string location_id = 3;
 	StockAlertLevel level = 4; // optional filter
 	int32 limit = 5;
 	string page_token = 6;

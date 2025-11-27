@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.notification.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/notification/v1;notificationv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/notification/v1;notificationv1";
 
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
@@ -27,7 +27,7 @@ enum NotificationChannel {
 
 // Generic request to send notification.
 message SendNotificationRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   NotificationChannel channel = 2;
 
   // Assignment of recipient depends on channel.
@@ -70,7 +70,7 @@ message NotificationTemplate {
 }
 
 message CreateTemplateRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   NotificationTemplate template = 2;
 }
 
@@ -79,7 +79,7 @@ message CreateTemplateResponse {
 }
 
 message GetTemplateRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   string template_id = 2;
 }
 
@@ -88,7 +88,7 @@ message GetTemplateResponse {
 }
 
 message ListTemplatesRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 }
 
 message ListTemplatesResponse {

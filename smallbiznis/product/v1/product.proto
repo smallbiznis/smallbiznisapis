@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.product.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/product/v1;productv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;productv1";
 
 import "google/protobuf/timestamp.proto";
 
@@ -10,10 +10,10 @@ import "google/protobuf/timestamp.proto";
 // Note: status is represented as a string with expected values: "ACTIVE", "INACTIVE", "ARCHIVED".
 message Product {
   // Unique product ID (server-generated)
-  int64 id = 1;
+  string id = 1;
 
   // Tenant owning this product (multi-tenant support)
-  int64 tenant_id = 2;
+  string tenant_id = 2;
 
   // Stock Keeping Unit
   string sku = 3;
@@ -42,7 +42,7 @@ message Product {
 // generate the `id`, `created_at` and `updated_at` fields.
 message CreateProductRequest {
   // Tenant id for multi-tenant isolation. Required.
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 
   // Product payload. The `id`, `created_at`, `updated_at` will be ignored
   // if set by the client; server will generate them.
@@ -55,8 +55,8 @@ message CreateProductResponse {
 
 // GetProductRequest retrieves a product by id within a tenant.
 message GetProductRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message GetProductResponse {
@@ -66,7 +66,7 @@ message GetProductResponse {
 // UpdateProductRequest updates fields of an existing product. The product.id
 // must be set and tenant_id must match the owning tenant.
 message UpdateProductRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   Product product = 2;
 }
 
@@ -76,8 +76,8 @@ message UpdateProductResponse {
 
 // DeleteProductRequest deletes a product belonging to tenant.
 message DeleteProductRequest {
-  int64 tenant_id = 1;
-  int64 id = 2;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message DeleteProductResponse {
@@ -88,7 +88,7 @@ message DeleteProductResponse {
 // ListProductsRequest lists products for a tenant. Supports simple paging.
 message ListProductsRequest {
   // Tenant id is required to scope the query.
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 
   // Optional filter by sku, name, category, brand or status (simple substring match)
   string query = 2;

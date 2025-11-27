@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package smallbiznis.analytic.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/proto/analytic/v1;analyticv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/analytic/v1;analyticv1";
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
@@ -16,7 +16,7 @@ import "google/protobuf/struct.proto";
 message AnalyticEvent {
   string id = 1;
 
-  int64 tenant_id = 2;
+  string tenant_id = 2;
 
   // event name: "order.created", "workflow.executed"
   string event_name = 3;
@@ -41,7 +41,7 @@ message IngestEventResponse {
 
 // Query aggregated metrics
 message MetricQueryRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
 
   // metric type / event_name
   string event_name = 2;
@@ -72,7 +72,7 @@ message FunnelStep {
 }
 
 message FunnelQueryRequest {
-  int64 tenant_id = 1;
+  string tenant_id = 1;
   repeated FunnelStep steps = 2;
   google.protobuf.Timestamp from = 3;
   google.protobuf.Timestamp to = 4;

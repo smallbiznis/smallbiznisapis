@@ -8,166 +8,219 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
-// =====================================
-// ENUMS
-// =====================================
+// ============================================
+// Enums
+// ============================================
+
+enum BillingInterval {
+  BILLING_INTERVAL_UNSPECIFIED = 0;
+  BILLING_INTERVAL_MONTHLY     = 1;
+  BILLING_INTERVAL_YEARLY      = 2;
+}
 
 enum SubscriptionStatus {
   SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
-  ACTIVE     = 1;
-  PAST_DUE   = 2;
-  CANCELED   = 3;
-  EXPIRED    = 4;
+  SUBSCRIPTION_STATUS_ACTIVE      = 1;
+  SUBSCRIPTION_STATUS_TRIALING    = 2;
+  SUBSCRIPTION_STATUS_PAST_DUE    = 3;
+  SUBSCRIPTION_STATUS_CANCELED    = 4;
+  SUBSCRIPTION_STATUS_INCOMPLETE  = 5;
 }
 
-// Billing cycle for a plan.
-enum BillingCycle {
-  BILLING_CYCLE_UNSPECIFIED = 0;
-  MONTHLY = 1;
-  YEARLY  = 2;
+// proration behavior when changing plans
+enum ProrationBehavior {
+  PRORATION_BEHAVIOR_UNSPECIFIED = 0;
+  PRORATION_BEHAVIOR_PRORATE     = 1;
+  PRORATION_BEHAVIOR_NO_PRORATE  = 2;
 }
 
-// =====================================
-// MODELS
-// =====================================
 
-// Plan definition in the marketplace.
-message Plan {
-  string id = 1;                       // "starter", "pro", "enterprise"
-  string name = 2;
-  string description = 3;
-  BillingCycle cycle = 4;
-  int64 price_cents = 5;
-  string currency_code = 6;            // "IDR", "USD"
+// ============================================
+// Models
+// ============================================
 
-  // Number-based limits ("max_workflows", "max_users", "max_automation")
-  map<string, int64> numeric_limits = 7;
+message PlanFeatureQuota {
+  // e.g. "workflow.execution", "automation.run", "email.sent"
+  string usage_key = 1;
 
-  // Feature flags ("custom_domain", "pos_enabled", "workflow_builder")
-  map<string, bool> feature_flags = 8;
+  // units included per billing period (0 = no included quota)
+  int64 included_units = 2;
+
+  // cost (cents) for each extra unit beyond included_units
+  int64 overage_price_cents = 3;
+
+  // if true, usage beyond included_units is blocked instead of billed
+  bool hard_limit = 4;
 }
 
-// A tenant's subscription instance.
+message SubscriptionPlan {
+  string id = 1;
+  string code = 2;         // e.g. "basic", "pro", "enterprise"
+  string name = 3;
+  string description = 4;
+
+  BillingInterval interval = 5;
+
+  // base recurring price per interval (cents)
+  int64 price_cents = 6;
+
+  // ISO currency code, e.g. "USD", "IDR"
+  string currency_code = 7;
+
+  bool active = 8;
+
+  // free trial duration when starting on this plan (in days)
+  int32 default_trial_days = 9;
+
+  // feature-based quotas and overage pricing
+  repeated PlanFeatureQuota feature_quotas = 10;
+
+  google.protobuf.Struct metadata = 11;
+}
+
 message Subscription {
+  string id = 1;
+  string tenant_id = 2;
+
+  // reference to SubscriptionPlan.code (preferred) or id
+  string plan_code = 3;
+  string plan_id   = 4;
+
+  SubscriptionStatus status = 5;
+
+  bool auto_renew = 6;
+
+  // if true, usage beyond quota is billed as overage
+  bool allow_overage_billing = 7;
+
+  google.protobuf.Timestamp start_at               = 8;
+  google.protobuf.Timestamp current_period_start   = 9;
+  google.protobuf.Timestamp current_period_end     = 10;
+
+  // trial window (can overlap with first period)
+  google.protobuf.Timestamp trial_start_at         = 11;
+  google.protobuf.Timestamp trial_end_at           = 12;
+
+  // scheduled cancellation at end of period
+  google.protobuf.Timestamp cancel_at              = 13;
+  google.protobuf.Timestamp canceled_at            = 14;
+
+  google.protobuf.Struct metadata                  = 15;
+}
+
+
+// ============================================
+// Requests / Responses
+// ============================================
+
+message CreateSubscriptionRequest {
   string tenant_id = 1;
-  string plan_id = 2;
 
-  SubscriptionStatus status = 3;
-  BillingCycle billing_cycle = 4;
+  // plan to subscribe to (either code or id must be provided)
+  string plan_code = 2;
+  string plan_id   = 3;
 
-  google.protobuf.Timestamp start_at = 5;
-  google.protobuf.Timestamp end_at = 6;
+  // override default trial days from plan
+  int32 trial_days_override = 4;
 
-  // Seats / users under this plan (optional)
-  int32 seat_count = 7;
-
-  // Raw feature overrides (optional)
-  google.protobuf.Struct overrides = 8;
+  // if false, subscription may be created in INCOMPLETE until payment method added
+  bool start_immediately = 5;
 }
 
-// =====================================
-// REQUESTS / RESPONSES
-// =====================================
-
-message GetPlanRequest {
-  string plan_id = 1;
-}
-
-message GetPlanResponse {
-  Plan plan = 1;
-}
-
-message ListPlansRequest {}
-
-message ListPlansResponse {
-  repeated Plan plans = 1;
-}
-
-message AssignSubscriptionRequest {
-  string tenant_id = 1;
-  string plan_id = 2;
-  BillingCycle cycle = 3;
-  int32 seat_count = 4;
-}
-
-message AssignSubscriptionResponse {
+message CreateSubscriptionResponse {
   Subscription subscription = 1;
 }
 
 message GetSubscriptionRequest {
-  string tenant_id = 1;
+  // get by subscription id
+  string id = 1;
+
+  // or get current subscription by tenant
+  string tenant_id = 2;
 }
 
 message GetSubscriptionResponse {
   Subscription subscription = 1;
 }
 
-// Decision: can this tenant access a feature?
-message CheckFeatureRequest {
+message ListSubscriptionsRequest {
   string tenant_id = 1;
-  string feature_key = 2;        // "workflow_builder", "automation", etc
+  int32 page_size = 2;
+  string page_token = 3;
 }
 
-message CheckFeatureResponse {
-  bool allowed = 1;
-  string plan_id = 2;
+message ListSubscriptionsResponse {
+  repeated Subscription subscriptions = 1;
+  string next_page_token = 2;
 }
 
-// Decision: limit value (e.g. max workflows per day)
-message GetNumericLimitRequest {
-  string tenant_id = 1;
-  string limit_key = 2;          // "max_workflow_runs"
+message CancelSubscriptionRequest {
+  string id = 1;
+
+  // if true, cancel at end of current_period_end
+  // if false, cancel immediately
+  bool cancel_at_period_end = 2;
 }
 
-message GetNumericLimitResponse {
-  int64 value = 1;
+message CancelSubscriptionResponse {
+  Subscription subscription = 1;
 }
 
-// =====================================
-// SUBSCRIPTION SERVICE
-// =====================================
+message ChangeSubscriptionPlanRequest {
+  string id = 1;
+
+  string new_plan_code = 2;
+  string new_plan_id   = 3;
+
+  ProrationBehavior proration_behavior = 4;
+}
+
+message ChangeSubscriptionPlanResponse {
+  Subscription subscription = 1;
+}
+
+
+// ===============================
+// Subscription Service
+// ===============================
 
 service SubscriptionService {
 
-  rpc GetPlan(GetPlanRequest) returns (GetPlanResponse) {
+  // Create a subscription for a tenant on a given plan.
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse) {
     option (google.api.http) = {
-      get: "/v1/subscription/plans/{plan_id}"
-    };
-  }
-
-  rpc ListPlans(ListPlansRequest) returns (ListPlansResponse) {
-    option (google.api.http) = {
-      get: "/v1/subscription/plans"
-    };
-  }
-
-  // Assign subscription to tenant
-  rpc AssignSubscription(AssignSubscriptionRequest)
-      returns (AssignSubscriptionResponse) {
-    option (google.api.http) = {
-      post: "/v1/subscription/assign"
+      post: "/v1/subscriptions"
       body: "*"
     };
   }
 
-  rpc GetSubscription(GetSubscriptionRequest)
-      returns (GetSubscriptionResponse) {
+  // Get subscription by id or current subscription by tenant.
+  rpc GetSubscription(GetSubscriptionRequest) returns (GetSubscriptionResponse) {
     option (google.api.http) = {
-      get: "/v1/subscription/tenant/{tenant_id}"
+      get: "/v1/subscriptions:get"
     };
   }
 
-  rpc CheckFeature(CheckFeatureRequest)
-      returns (CheckFeatureResponse) {
+  // List subscriptions for a tenant (history / multi-subscription support).
+  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
     option (google.api.http) = {
-      get: "/v1/subscription/check-feature"
+      get: "/v1/subscriptions"
     };
   }
 
-  rpc GetNumericLimit(GetNumericLimitRequest)
-      returns (GetNumericLimitResponse) {
+  // Cancel a subscription (immediately or at period end).
+  rpc CancelSubscription(CancelSubscriptionRequest) returns (CancelSubscriptionResponse) {
     option (google.api.http) = {
-      get: "/v1/subscription/limit"
+      post: "/v1/subscriptions/{id}:cancel"
+      body: "*"
+    };
+  }
+
+  // Change plan for an active subscription.
+  rpc ChangeSubscriptionPlan(ChangeSubscriptionPlanRequest) returns (ChangeSubscriptionPlanResponse) {
+    option (google.api.http) = {
+      post: "/v1/subscriptions/{id}:change-plan"
+      body: "*"
     };
   }
 }

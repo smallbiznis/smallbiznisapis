@@ -14,24 +14,26 @@ import "google/api/annotations.proto";
 
 enum BillingInterval {
   BILLING_INTERVAL_UNSPECIFIED = 0;
-  BILLING_INTERVAL_MONTHLY     = 1;
-  BILLING_INTERVAL_YEARLY      = 2;
+  MONTHLY     = 1;
+  YEARLY      = 2;
+  WEEKLY      = 3;
+  DAILY       = 4;
 }
 
 enum SubscriptionStatus {
   SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
-  SUBSCRIPTION_STATUS_ACTIVE      = 1;
-  SUBSCRIPTION_STATUS_TRIALING    = 2;
-  SUBSCRIPTION_STATUS_PAST_DUE    = 3;
-  SUBSCRIPTION_STATUS_CANCELED    = 4;
-  SUBSCRIPTION_STATUS_INCOMPLETE  = 5;
+ ACTIVE      = 1;
+ TRIALING    = 2;
+ PAST_DUE    = 3;
+ CANCELED    = 4;
+ INCOMPLETE  = 5;
 }
 
 // proration behavior when changing plans
 enum ProrationBehavior {
   PRORATION_BEHAVIOR_UNSPECIFIED = 0;
-  PRORATION_BEHAVIOR_PRORATE     = 1;
-  PRORATION_BEHAVIOR_NO_PRORATE  = 2;
+  PRORATE     = 1;
+  NO_PRORATE  = 2;
 }
 
 

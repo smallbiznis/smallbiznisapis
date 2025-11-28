@@ -15,28 +15,28 @@ import "google/api/annotations.proto";
 
 enum InvoiceStatus {
   INVOICE_STATUS_UNSPECIFIED   = 0;
-  INVOICE_STATUS_DRAFT         = 1;
-  INVOICE_STATUS_OPEN          = 2;
-  INVOICE_STATUS_PAID          = 3;
-  INVOICE_STATUS_VOID          = 4;
-  INVOICE_STATUS_UNCOLLECTIBLE = 5;
+  DRAFT         = 1;
+  OPEN          = 2;
+  PAID          = 3;
+  VOID          = 4;
+  UNCOLLECTIBLE = 5;
 }
 
 enum PaymentStatus {
   PAYMENT_STATUS_UNSPECIFIED = 0;
-  PAYMENT_STATUS_PENDING     = 1;
-  PAYMENT_STATUS_SUCCEEDED   = 2;
-  PAYMENT_STATUS_FAILED      = 3;
-  PAYMENT_STATUS_REFUNDED    = 4;
+  PENDING     = 1;
+  SUCCEEDED   = 2;
+  FAILED      = 3;
+  REFUNDED    = 4;
 }
 
 enum InvoiceLineType {
   INVOICE_LINE_TYPE_UNSPECIFIED = 0;
-  INVOICE_LINE_TYPE_RECURRING   = 1; // plan base fee
-  INVOICE_LINE_TYPE_USAGE       = 2; // usage/overage from billing
-  INVOICE_LINE_TYPE_ADJUSTMENT  = 3; // manual adjustment/credit
-  INVOICE_LINE_TYPE_TAX         = 4;
-  INVOICE_LINE_TYPE_DISCOUNT    = 5;
+  RECURRING   = 1; // plan base fee
+  USAGE       = 2; // usage/overage from billing
+  ADJUSTMENT  = 3; // manual adjustment/credit
+  TAX         = 4;
+  DISCOUNT    = 5;
 }
 
 
@@ -105,6 +105,9 @@ message Invoice {
   string customer_name                         = 19;
 
   google.protobuf.Struct metadata              = 20;
+
+  google.protobuf.Timestamp created_at = 21;
+  google.protobuf.Timestamp updated_at = 22;
 }
 
 message PaymentRecord {
@@ -149,6 +152,8 @@ message GenerateInvoiceRequest {
 
   // if true, do not persist; just simulate (preview)
   bool dry_run = 4;
+
+  repeated InvoiceLineItem lines = 5;
 }
 
 message GenerateInvoiceResponse {
@@ -196,6 +201,8 @@ message MarkInvoicePaidResponse {
 
 message PreviewUpcomingInvoiceRequest {
   string tenant_id = 1;
+  google.protobuf.Timestamp period_start = 2;
+  google.protobuf.Timestamp period_end   = 3;
 }
 
 message PreviewUpcomingInvoiceResponse {

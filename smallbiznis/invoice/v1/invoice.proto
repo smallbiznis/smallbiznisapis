@@ -81,7 +81,7 @@ message Invoice {
   string subscription_id = 3;
 
   // human-friendly invoice number "INV-2025-000123"
-  string number = 4;
+  string invoice_no = 4;
 
   InvoiceStatus status = 5;
   PaymentStatus payment_status = 6;

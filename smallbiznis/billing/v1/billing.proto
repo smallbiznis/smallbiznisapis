@@ -8,7 +8,6 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
-
 // ==========================================================
 // ENUM – Standardized Billing Error Codes
 // ==========================================================

@@ -28,10 +28,10 @@ enum DomainVerificationStatus {
 
 enum DomainSslStatus {
   DOMAIN_SSL_STATUS_UNSPECIFIED = 0;
-  NOT_REQUESTED = 1;
-  REQUESTING = 2;
-  PROVISIONED = 3;
-  FAILED = 4;
+  DOMAIN_SSL_STATUS_NOT_REQUESTED = 1;
+  DOMAIN_SSL_STATUS_REQUESTING = 2;
+  DOMAIN_SSL_STATUS_PROVISIONED = 3;
+  DOMAIN_SSL_STATUS_FAILED = 4;
 }
 
 // ======================================================

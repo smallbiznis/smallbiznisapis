@@ -4,263 +4,271 @@ package smallbiznis.inventory.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/inventory/v1;inventoryv1";
 
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 
-// Production-grade Inventory proto with multi-location support.
+// ======================================================
+// ENUMS
+// ======================================================
 
-// Enums
 enum LocationType {
-	LOCATION_TYPE_UNSPECIFIED = 0;
-	LOCATION_TYPE_OUTLET = 1;
-	LOCATION_TYPE_WAREHOUSE = 2;
-}
-
-enum LocationStatus {
-	LOCATION_STATUS_UNSPECIFIED = 0;
-	LOCATION_STATUS_ACTIVE = 1;
-	LOCATION_STATUS_INACTIVE = 2;
+  LOCATION_TYPE_UNSPECIFIED = 0;
+  STORE = 1;
+  WAREHOUSE = 2;
+  KITCHEN = 3;
+  PICKUP_POINT = 4;
 }
 
 enum MovementType {
-	MOVEMENT_TYPE_UNSPECIFIED = 0;
-	MOVEMENT_TYPE_ADJUSTMENT = 1;
-	MOVEMENT_TYPE_SALE = 2;
-	MOVEMENT_TYPE_PURCHASE = 3;
-	MOVEMENT_TYPE_TRANSFER = 4;
-	MOVEMENT_TYPE_REFUND = 5;
+  MOVEMENT_TYPE_UNSPECIFIED = 0;
+  INBOUND = 1;   // stock bertambah
+  OUTBOUND = 2;  // stock berkurang
 }
 
-enum StockAlertLevel {
-	STOCK_ALERT_LEVEL_UNSPECIFIED = 0;
-	STOCK_ALERT_LEVEL_LOW_STOCK = 1;
+enum AdjustmentReason {
+  ADJUSTMENT_REASON_UNSPECIFIED = 0;
+  MANUAL_UPDATE = 1;
+  DAMAGED = 2;
+  LOST = 3;
+  RETURNED = 4;
+  INITIAL_STOCK = 5;
 }
 
-// Entities
+// ======================================================
+// MODELS
+// ======================================================
+
 message Location {
-	string id = 1;
-	string tenant_id = 2;
-	string name = 3;
-	LocationType type = 4;
-	string address = 5;
-	LocationStatus status = 6;
-	google.protobuf.Timestamp created_at = 7;
-	google.protobuf.Timestamp updated_at = 8;
+  string id = 1;
+  string tenant_id = 2;
+
+  string name = 3;
+  string code = 4;
+  LocationType type = 5;
+
+  bool active = 6;
+
+  google.protobuf.Struct metadata = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 }
 
-message InventoryItem {
-	string id = 1;
-	string tenant_id = 2;
-	string product_id = 3;
-	string location_id = 4;
-	int64 available_qty = 5;
-	int64 reserved_qty = 6;
-	int64 safety_stock_threshold = 7;
-	google.protobuf.Timestamp updated_at = 8;
+message Inventory {
+  string id = 1;
+  string tenant_id = 2;
+  string location_id = 3;
+  string variant_id = 4;
+
+  int64 quantity_on_hand = 5;
+  int64 min_stock_level = 6;
+  int64 reorder_point = 7;
+
+  google.protobuf.Timestamp updated_at = 8;
 }
 
 message InventoryMovement {
-	string id = 1;
-	string tenant_id = 2;
-	string product_id = 3;
-	string from_location_id = 4;
-	string to_location_id = 5;
-	int64 quantity = 6;
-	MovementType movement_type = 7;
-	string reference = 8;
-	google.protobuf.Timestamp created_at = 9;
+  string id = 1;
+  string tenant_id = 2;
+  string location_id = 3;
+  string variant_id = 4;
+
+  MovementType movement_type = 5;
+  int64 quantity = 6;
+
+  string reference = 7;     // e.g. order_id / adjustment_id
+  string note = 8;
+
+  google.protobuf.Struct metadata = 9;
+
+  google.protobuf.Timestamp created_at = 10;
 }
 
-message StockAlert {
-	string id = 1;
-	string tenant_id = 2;
-	string product_id = 3;
-	string location_id = 4;
-	StockAlertLevel level = 5;
-	google.protobuf.Timestamp created_at = 6;
+message StockAdjustment {
+  string id = 1;
+  string tenant_id = 2;
+  string location_id = 3;
+  string variant_id = 4;
+
+  int64 quantity_before = 5;
+  int64 quantity_after = 6;
+
+  AdjustmentReason reason = 7;
+  string note = 8;
+
+  google.protobuf.Timestamp created_at = 9;
 }
 
-// -------------------------
-// InventoryService RPCs
-// -------------------------
+// ======================================================
+// EVENTS
+// ======================================================
 
-message AdjustStockRequest {
-	string tenant_id = 1;
-	string product_id = 2;
-	string location_id = 3;
-	// New absolute available quantity
-	int64 quantity = 4;
-	string reason = 5;
-	string reference = 6;
+message InventoryLowEvent {
+  string tenant_id = 1;
+  string variant_id = 2;
+  string location_id = 3;
+  int64 quantity_on_hand = 4;
+  google.protobuf.Timestamp occurred_at = 5;
 }
 
-message AdjustStockResponse {
-	InventoryItem item = 1;
-	InventoryMovement movement = 2;
+message InventoryMovementEvent {
+  string movement_id = 1;
+  string tenant_id = 2;
+  string variant_id = 3;
+  int64 quantity = 4;
+  MovementType movement_type = 5;
+  google.protobuf.Timestamp occurred_at = 6;
 }
 
-message TransferStockRequest {
-	string tenant_id = 1;
-	string product_id = 2;
-	string from_location_id = 3;
-	string to_location_id = 4;
-	int64 quantity = 5;
-	string reference = 6;
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
+
+// -------- LOCATION --------
+
+message CreateLocationRequest {
+  string tenant_id = 1;
+  string name = 2;
+  string code = 3;
+  LocationType type = 4;
+  google.protobuf.Struct metadata = 5;
 }
 
-message TransferStockResponse {
-	bool success = 1;
-	InventoryItem from_item = 2;
-	InventoryItem to_item = 3;
-	InventoryMovement movement = 4;
+message CreateLocationResponse {
+  Location location = 1;
 }
 
-message ReserveStockRequest {
-	string tenant_id = 1;
-	string product_id = 2;
-	string location_id = 3;
-	int64 quantity = 4;
-	string reference = 5; // e.g. order id
+message ListLocationsRequest {
+  string tenant_id = 1;
 }
 
-message ReserveStockResponse {
-	bool success = 1;
-	InventoryItem item = 2;
-	InventoryMovement movement = 3;
+message ListLocationsResponse {
+  repeated Location locations = 1;
 }
 
-message ReleaseReservedStockRequest {
-	string tenant_id = 1;
-	string product_id = 2;
-	string location_id = 3;
-	int64 quantity = 4;
-	string reference = 5;
+// -------- INVENTORY --------
+
+message GetInventoryRequest {
+  string variant_id = 1;
+  string location_id = 2;
 }
 
-message ReleaseReservedStockResponse {
-	bool success = 1;
-	InventoryItem item = 2;
-	InventoryMovement movement = 3;
-}
-
-message ApplySaleRequest {
-	string tenant_id = 1;
-	string product_id = 2;
-	string location_id = 3;
-	int64 quantity = 4;
-	bool consume_reserved = 5; // consume reserved stock first
-	string reference = 6;
-}
-
-message ApplySaleResponse {
-	bool success = 1;
-	InventoryItem item = 2;
-	InventoryMovement movement = 3;
-}
-
-message ApplyRefundRequest {
-	string tenant_id = 1;
-	string product_id = 2;
-	string location_id = 3;
-	int64 quantity = 4;
-	string reference = 5;
-}
-
-message ApplyRefundResponse {
-	bool success = 1;
-	InventoryItem item = 2;
-	InventoryMovement movement = 3;
-}
-
-message GetInventoryItemRequest {
-	string tenant_id = 1;
-	string id = 2; // optional: prefer id
-	string product_id = 3;
-	string location_id = 4;
-}
-
-message GetInventoryItemResponse {
-	InventoryItem item = 1;
-}
-
-message ListInventoryByProductRequest {
-	string tenant_id = 1;
-	string product_id = 2;
-	string location_id = 3; // optional
-	int32 limit = 4;
-	string page_token = 5;
-}
-
-message ListInventoryByProductResponse {
-	repeated InventoryItem items = 1;
-	string next_page_token = 2;
+message GetInventoryResponse {
+  Inventory inventory = 1;
 }
 
 message ListInventoryByLocationRequest {
-	string tenant_id = 1;
-	string location_id = 2;
-	string product_id = 3; // optional
-	int32 limit = 4;
-	string page_token = 5;
+  string location_id = 1;
 }
 
 message ListInventoryByLocationResponse {
-	repeated InventoryItem items = 1;
-	string next_page_token = 2;
+  repeated Inventory inventory = 1;
 }
 
-service InventoryService {
-	rpc AdjustStock(AdjustStockRequest) returns (AdjustStockResponse) {}
-	rpc TransferStock(TransferStockRequest) returns (TransferStockResponse) {}
-	rpc ReserveStock(ReserveStockRequest) returns (ReserveStockResponse) {}
-	rpc ReleaseReservedStock(ReleaseReservedStockRequest) returns (ReleaseReservedStockResponse) {}
-	rpc ApplySale(ApplySaleRequest) returns (ApplySaleResponse) {}
-	rpc ApplyRefund(ApplyRefundRequest) returns (ApplyRefundResponse) {}
+message AdjustStockRequest {
+  string tenant_id = 1;
+  string location_id = 2;
+  string variant_id = 3;
 
-	rpc GetInventoryItem(GetInventoryItemRequest) returns (GetInventoryItemResponse) {}
-	rpc ListInventoryByProduct(ListInventoryByProductRequest) returns (ListInventoryByProductResponse) {}
-	rpc ListInventoryByLocation(ListInventoryByLocationRequest) returns (ListInventoryByLocationResponse) {}
+  int64 new_quantity = 4;
+  AdjustmentReason reason = 5;
+  string note = 6;
 }
 
-// -------------------------
-// MovementService
-// -------------------------
+message AdjustStockResponse {
+  StockAdjustment adjustment = 1;
+}
+
+// -------- MOVEMENTS --------
+
+message RecordMovementRequest {
+  string tenant_id = 1;
+  string location_id = 2;
+  string variant_id = 3;
+
+  MovementType movement_type = 4;
+  int64 quantity = 5;
+
+  string reference = 6;
+  string note = 7;
+  google.protobuf.Struct metadata = 8;
+}
+
+message RecordMovementResponse {
+  InventoryMovement movement = 1;
+}
+
 message ListMovementsRequest {
-	string tenant_id = 1;
-	string product_id = 2;
-	string location_id = 3; // matches from OR to location
-	google.protobuf.Timestamp start_time = 4;
-	google.protobuf.Timestamp end_time = 5;
-	int32 limit = 6;
-	string page_token = 7;
+  string variant_id = 1;
+  string location_id = 2;
 }
 
 message ListMovementsResponse {
-	repeated InventoryMovement movements = 1;
-	string next_page_token = 2;
+  repeated InventoryMovement movements = 1;
 }
 
-service MovementService {
-	rpc ListMovements(ListMovementsRequest) returns (ListMovementsResponse) {}
-}
+// ======================================================
+// SERVICE
+// ======================================================
 
-// -------------------------
-// StockAlertService
-// -------------------------
-message ListStockAlertsRequest {
-	string tenant_id = 1;
-	string product_id = 2;
-	string location_id = 3;
-	StockAlertLevel level = 4; // optional filter
-	int32 limit = 5;
-	string page_token = 6;
-}
+service InventoryService {
 
-message ListStockAlertsResponse {
-	repeated StockAlert alerts = 1;
-	string next_page_token = 2;
-}
+  // -------- Locations --------
 
-service StockAlertService {
-	rpc ListStockAlerts(ListStockAlertsRequest) returns (ListStockAlertsResponse) {}
-}
+  rpc CreateLocation(CreateLocationRequest)
+      returns (CreateLocationResponse) {
+    option (google.api.http) = {
+      post: "/v1/locations"
+      body: "*"
+    };
+  }
 
+  rpc ListLocations(ListLocationsRequest)
+      returns (ListLocationsResponse) {
+    option (google.api.http) = {
+      get: "/v1/locations"
+    };
+  }
+
+  // -------- Inventory --------
+
+  rpc GetInventory(GetInventoryRequest)
+      returns (GetInventoryResponse) {
+    option (google.api.http) = {
+      get: "/v1/inventory"
+    };
+  }
+
+  rpc ListInventoryByLocation(ListInventoryByLocationRequest)
+      returns (ListInventoryByLocationResponse) {
+    option (google.api.http) = {
+      get: "/v1/locations/{location_id}/inventory"
+    };
+  }
+
+  rpc AdjustStock(AdjustStockRequest)
+      returns (AdjustStockResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory:adjust"
+      body: "*"
+    };
+  }
+
+  // -------- Movements --------
+
+  rpc RecordMovement(RecordMovementRequest)
+      returns (RecordMovementResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/movements"
+      body: "*"
+    };
+  }
+
+  rpc ListMovements(ListMovementsRequest)
+      returns (ListMovementsResponse) {
+    option (google.api.http) = {
+      get: "/v1/inventory/movements"
+    };
+  }
+}

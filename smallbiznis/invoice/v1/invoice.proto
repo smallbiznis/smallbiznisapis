@@ -1,165 +1,147 @@
 syntax = "proto3";
 
-package smallbiznis.invoice.v1;
+package smallbiznis.billing.v1;
 
-option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/invoice/v1;invoicev1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing/v1;billingv1";
 
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
-import "google/api/annotations.proto";
 
-
-// ============================================
-// Enums
-// ============================================
+// ======================================================
+// ENUMS
+// ======================================================
 
 enum InvoiceStatus {
-  INVOICE_STATUS_UNSPECIFIED   = 0;
-  DRAFT         = 1;
-  OPEN          = 2;
-  PAID          = 3;
-  VOID          = 4;
-  UNCOLLECTIBLE = 5;
+  INVOICE_STATUS_UNSPECIFIED = 0;
+  DRAFT = 1;
+  OPEN = 2;         // awaiting payment
+  PAID = 3;
+  VOID = 4;
+  REFUNDED = 5;
+  PARTIALLY_PAID = 6;
+  PARTIALLY_REFUNDED = 7;
 }
 
-enum PaymentStatus {
-  PAYMENT_STATUS_UNSPECIFIED = 0;
-  PENDING     = 1;
-  SUCCEEDED   = 2;
-  FAILED      = 3;
-  REFUNDED    = 4;
+enum LineItemType {
+  LINE_ITEM_TYPE_UNSPECIFIED = 0;
+  SUBSCRIPTION = 1;
+  USAGE = 2;
+  ONE_TIME = 3;
+  DISCOUNT = 4;
+  TAX = 5;
+  ADJUSTMENT = 6;
 }
 
-enum InvoiceLineType {
-  INVOICE_LINE_TYPE_UNSPECIFIED = 0;
-  RECURRING   = 1; // plan base fee
-  USAGE       = 2; // usage/overage from billing
-  ADJUSTMENT  = 3; // manual adjustment/credit
-  TAX         = 4;
-  DISCOUNT    = 5;
-}
+// ======================================================
+// MODELS
+// ======================================================
 
-
-// ============================================
-// Models
-// ============================================
-
-message Money {
-  int64 amount_cents = 1;
-  string currency_code = 2; // "IDR", "USD", etc.
-}
-
-message InvoiceLineItem {
-  string id = 1;
-  string invoice_id = 2;
-
-  InvoiceLineType type = 3;
-
-  string description = 4;
-
-  // generic quantity x unit_price
-  double quantity = 5;
-  int64 unit_price_cents = 6;
-
-  int64 amount_cents = 7;
-
-  // optional linkage back to usage/billing system
-  string usage_key = 8;
-  int64 usage_units = 9;
-
-  google.protobuf.Timestamp period_start = 10;
-  google.protobuf.Timestamp period_end   = 11;
-
-  google.protobuf.Struct metadata = 12;
-}
+// ---------- INVOICE ----------
 
 message Invoice {
   string id = 1;
   string tenant_id = 2;
 
-  // reference to subscription if applicable
-  string subscription_id = 3;
+  string invoice_number = 3;  // human readable: INV-2025-00001
 
-  // human-friendly invoice number "INV-2025-000123"
-  string invoice_no = 4;
+  InvoiceStatus status = 4;
 
-  InvoiceStatus status = 5;
-  PaymentStatus payment_status = 6;
+  int64 subtotal_cents = 5;
+  int64 tax_cents = 6;
+  int64 total_cents = 7;
+  int64 amount_due_cents = 8;
+  int64 amount_paid_cents = 9;
 
-  string currency_code = 7;
+  google.protobuf.Timestamp issued_at = 10;
+  google.protobuf.Timestamp due_at = 11;
+  google.protobuf.Timestamp paid_at = 12;
 
-  int64 subtotal_cents     = 8;
-  int64 tax_cents          = 9;
-  int64 discount_cents     = 10;
-  int64 total_cents        = 11;
+  google.protobuf.Struct metadata = 13;
 
-  int64 amount_paid_cents  = 12;
-  int64 amount_due_cents   = 13;
-
-  google.protobuf.Timestamp issued_at         = 14;
-  google.protobuf.Timestamp due_at            = 15;
-  google.protobuf.Timestamp period_start      = 16;
-  google.protobuf.Timestamp period_end        = 17;
-
-  string customer_email                        = 18;
-  string customer_name                         = 19;
-
-  google.protobuf.Struct metadata              = 20;
-
-  google.protobuf.Timestamp created_at = 21;
-  google.protobuf.Timestamp updated_at = 22;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp updated_at = 15;
 }
 
-message PaymentRecord {
+// ---------- LINE ITEM ----------
+
+message InvoiceLineItem {
+  string id = 1;
+  string invoice_id = 2;
+
+  LineItemType type = 3;
+
+  string title = 4;
+  string description = 5;
+
+  int64 quantity = 6;
+  int64 unit_price_cents = 7;
+  int64 amount_cents = 8;
+
+  string reference_id = 9;     // subscription.id / usage_record.id
+  string reference_type = 10;  // "SUBSCRIPTION", "USAGE"
+
+  google.protobuf.Struct metadata = 11;
+  google.protobuf.Timestamp created_at = 12;
+}
+
+// ---------- PAYMENT RECORD ----------
+
+message InvoicePayment {
   string id = 1;
   string invoice_id = 2;
 
   int64 amount_cents = 3;
-  string currency_code = 4;
 
-  PaymentStatus status = 5;
+  string method = 4;       // "BALANCE", "MANUAL", "PAYMENT_GATEWAY"
+  string reference_id = 5; // ledger entry ID or gateway transaction_id
 
-  string provider = 6;          // "midtrans", "xendit", "stripe"
-  string provider_reference = 7;
-
-  google.protobuf.Timestamp paid_at = 8;
-  google.protobuf.Timestamp created_at = 9;
-
-  google.protobuf.Struct metadata = 10;
+  google.protobuf.Timestamp paid_at = 6;
+  google.protobuf.Struct metadata = 7;
 }
 
+// ======================================================
+// REQUESTS & RESPONSES
+// ======================================================
 
-// Optional event envelope for invoice events
-message InvoiceEventEnvelope {
-  string event_id = 1;
-  string event_type = 2; // e.g. "smallbiznis.invoice.created.v1"
-  google.protobuf.Timestamp occurred_at = 3;
-  google.protobuf.Struct data = 4;
-  google.protobuf.Struct metadata = 5;
-}
+// ---------- CREATE INVOICE ----------
 
-
-// ============================================
-// Requests / Responses
-// ============================================
-
-message GenerateInvoiceRequest {
+message CreateInvoiceRequest {
   string tenant_id = 1;
 
-  // billing period this invoice covers
-  google.protobuf.Timestamp period_start = 2;
-  google.protobuf.Timestamp period_end   = 3;
+  // invoice metadata
+  google.protobuf.Timestamp due_at = 2;
+  google.protobuf.Struct metadata = 3;
 
-  // if true, do not persist; just simulate (preview)
-  bool dry_run = 4;
-
-  repeated InvoiceLineItem lines = 5;
+  // initial line items (optional)
+  repeated InvoiceLineItem items = 4;
 }
 
-message GenerateInvoiceResponse {
+message CreateInvoiceResponse {
   Invoice invoice = 1;
-  repeated InvoiceLineItem line_items = 2;
 }
+
+// ---------- ADD LINE ITEM ----------
+
+message AddLineItemRequest {
+  string invoice_id = 1;
+  LineItemType type = 2;
+  string title = 3;
+  string description = 4;
+  int64 quantity = 5;
+  int64 unit_price_cents = 6;
+
+  string reference_id = 7;
+  string reference_type = 8;
+
+  google.protobuf.Struct metadata = 9;
+}
+
+message AddLineItemResponse {
+  InvoiceLineItem item = 1;
+}
+
+// ---------- GET INVOICE ----------
 
 message GetInvoiceRequest {
   string id = 1;
@@ -167,91 +149,115 @@ message GetInvoiceRequest {
 
 message GetInvoiceResponse {
   Invoice invoice = 1;
-  repeated InvoiceLineItem line_items = 2;
+  repeated InvoiceLineItem items = 2;
+  repeated InvoicePayment payments = 3;
 }
+
+// ---------- LIST INVOICES ----------
 
 message ListInvoicesRequest {
   string tenant_id = 1;
-  InvoiceStatus status = 2;
-  int32 page_size = 3;
-  string page_token = 4;
+  InvoiceStatus status_filter = 2;
 }
 
 message ListInvoicesResponse {
   repeated Invoice invoices = 1;
-  string next_page_token = 2;
 }
 
-message MarkInvoicePaidRequest {
-  string id = 1;
+// ---------- PAYMENT (manual / ledger) ----------
 
+message RecordInvoicePaymentRequest {
+  string invoice_id = 1;
   int64 amount_cents = 2;
-  string currency_code = 3;
 
-  string provider = 4;
-  string provider_reference = 5;
+  string method = 3;       // "BALANCE", "MANUAL"
+  string reference_id = 4;
 
-  google.protobuf.Timestamp paid_at = 6;
+  google.protobuf.Struct metadata = 5;
 }
 
-message MarkInvoicePaidResponse {
+message RecordInvoicePaymentResponse {
   Invoice invoice = 1;
-  PaymentRecord payment = 2;
+  InvoicePayment payment = 2;
 }
 
-message PreviewUpcomingInvoiceRequest {
-  string tenant_id = 1;
-  google.protobuf.Timestamp period_start = 2;
-  google.protobuf.Timestamp period_end   = 3;
+// ---------- VOID / REFUND ----------
+
+message VoidInvoiceRequest {
+  string invoice_id = 1;
 }
 
-message PreviewUpcomingInvoiceResponse {
+message VoidInvoiceResponse {
   Invoice invoice = 1;
-  repeated InvoiceLineItem line_items = 2;
 }
 
+message RefundInvoiceRequest {
+  string invoice_id = 1;
+  int64 amount_cents = 2;  // optional partial refund
+  google.protobuf.Struct metadata = 3;
+}
 
-// ============================================
-// Invoice Service
-// ============================================
+message RefundInvoiceResponse {
+  Invoice invoice = 1;
+}
+
+// ======================================================
+// SERVICE
+// ======================================================
 
 service InvoiceService {
 
-  // Generate invoice for a tenant for a given period.
-  // Typically called by a scheduled billing job.
-  rpc GenerateInvoice(GenerateInvoiceRequest) returns (GenerateInvoiceResponse) {
+  rpc CreateInvoice(CreateInvoiceRequest)
+      returns (CreateInvoiceResponse) {
     option (google.api.http) = {
-      post: "/v1/invoices:generate"
+      post: "/v1/invoices"
       body: "*"
     };
   }
 
-  // Get invoice with its line items.
-  rpc GetInvoice(GetInvoiceRequest) returns (GetInvoiceResponse) {
+  rpc AddLineItem(AddLineItemRequest)
+      returns (AddLineItemResponse) {
+    option (google.api.http) = {
+      post: "/v1/invoices/{invoice_id}/items"
+      body: "*"
+    };
+  }
+
+  rpc GetInvoice(GetInvoiceRequest)
+      returns (GetInvoiceResponse) {
     option (google.api.http) = {
       get: "/v1/invoices/{id}"
     };
   }
 
-  // List invoices for a tenant.
-  rpc ListInvoices(ListInvoicesRequest) returns (ListInvoicesResponse) {
+  rpc ListInvoices(ListInvoicesRequest)
+      returns (ListInvoicesResponse) {
     option (google.api.http) = {
       get: "/v1/invoices"
     };
   }
 
-  // Mark an invoice as paid after payment provider confirms success.
-  rpc MarkInvoicePaid(MarkInvoicePaidRequest) returns (MarkInvoicePaidResponse) {
+  rpc RecordInvoicePayment(RecordInvoicePaymentRequest)
+      returns (RecordInvoicePaymentResponse) {
     option (google.api.http) = {
-      post: "/v1/invoices/{id}:mark-paid"
+      post: "/v1/invoices/{invoice_id}/payments"
       body: "*"
     };
   }
 
-  // Preview upcoming invoice for current period (without persisting).
-  rpc PreviewUpcomingInvoice(PreviewUpcomingInvoiceRequest) returns (PreviewUpcomingInvoiceResponse) {
+  rpc VoidInvoice(VoidInvoiceRequest)
+      returns (VoidInvoiceResponse) {
     option (google.api.http) = {
-      get: "/v1/invoices:preview-upcoming"
+      post: "/v1/invoices/{invoice_id}:void"
+      body: "*"
+    };
+  }
+
+  rpc RefundInvoice(RefundInvoiceRequest)
+      returns (RefundInvoiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/invoices/{invoice_id}:refund"
+      body: "*"
     };
   }
 }

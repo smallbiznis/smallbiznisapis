@@ -2,370 +2,388 @@ syntax = "proto3";
 
 package smallbiznis.storefront.v1;
 
-import "google/protobuf/timestamp.proto";
-
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/storefront/v1;storefrontv1";
 
-// =========================
-// Entities
-// =========================
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 
-message Storefront {
+// ======================================================
+// ENUMS
+// ======================================================
+
+enum PageType {
+  PAGE_TYPE_UNSPECIFIED = 0;
+  PAGE_HOME = 1;        // homepage
+  PAGE_COLLECTION = 2;  // collection / category
+  PAGE_PRODUCT = 3;     // product detail
+  PAGE_CUSTOM = 4;      // custom content page (about, faq, dsb)
+}
+
+enum PageStatus {
+  PAGE_STATUS_UNSPECIFIED = 0;
+  PAGE_DRAFT = 1;
+  PAGE_PUBLISHED = 2;
+}
+
+// ======================================================
+// MODELS
+// ======================================================
+
+// Mirip Shopify "template" / "page" JSON
+message StorefrontPage {
+  string id = 1;          // snowflake as string
+  string tenant_id = 2;
+
+  // unik per tenant, misal:
+  // "index", "about-us", "contact", "collection-default", "product-default"
+  string handle = 3;
+
+  // optional path untuk routing FE, misal "/", "/about", "/pages/about-us"
+  string path = 4;
+
+  PageType type = 5;
+  PageStatus status = 6;
+
+  string title = 7;
+
+  // SEO
+  string seo_title = 8;
+  string seo_description = 9;
+
+  // bebas: flags, tags, dsb
+  google.protobuf.Struct metadata = 10;
+
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+// Section = blok besar di page (hero, banner, product-grid, collection-list, dsb)
+message StorefrontSection {
+  string id = 1;
+  string page_id = 2;
+
+  // identifier unik dalam 1 page, misal "hero_main", "featured_collection"
+  string key = 3;
+
+  // type ditentukan FE, misal:
+  // "hero", "banner_slider", "product_grid", "collection_grid", "rich_text"
+  string type = 4;
+
+  int32 position = 5; // urutan section dalam page
+
+  // schema bebas, contoh:
+  // { "heading": "...", "subheading": "...", "background_image": "..." }
+  google.protobuf.Struct settings = 6;
+
+  google.protobuf.Struct metadata = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// Block = sub-komponen di dalam section (contoh: 1 slide di carousel)
+message StorefrontBlock {
+  string id = 1;
+  string section_id = 2;
+
+  // type bebas: "slide", "feature", "stat", "link"
+  string type = 3;
+  int32 position = 4;
+
+  // contoh settings:
+  // { "image_url": "...", "title": "...", "link_url": "..." }
+  google.protobuf.Struct settings = 5;
+
+  google.protobuf.Struct metadata = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// Theme-level configuration (ala Shopify theme settings)
+message StorefrontTheme {
   string id = 1;
   string tenant_id = 2;
-  google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp updated_at = 4;
-  string status = 5; // ACTIVE, INACTIVE, DELETED
-  string name = 6;
-  string slug = 7;
-  string theme_id = 8;
-  string metadata_json = 9;
-}
 
-message Theme {
-  string id = 1;
-  string tenant_id = 2;
-  google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp updated_at = 4;
-  string status = 5; // ACTIVE, INACTIVE, DELETED
-  string name = 6;
-  string description = 7;
-  string config_json = 8;
-}
-
-message Page {
-  string id = 1;
-  string tenant_id = 2;
-  google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp updated_at = 4;
-  string status = 5; // ACTIVE, INACTIVE, DELETED
-  string storefront_id = 6;
-  string slug = 7;
-  string title = 8;
-  string content_json = 9;
-  string type = 10; // HOME, PRODUCT, CATEGORY, CUSTOM
-}
-
-message Navigation {
-  string id = 1;
-  string tenant_id = 2;
-  google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp updated_at = 4;
-  string status = 5; // ACTIVE, INACTIVE, DELETED
-  string storefront_id = 6;
-  string label = 7;
-  string url = 8;
-  int32 order = 9;
-}
-
-// =========================
-// Storefront CRUD
-// =========================
-
-message CreateStorefrontRequest {
-  string tenant_id = 1;
-  string name = 2;
-  string slug = 3;
-  string theme_id = 4;
-  string metadata_json = 5;
-  string status = 6;
-}
-
-message CreateStorefrontResponse {
-  Storefront storefront = 1;
-}
-
-message GetStorefrontRequest {
-  string tenant_id = 1;
-  string id = 2;
-}
-
-message GetStorefrontResponse {
-  Storefront storefront = 1;
-}
-
-message UpdateStorefrontRequest {
-  string tenant_id = 1;
-  string id = 2;
   string name = 3;
-  string slug = 4;
-  string theme_id = 5;
-  string metadata_json = 6;
-  string status = 7;
+  bool active = 4;
+
+  // contoh:
+  // {
+  //   "colors": { "primary": "#1d4ed8", "background": "#ffffff" },
+  //   "typography": { "heading_font": "Inter", "body_font": "Inter" }
+  // }
+  google.protobuf.Struct settings = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
 }
 
-message UpdateStorefrontResponse {
-  Storefront storefront = 1;
+// Untuk FE: 1 call dapat page + sections + blocks
+message PageTree {
+  StorefrontPage page = 1;
+  repeated StorefrontSection sections = 2;
+  repeated StorefrontBlock blocks = 3;
 }
 
-message DeleteStorefrontRequest {
-  string tenant_id = 1;
-  string id = 2;
-}
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
 
-message DeleteStorefrontResponse {
-  bool success = 1;
-}
-
-message ListStorefrontsRequest {
-  string tenant_id = 1;
-  string keyword = 2;
-  int32 page = 3;
-  int32 page_size = 4;
-}
-
-message ListStorefrontsResponse {
-  repeated Storefront storefronts = 1;
-  int32 page = 2;
-  int32 page_size = 3;
-  int64 total = 4;
-}
-
-// =========================
-// Theme CRUD
-// =========================
-
-message CreateThemeRequest {
-  string tenant_id = 1;
-  string name = 2;
-  string description = 3;
-  string config_json = 4;
-  string status = 5;
-}
-
-message CreateThemeResponse {
-  Theme theme = 1;
-}
-
-message GetThemeRequest {
-  string tenant_id = 1;
-  string id = 2;
-}
-
-message GetThemeResponse {
-  Theme theme = 1;
-}
-
-message UpdateThemeRequest {
-  string tenant_id = 1;
-  string id = 2;
-  string name = 3;
-  string description = 4;
-  string config_json = 5;
-  string status = 6;
-}
-
-message UpdateThemeResponse {
-  Theme theme = 1;
-}
-
-message DeleteThemeRequest {
-  string tenant_id = 1;
-  string id = 2;
-}
-
-message DeleteThemeResponse {
-  bool success = 1;
-}
-
-message ListThemesRequest {
-  string tenant_id = 1;
-  string keyword = 2;
-  int32 page = 3;
-  int32 page_size = 4;
-}
-
-message ListThemesResponse {
-  repeated Theme themes = 1;
-  int32 page = 2;
-  int32 page_size = 3;
-  int64 total = 4;
-}
-
-// =========================
-// Page CRUD
-// =========================
+// -------- Pages --------
 
 message CreatePageRequest {
   string tenant_id = 1;
-  string storefront_id = 2;
-  string slug = 3;
-  string title = 4;
-  string content_json = 5;
-  string type = 6;
-  string status = 7;
+  string handle = 2;
+  string path = 3;
+  PageType type = 4;
+  string title = 5;
+  string seo_title = 6;
+  string seo_description = 7;
+  google.protobuf.Struct metadata = 8;
 }
 
 message CreatePageResponse {
-  Page page = 1;
-}
-
-message GetPageRequest {
-  string tenant_id = 1;
-  string id = 2;
-}
-
-message GetPageResponse {
-  Page page = 1;
+  StorefrontPage page = 1;
 }
 
 message UpdatePageRequest {
-  string tenant_id = 1;
-  string id = 2;
-  string storefront_id = 3;
-  string slug = 4;
-  string title = 5;
-  string content_json = 6;
-  string type = 7;
-  string status = 8;
+  string id = 1;
+  string path = 2;
+  PageStatus status = 3;
+  string title = 4;
+  string seo_title = 5;
+  string seo_description = 6;
+  google.protobuf.Struct metadata = 7;
 }
 
 message UpdatePageResponse {
-  Page page = 1;
+  StorefrontPage page = 1;
 }
 
-message DeletePageRequest {
+message GetPageRequest {
+  string id = 1;
+}
+
+message GetPageResponse {
+  StorefrontPage page = 1;
+}
+
+message GetPageByHandleRequest {
   string tenant_id = 1;
-  string id = 2;
+  string handle = 2;
 }
 
-message DeletePageResponse {
-  bool success = 1;
+message GetPageByHandleResponse {
+  PageTree tree = 1;
 }
 
 message ListPagesRequest {
   string tenant_id = 1;
-  string storefront_id = 2;
-  string keyword = 3;
-  int32 page = 4;
-  int32 page_size = 5;
+  PageStatus status_filter = 2;
 }
 
 message ListPagesResponse {
-  repeated Page pages = 1;
-  int32 page = 2;
-  int32 page_size = 3;
-  int64 total = 4;
+  repeated StorefrontPage pages = 1;
 }
 
-// =========================
-// Navigation CRUD
-// =========================
+// -------- Sections --------
 
-message CreateNavigationRequest {
+message AddSectionRequest {
+  string page_id = 1;
+  string key = 2;
+  string type = 3;
+  int32 position = 4;
+  google.protobuf.Struct settings = 5;
+  google.protobuf.Struct metadata = 6;
+}
+
+message AddSectionResponse {
+  StorefrontSection section = 1;
+}
+
+message UpdateSectionRequest {
+  string id = 1;
+  int32 position = 2;
+  google.protobuf.Struct settings = 3;
+  google.protobuf.Struct metadata = 4;
+}
+
+message UpdateSectionResponse {
+  StorefrontSection section = 1;
+}
+
+message ListSectionsRequest {
+  string page_id = 1;
+}
+
+message ListSectionsResponse {
+  repeated StorefrontSection sections = 1;
+}
+
+// -------- Blocks --------
+
+message AddBlockRequest {
+  string section_id = 1;
+  string type = 2;
+  int32 position = 3;
+  google.protobuf.Struct settings = 4;
+  google.protobuf.Struct metadata = 5;
+}
+
+message AddBlockResponse {
+  StorefrontBlock block = 1;
+}
+
+message UpdateBlockRequest {
+  string id = 1;
+  int32 position = 2;
+  google.protobuf.Struct settings = 3;
+  google.protobuf.Struct metadata = 4;
+}
+
+message UpdateBlockResponse {
+  StorefrontBlock block = 1;
+}
+
+message ListBlocksRequest {
+  string section_id = 1;
+}
+
+message ListBlocksResponse {
+  repeated StorefrontBlock blocks = 1;
+}
+
+// -------- Theme --------
+
+message SetActiveThemeRequest {
   string tenant_id = 1;
-  string storefront_id = 2;
-  string label = 3;
-  string url = 4;
-  int32 order = 5;
-  string status = 6;
+  string name = 2;
+  google.protobuf.Struct settings = 3;
 }
 
-message CreateNavigationResponse {
-  Navigation navigation = 1;
+message SetActiveThemeResponse {
+  StorefrontTheme theme = 1;
 }
 
-message GetNavigationRequest {
+message GetActiveThemeRequest {
   string tenant_id = 1;
-  string id = 2;
 }
 
-message GetNavigationResponse {
-  Navigation navigation = 1;
+message GetActiveThemeResponse {
+  StorefrontTheme theme = 1;
 }
 
-message UpdateNavigationRequest {
-  string tenant_id = 1;
-  string id = 2;
-  string storefront_id = 3;
-  string label = 4;
-  string url = 5;
-  int32 order = 6;
-  string status = 7;
-}
-
-message UpdateNavigationResponse {
-  Navigation navigation = 1;
-}
-
-message DeleteNavigationRequest {
-  string tenant_id = 1;
-  string id = 2;
-}
-
-message DeleteNavigationResponse {
-  bool success = 1;
-}
-
-message ListNavigationsRequest {
-  string tenant_id = 1;
-  string storefront_id = 2;
-  string keyword = 3;
-  int32 page = 4;
-  int32 page_size = 5;
-}
-
-message ListNavigationsResponse {
-  repeated Navigation navigations = 1;
-  int32 page = 2;
-  int32 page_size = 3;
-  int64 total = 4;
-}
-
-// =========================
-// Additional Actions
-// =========================
-
-message PublishStorefrontRequest {
-  string tenant_id = 1;
-  string storefront_id = 2;
-}
-
-message PublishStorefrontResponse {
-  bool success = 1;
-  Storefront storefront = 2;
-}
-
-message DuplicateThemeRequest {
-  string tenant_id = 1;
-  string theme_id = 2;
-  string name = 3;
-  string description = 4;
-}
-
-message DuplicateThemeResponse {
-  Theme theme = 1;
-}
-
-// =========================
-// Service
-// =========================
+// ======================================================
+// SERVICE
+// ======================================================
 
 service StorefrontService {
-  rpc CreateStorefront(CreateStorefrontRequest) returns (CreateStorefrontResponse);
-  rpc GetStorefront(GetStorefrontRequest) returns (GetStorefrontResponse);
-  rpc UpdateStorefront(UpdateStorefrontRequest) returns (UpdateStorefrontResponse);
-  rpc DeleteStorefront(DeleteStorefrontRequest) returns (DeleteStorefrontResponse);
-  rpc ListStorefronts(ListStorefrontsRequest) returns (ListStorefrontsResponse);
 
-  rpc CreateTheme(CreateThemeRequest) returns (CreateThemeResponse);
-  rpc GetTheme(GetThemeRequest) returns (GetThemeResponse);
-  rpc UpdateTheme(UpdateThemeRequest) returns (UpdateThemeResponse);
-  rpc DeleteTheme(DeleteThemeRequest) returns (DeleteThemeResponse);
-  rpc ListThemes(ListThemesRequest) returns (ListThemesResponse);
+  // -------- Pages --------
 
-  rpc CreatePage(CreatePageRequest) returns (CreatePageResponse);
-  rpc GetPage(GetPageRequest) returns (GetPageResponse);
-  rpc UpdatePage(UpdatePageRequest) returns (UpdatePageResponse);
-  rpc DeletePage(DeletePageRequest) returns (DeletePageResponse);
-  rpc ListPages(ListPagesRequest) returns (ListPagesResponse);
+  rpc CreatePage(CreatePageRequest)
+      returns (CreatePageResponse) {
+    option (google.api.http) = {
+      post: "/v1/storefront/pages"
+      body: "*"
+    };
+  }
 
-  rpc CreateNavigation(CreateNavigationRequest) returns (CreateNavigationResponse);
-  rpc GetNavigation(GetNavigationRequest) returns (GetNavigationResponse);
-  rpc UpdateNavigation(UpdateNavigationRequest) returns (UpdateNavigationResponse);
-  rpc DeleteNavigation(DeleteNavigationRequest) returns (DeleteNavigationResponse);
-  rpc ListNavigations(ListNavigationsRequest) returns (ListNavigationsResponse);
+  rpc UpdatePage(UpdatePageRequest)
+      returns (UpdatePageResponse) {
+    option (google.api.http) = {
+      patch: "/v1/storefront/pages/{id}"
+      body: "*"
+    };
+  }
 
-  rpc PublishStorefront(PublishStorefrontRequest) returns (PublishStorefrontResponse);
-  rpc DuplicateTheme(DuplicateThemeRequest) returns (DuplicateThemeResponse);
+  rpc GetPage(GetPageRequest)
+      returns (GetPageResponse) {
+    option (google.api.http) = {
+      get: "/v1/storefront/pages/{id}"
+    };
+  }
+
+  rpc GetPageByHandle(GetPageByHandleRequest)
+      returns (GetPageByHandleResponse) {
+    option (google.api.http) = {
+      get: "/v1/storefront/pages:by-handle"
+    };
+  }
+
+  rpc ListPages(ListPagesRequest)
+      returns (ListPagesResponse) {
+    option (google.api.http) = {
+      get: "/v1/storefront/pages"
+    };
+  }
+
+  // -------- Sections --------
+
+  rpc AddSection(AddSectionRequest)
+      returns (AddSectionResponse) {
+    option (google.api.http) = {
+      post: "/v1/storefront/pages/{page_id}/sections"
+      body: "*"
+    };
+  }
+
+  rpc UpdateSection(UpdateSectionRequest)
+      returns (UpdateSectionResponse) {
+    option (google.api.http) = {
+      patch: "/v1/storefront/sections/{id}"
+      body: "*"
+    };
+  }
+
+  rpc ListSections(ListSectionsRequest)
+      returns (ListSectionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/storefront/pages/{page_id}/sections"
+    };
+  }
+
+  // -------- Blocks --------
+
+  rpc AddBlock(AddBlockRequest)
+      returns (AddBlockResponse) {
+    option (google.api.http) = {
+      post: "/v1/storefront/sections/{section_id}/blocks"
+      body: "*"
+    };
+  }
+
+  rpc UpdateBlock(UpdateBlockRequest)
+      returns (UpdateBlockResponse) {
+    option (google.api.http) = {
+      patch: "/v1/storefront/blocks/{id}"
+      body: "*"
+    };
+  }
+
+  rpc ListBlocks(ListBlocksRequest)
+      returns (ListBlocksResponse) {
+    option (google.api.http) = {
+      get: "/v1/storefront/sections/{section_id}/blocks"
+    };
+  }
+
+  // -------- Theme --------
+
+  rpc SetActiveTheme(SetActiveThemeRequest)
+      returns (SetActiveThemeResponse) {
+    option (google.api.http) = {
+      post: "/v1/storefront/themes:active"
+      body: "*"
+    };
+  }
+
+  rpc GetActiveTheme(GetActiveThemeRequest)
+      returns (GetActiveThemeResponse) {
+    option (google.api.http) = {
+      get: "/v1/storefront/themes:active"
+    };
+  }
 }

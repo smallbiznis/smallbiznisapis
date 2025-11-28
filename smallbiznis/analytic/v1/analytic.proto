@@ -8,108 +8,397 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 
-// ===================================
+// ======================================================
+// ENUMS
+// ======================================================
+
+enum VisualizationType {
+  VIS_TYPE_UNSPECIFIED = 0;
+  VIS_LINE = 1;
+  VIS_BAR = 2;
+  VIS_PIE = 3;
+  VIS_TABLE = 4;
+  VIS_STAT = 5; // single number (KPI card)
+}
+
+enum QueryResultFormat {
+  QUERY_RESULT_FORMAT_UNSPECIFIED = 0;
+  QUERY_RESULT_TABLE = 1;      // row/column table
+  QUERY_RESULT_TIMESERIES = 2; // for line/area charts
+}
+
+// ======================================================
 // MODELS
-// ===================================
+// ======================================================
 
-// Single analytic event (track).
-message AnalyticEvent {
+// Data source metadata (logical dataset, e.g. "daily_metrics", "product_metrics")
+message DataSource {
+  string id = 1;                // snowflake as string
+  string name = 2;              // "daily_metrics", "product_metrics"
+  string display_name = 3;      // "Daily Sales Metrics"
+  string description = 4;
+  google.protobuf.Struct metadata = 5;
+}
+
+// Column metadata for query result
+message ColumnMeta {
+  string name = 1;
+  string type = 2;  // "string", "number", "timestamp"
+}
+
+// Query parameter (for named params in SQL: :from_date, :to_date, etc.)
+message QueryParam {
+  string name = 1;
+  google.protobuf.Value value = 2;
+}
+
+// Generic query definition (saved query)
+message SavedQuery {
   string id = 1;
-
   string tenant_id = 2;
 
-  // event name: "order.created", "workflow.executed"
-  string event_name = 3;
+  string name = 3;
+  string description = 4;
 
-  // e.g. {"order_id":123, "amount":40000}
-  google.protobuf.Struct properties = 4;
+  string data_source = 5;     // e.g. "daily_metrics"
+  string sql = 6;             // SQL mini-language with named params (:tenant_id, :from, :to, ...)
 
-  // user session or actor
-  string user_id = 5;
+  // default params for this query
+  repeated QueryParam default_params = 7;
 
-  google.protobuf.Timestamp occurred_at = 6;
+  QueryResultFormat result_format = 8; // TABLE or TIMESERIES
+
+  google.protobuf.Struct metadata = 9;
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
 }
 
-// Ingest event
-message IngestEventRequest {
-  AnalyticEvent event = 1;
+// Query result row: generic key/value map
+message QueryRow {
+  map<string, google.protobuf.Value> values = 1;
 }
 
-message IngestEventResponse {
-  bool success = 1;
+// Generic query result
+message QueryResult {
+  repeated ColumnMeta columns = 1;
+  repeated QueryRow rows = 2;
+
+  // Optional: stats or extra info
+  google.protobuf.Struct metadata = 3;
 }
 
-// Query aggregated metrics
-message MetricQueryRequest {
+// Dashboard: container for panels
+message Dashboard {
+  string id = 1;
+  string tenant_id = 2;
+
+  string name = 3;
+  string description = 4;
+
+  google.protobuf.Struct metadata = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// Panel: 1 visual card in dashboard (line/bar/pie/table/stat + query)
+message Panel {
+  string id = 1;
+  string dashboard_id = 2;
+
+  string title = 3;
+  VisualizationType visualization = 4;
+
+  // Either use saved_query_id OR inline_query (for adhoc)
+  string saved_query_id = 5;
+  string data_source = 6; // used if inline query
+  string sql = 7;         // inline SQL, same mini-language
+
+  repeated QueryParam params = 8;
+
+  // Layout info for FE grid: x,y,w,h (optional, FE can ignore)
+  int32 layout_x = 9;
+  int32 layout_y = 10;
+  int32 layout_w = 11;
+  int32 layout_h = 12;
+
+  google.protobuf.Struct options = 13;  // visual config: colors, legend, etc.
+  google.protobuf.Struct metadata = 14;
+
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
+}
+
+// For FE convenience: dashboard + panels bundle
+message DashboardWithPanels {
+  Dashboard dashboard = 1;
+  repeated Panel panels = 2;
+}
+
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
+
+// -------- Data Sources --------
+
+message ListDataSourcesRequest {}
+
+message ListDataSourcesResponse {
+  repeated DataSource data_sources = 1;
+}
+
+// -------- Queries --------
+
+// Run adhoc query from FE (SQL + params)
+message RunAdhocQueryRequest {
   string tenant_id = 1;
 
-  // metric type / event_name
-  string event_name = 2;
+  string data_source = 2;
+  string sql = 3;
+  repeated QueryParam params = 4;
 
-  // optional filter (date range, product_id)
-  google.protobuf.Struct filter = 3;
-
-  // group by field (e.g. "day", "product_id")
-  string group_by = 4;
-
-  // limit results
-  int32 limit = 5;
+  QueryResultFormat result_format = 5;
 }
 
-message MetricResult {
-  string group = 1;
-  int64 count = 2;
-  double sum = 3;
+message RunAdhocQueryResponse {
+  QueryResult result = 1;
 }
 
-message MetricQueryResponse {
-  repeated MetricResult results = 1;
-}
-
-// Query single funnel sequence
-message FunnelStep {
-  string event_name = 1;
-}
-
-message FunnelQueryRequest {
+// Run saved query
+message RunSavedQueryRequest {
   string tenant_id = 1;
-  repeated FunnelStep steps = 2;
-  google.protobuf.Timestamp from = 3;
-  google.protobuf.Timestamp to = 4;
+  string query_id = 2;
+
+  repeated QueryParam override_params = 3;
 }
 
-message FunnelQueryResponse {
-  // steps processed sequentially (step1→step2→step3)
-  repeated int64 counts = 1;
+message RunSavedQueryResponse {
+  QueryResult result = 1;
 }
 
-// ===================================
+// CRUD saved query
+message CreateSavedQueryRequest {
+  string tenant_id = 1;
+
+  string name = 2;
+  string description = 3;
+
+  string data_source = 4;
+  string sql = 5;
+  QueryResultFormat result_format = 6;
+
+  repeated QueryParam default_params = 7;
+  google.protobuf.Struct metadata = 8;
+}
+
+message CreateSavedQueryResponse {
+  SavedQuery query = 1;
+}
+
+message ListSavedQueriesRequest {
+  string tenant_id = 1;
+}
+
+message ListSavedQueriesResponse {
+  repeated SavedQuery queries = 1;
+}
+
+message GetSavedQueryRequest {
+  string id = 1;
+}
+
+message GetSavedQueryResponse {
+  SavedQuery query = 1;
+}
+
+// -------- Dashboards & Panels --------
+
+message CreateDashboardRequest {
+  string tenant_id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Struct metadata = 4;
+}
+
+message CreateDashboardResponse {
+  Dashboard dashboard = 1;
+}
+
+message ListDashboardsRequest {
+  string tenant_id = 1;
+}
+
+message ListDashboardsResponse {
+  repeated Dashboard dashboards = 1;
+}
+
+message GetDashboardRequest {
+  string id = 1;
+}
+
+message GetDashboardResponse {
+  DashboardWithPanels data = 1;
+}
+
+// Panels
+
+message CreatePanelRequest {
+  string dashboard_id = 1;
+
+  string title = 2;
+  VisualizationType visualization = 3;
+
+  string saved_query_id = 4;
+  string data_source = 5;
+  string sql = 6;
+
+  repeated QueryParam params = 7;
+
+  int32 layout_x = 8;
+  int32 layout_y = 9;
+  int32 layout_w = 10;
+  int32 layout_h = 11;
+
+  google.protobuf.Struct options = 12;
+  google.protobuf.Struct metadata = 13;
+}
+
+message CreatePanelResponse {
+  Panel panel = 1;
+}
+
+message UpdatePanelRequest {
+  string id = 1;
+
+  string title = 2;
+  VisualizationType visualization = 3;
+
+  string saved_query_id = 4;
+  string data_source = 5;
+  string sql = 6;
+
+  repeated QueryParam params = 7;
+
+  int32 layout_x = 8;
+  int32 layout_y = 9;
+  int32 layout_w = 10;
+  int32 layout_h = 11;
+
+  google.protobuf.Struct options = 12;
+  google.protobuf.Struct metadata = 13;
+}
+
+message UpdatePanelResponse {
+  Panel panel = 1;
+}
+
+message ListPanelsRequest {
+  string dashboard_id = 1;
+}
+
+message ListPanelsResponse {
+  repeated Panel panels = 1;
+}
+
+// ======================================================
 // SERVICE
-// ===================================
+// ======================================================
 
 service AnalyticService {
 
-  rpc IngestEvent(IngestEventRequest)
-      returns (IngestEventResponse) {
+  // Data sources catalog
+  rpc ListDataSources(ListDataSourcesRequest)
+      returns (ListDataSourcesResponse) {
     option (google.api.http) = {
-      post: "/v1/analytic/events"
+      get: "/v1/analytics/data-sources"
+    };
+  }
+
+  // Query execution
+  rpc RunAdhocQuery(RunAdhocQueryRequest)
+      returns (RunAdhocQueryResponse) {
+    option (google.api.http) = {
+      post: "/v1/analytics/query:adhoc"
       body: "*"
     };
   }
 
-  rpc QueryMetric(MetricQueryRequest)
-      returns (MetricQueryResponse) {
+  rpc RunSavedQuery(RunSavedQueryRequest)
+      returns (RunSavedQueryResponse) {
     option (google.api.http) = {
-      post: "/v1/analytic/metrics:query"
+      post: "/v1/analytics/query:saved"
       body: "*"
     };
   }
 
-  rpc QueryFunnel(FunnelQueryRequest)
-      returns (FunnelQueryResponse) {
+  // Saved queries
+  rpc CreateSavedQuery(CreateSavedQueryRequest)
+      returns (CreateSavedQueryResponse) {
     option (google.api.http) = {
-      post: "/v1/analytic/funnel:query"
+      post: "/v1/analytics/queries"
       body: "*"
+    };
+  }
+
+  rpc ListSavedQueries(ListSavedQueriesRequest)
+      returns (ListSavedQueriesResponse) {
+    option (google.api.http) = {
+      get: "/v1/analytics/queries"
+    };
+  }
+
+  rpc GetSavedQuery(GetSavedQueryRequest)
+      returns (GetSavedQueryResponse) {
+    option (google.api.http) = {
+      get: "/v1/analytics/queries/{id}"
+    };
+  }
+
+  // Dashboards
+  rpc CreateDashboard(CreateDashboardRequest)
+      returns (CreateDashboardResponse) {
+    option (google.api.http) = {
+      post: "/v1/analytics/dashboards"
+      body: "*"
+    };
+  }
+
+  rpc ListDashboards(ListDashboardsRequest)
+      returns (ListDashboardsResponse) {
+    option (google.api.http) = {
+      get: "/v1/analytics/dashboards"
+    };
+  }
+
+  rpc GetDashboard(GetDashboardRequest)
+      returns (GetDashboardResponse) {
+    option (google.api.http) = {
+      get: "/v1/analytics/dashboards/{id}"
+    };
+  }
+
+  // Panels
+  rpc CreatePanel(CreatePanelRequest)
+      returns (CreatePanelResponse) {
+    option (google.api.http) = {
+      post: "/v1/analytics/dashboards/{dashboard_id}/panels"
+      body: "*"
+    };
+  }
+
+  rpc UpdatePanel(UpdatePanelRequest)
+      returns (UpdatePanelResponse) {
+    option (google.api.http) = {
+      patch: "/v1/analytics/panels/{id}"
+      body: "*"
+    };
+  }
+
+  rpc ListPanels(ListPanelsRequest)
+      returns (ListPanelsResponse) {
+    option (google.api.http) = {
+      get: "/v1/analytics/dashboards/{dashboard_id}/panels"
     };
   }
 }

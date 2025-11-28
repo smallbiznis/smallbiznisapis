@@ -1,0 +1,221 @@
+syntax = "proto3";
+
+package smallbiznis.loyalty.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/loyalty/v1;loyaltyv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ======================================================
+// ENUMS
+// ======================================================
+
+enum MovementType {
+  MOVEMENT_TYPE_UNSPECIFIED = 0;
+  EARN = 1;
+  SPEND = 2;
+  ADJUSTMENT = 3;
+  EXPIRATION = 4;
+  REVERSAL = 5;
+}
+
+enum TierLevel {
+  TIER_UNSPECIFIED = 0;
+  BRONZE = 1;
+  SILVER = 2;
+  GOLD = 3;
+  PLATINUM = 4;
+}
+
+// ======================================================
+// MODELS
+// ======================================================
+
+message LoyaltyWallet {
+  string id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+
+  int64 balance_points = 4;
+
+  // For expiration policies (rolling / fixed window)
+  int32 expiry_days = 5;
+
+  TierLevel tier = 6;
+
+  google.protobuf.Tensor metadata = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message PointMovement {
+  string id = 1;
+  string wallet_id = 2;
+  MovementType type = 3;
+
+  int64 points = 4;
+  string reference_id = 5;    // transaction_id, voucher_id, etc.
+  string reference_type = 6;  // "ORDER", "ADJUSTMENT", etc.
+  string description = 7;
+
+  int64 balance_after = 8;
+
+  google.protobuf.Struct metadata = 9;
+  google.protobuf.Timestamp expires_at = 10;
+
+  google.protobuf.Timestamp created_at = 11;
+}
+
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
+
+// ------- WALLET -------
+
+message GetWalletRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+}
+
+message GetWalletResponse {
+  LoyaltyWallet wallet = 1;
+}
+
+message CreateOrGetWalletRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+
+  int32 expiry_days = 3;
+}
+
+message CreateOrGetWalletResponse {
+  LoyaltyWallet wallet = 1;
+}
+
+// ------- EARN -------
+
+message EarnPointsRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+
+  int64 points = 3;
+
+  string reference_id = 4;
+  string reference_type = 5;
+  string description = 6;
+
+  google.protobuf.Timestamp expires_at = 7;  // optional
+
+  google.protobuf.Struct metadata = 8;
+}
+
+message EarnPointsResponse {
+  PointMovement movement = 1;
+  LoyaltyWallet wallet = 2;
+}
+
+// ------- SPEND -------
+
+message SpendPointsRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+
+  int64 points = 3;
+
+  string reference_id = 4;
+  string reference_type = 5;
+  string description = 6;
+
+  google.protobuf.Struct metadata = 7;
+}
+
+message SpendPointsResponse {
+  PointMovement movement = 1;
+  LoyaltyWallet wallet = 2;
+}
+
+// ------- LIST MOVEMENTS -------
+
+message ListMovementsRequest {
+  string wallet_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListMovementsResponse {
+  repeated PointMovement movements = 1;
+  string next_page_token = 2;
+}
+
+// ------- TIER -------
+
+message UpdateTierRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  TierLevel tier = 3;
+}
+
+message UpdateTierResponse {
+  LoyaltyWallet wallet = 1;
+}
+
+// ======================================================
+// SERVICE
+// ======================================================
+
+service LoyaltyService {
+
+  // Wallet
+  rpc GetWallet(GetWalletRequest)
+      returns (GetWalletResponse) {
+    option (google.api.http) = {
+      get: "/v1/loyalty/wallet"
+    };
+  }
+
+  rpc CreateOrGetWallet(CreateOrGetWalletRequest)
+      returns (CreateOrGetWalletResponse) {
+    option (google.api.http) = {
+      post: "/v1/loyalty/wallet"
+      body: "*"
+    };
+  }
+
+  // Earn points
+  rpc EarnPoints(EarnPointsRequest)
+      returns (EarnPointsResponse) {
+    option (google.api.http) = {
+      post: "/v1/loyalty/earn"
+      body: "*"
+    };
+  }
+
+  // Spend points
+  rpc SpendPoints(SpendPointsRequest)
+      returns (SpendPointsResponse) {
+    option (google.api.http) = {
+      post: "/v1/loyalty/spend"
+      body: "*"
+    };
+  }
+
+  // Movement history
+  rpc ListMovements(ListMovementsRequest)
+      returns (ListMovementsResponse) {
+    option (google.api.http) = {
+      get: "/v1/loyalty/movements"
+    };
+  }
+
+  // Tier update
+  rpc UpdateTier(UpdateTierRequest)
+      returns (UpdateTierResponse) {
+    option (google.api.http) = {
+      post: "/v1/loyalty/tier:update"
+      body: "*"
+    };
+  }
+}

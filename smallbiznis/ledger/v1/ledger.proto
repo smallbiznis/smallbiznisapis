@@ -4,86 +4,212 @@ package smallbiznis.ledger.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/ledger/v1;ledgerv1";
 
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 
-service LedgerService {
+// ======================================================
+// ENUMS
+// ======================================================
 
-  rpc AddEntry(AddEntryRequest) returns (LedgerEntry){}
-
-  rpc RevertEntry(RevertEntryRequest) returns (LedgerEntry);
-
-  rpc ListEntries(ListEntriesRequest) returns (ListEntriesResponse) {}
-
-  rpc GetEntry(GetEntryRequest) returns (LedgerEntry) {}
-
-  rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
-
-  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {};
+enum AccountType {
+  ACCOUNT_TYPE_UNSPECIFIED = 0;
+  CASH = 1;
+  INTERNAL_BALANCE = 2;   // tenant internal top-up / saldo
+  REVENUE = 3;
+  EXPENSE = 4;
+  LIABILITY = 5;
+  ASSET = 6;
+  POINT_WALLET = 7;       // untuk loyalty point
 }
 
 enum EntryType {
   ENTRY_TYPE_UNSPECIFIED = 0;
-  CREDIT = 1;
-  DEBIT = 2;
+  DEBIT = 1;
+  CREDIT = 2;
+}
+
+// ======================================================
+// MODELS
+// ======================================================
+
+message Account {
+  string id = 1;
+  string tenant_id = 2;
+
+  string name = 3;
+  AccountType type = 4;
+
+  string currency = 5;  // "IDR", "USD"
+
+  int64 balance_cents = 6; // derived from entries
+
+  google.protobuf.Struct metadata = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message JournalEntry {
+  string id = 1;
+  string tenant_id = 2;
+
+  string reference_id = 3;   // e.g. order_id, checkout_id
+  string reference_type = 4; // e.g. "ORDER", "TOPUP", "REFUND"
+
+  string description = 5;
+
+  google.protobuf.Struct metadata = 6;
+
+  google.protobuf.Timestamp created_at = 7;
 }
 
 message LedgerEntry {
   string id = 1;
-  string tenant_id = 2;
-  string member_id = 3;
+  string journal_entry_id = 2;
+
+  string account_id = 3;
+
   EntryType type = 4;
-  string transaction_id = 5;
-  string reference_id = 6;
-  int64 amount = 7;
-  string description = 8;
-  map<string, string> metadata = 9;
-  google.protobuf.Timestamp created_at = 10;
+  int64 amount_cents = 5;
+
+  google.protobuf.Timestamp created_at = 6;
 }
 
-message AddEntryRequest {
+message TransferResult {
+  JournalEntry journal = 1;
+  repeated LedgerEntry entries = 2;
+}
+
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
+
+// --------- Account ---------
+
+message CreateAccountRequest {
   string tenant_id = 1;
-  string member_id = 2;
-  EntryType type = 3; // fixed: was undefined type
-  int64 amount = 4;
-  string description = 5;
-  string reference_id = 6;
-  map<string, string> metadata = 7;
+  string name = 2;
+  AccountType type = 3;
+  string currency = 4;
+  google.protobuf.Struct metadata = 5;
 }
 
-message RevertEntryRequest {
-  string entry_id = 1;
-  string reason = 2;
+message CreateAccountResponse {
+  Account account = 1;
 }
 
-message ListEntriesRequest {
-  string tenant_id = 1;
-  string member_id = 2;
-}
-
-message ListEntriesResponse {
-  repeated LedgerEntry data = 1;
-}
-
-message GetEntryRequest {
+message GetAccountRequest {
   string id = 1;
 }
 
-message VerifyChainRequest {
+message GetAccountResponse {
+  Account account = 1;
+}
+
+message ListAccountsRequest {
   string tenant_id = 1;
-  string member_id = 2;
 }
 
-message VerifyChainResponse {
-  bool valid = 1;
-  string message = 2;
+message ListAccountsResponse {
+  repeated Account accounts = 1;
 }
 
-message GetBalanceRequest {
-  string member_id = 1;
-  string tenant_id = 2;
+// --------- Journal + Ledger ---------
+
+message CreateJournalEntryRequest {
+  string tenant_id = 1;
+  string reference_id = 2;
+  string reference_type = 3;
+  string description = 4;
+
+  // line items (debits & credits)
+  repeated CreateLedgerLine lines = 5;
+
+  // idempotency
+  string idempotency_key = 6;
+
+  google.protobuf.Struct metadata = 7;
 }
 
-message GetBalanceResponse {
-  int64 balance = 1;
-  google.protobuf.Timestamp last_updated_at = 2;
+message CreateLedgerLine {
+  string account_id = 1;
+  EntryType type = 2;
+  int64 amount_cents = 3;
+}
+
+message CreateJournalEntryResponse {
+  JournalEntry journal = 1;
+  repeated LedgerEntry entries = 2;
+}
+
+// --------- Transfer (simple API using double-entry) ---------
+
+message TransferRequest {
+  string tenant_id = 1;
+
+  string from_account_id = 2;
+  string to_account_id = 3;
+
+  int64 amount_cents = 4;
+
+  string reference_id = 5;
+  string reference_type = 6;
+  string description = 7;
+
+  string idempotency_key = 8;
+
+  google.protobuf.Struct metadata = 9;
+}
+
+message TransferResponse {
+  TransferResult result = 1;
+}
+
+// ======================================================
+// SERVICE
+// ======================================================
+
+service LedgerService {
+
+  // Accounts
+  rpc CreateAccount(CreateAccountRequest)
+      returns (CreateAccountResponse) {
+    option (google.api.http) = {
+      post: "/v1/ledger/accounts"
+      body: "*"
+    };
+  }
+
+  rpc GetAccount(GetAccountRequest)
+      returns (GetAccountResponse) {
+    option (google.api.http) = {
+      get: "/v1/ledger/accounts/{id}"
+    };
+  }
+
+  rpc ListAccounts(ListAccountsRequest)
+      returns (ListAccountsResponse) {
+    option (google.api.http) = {
+      get: "/v1/ledger/accounts"
+    };
+  }
+
+  // Manual double-entry journal
+  rpc CreateJournalEntry(CreateJournalEntryRequest)
+      returns (CreateJournalEntryResponse) {
+    option (google.api.http) = {
+      post: "/v1/ledger/journals"
+      body: "*"
+    };
+  }
+
+  // Simple Transfer (from A to B)
+  rpc Transfer(TransferRequest)
+      returns (TransferResponse) {
+    option (google.api.http) = {
+      post: "/v1/ledger/transfer"
+      body: "*"
+    };
+  }
 }

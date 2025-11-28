@@ -4,100 +4,225 @@ package smallbiznis.product.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/product/v1;productv1";
 
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 
-// Product represents a product owned by a tenant.
-// Note: status is represented as a string with expected values: "ACTIVE", "INACTIVE", "ARCHIVED".
-message Product {
-  // Unique product ID (server-generated)
-  string id = 1;
+// ======================================================
+// ENUMS
+// ======================================================
 
-  // Tenant owning this product (multi-tenant support)
-  string tenant_id = 2;
-
-  // Stock Keeping Unit
-  string sku = 3;
-
-  // Human-readable product name
-  string name = 4;
-
-  // Detailed description
-  string description = 5;
-
-  // Product category identifier or name
-  string category = 6;
-
-  // Brand name
-  string brand = 7;
-
-  // Current status: expected values are "ACTIVE", "INACTIVE", "ARCHIVED"
-  string status = 8;
-
-  // Timestamps
-  google.protobuf.Timestamp created_at = 9;
-  google.protobuf.Timestamp updated_at = 10;
+enum ProductStatus {
+  PRODUCT_STATUS_UNSPECIFIED = 0;
+  DRAFT = 1;
+  ACTIVE = 2;
+  ARCHIVED = 3;
 }
 
-// CreateProductRequest creates a new product for a tenant. The server will
-// generate the `id`, `created_at` and `updated_at` fields.
-message CreateProductRequest {
-  // Tenant id for multi-tenant isolation. Required.
-  string tenant_id = 1;
+enum ProductType {
+  PRODUCT_TYPE_UNSPECIFIED = 0;
+  PHYSICAL = 1;      // barang fisik / F&B
+  DIGITAL = 2;       // e-book, file, digital goods
+  SERVICE = 3;       // jasa, konsultasi, perbaikan
+  SUBSCRIPTION = 4;  // membership, paket langganan
+  ADDON = 5;         // topping, extra shot, add-on
+}
 
-  // Product payload. The `id`, `created_at`, `updated_at` will be ignored
-  // if set by the client; server will generate them.
-  Product product = 2;
+enum VariantStatus {
+  VARIANT_STATUS_UNSPECIFIED = 0;
+  VARIANT_ACTIVE = 1;
+  VARIANT_ARCHIVED = 2;
+}
+
+// ======================================================
+// MODELS
+// ======================================================
+
+message Product {
+  // Snowflake ID as string (JS-safe)
+  string id = 1;
+  string tenant_id = 2;
+
+  string name = 3;
+  string slug = 4;
+  string description = 5;
+
+  ProductStatus status = 6;
+  ProductType product_type = 7;
+
+  // jika false → single variant "default"
+  bool has_variants = 8;
+
+  // apakah inventory akan di-track di inventory service
+  bool track_inventory = 9;
+
+  google.protobuf.Struct metadata = 10;
+
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+message ProductOption {
+  string id = 1;
+  string product_id = 2;
+
+  // misal: "Size", "Sugar Level", "Ice", "Color"
+  string name = 3;
+  int32 position = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message ProductOptionValue {
+  string id = 1;
+  string product_id = 2;
+  string option_id = 3;
+
+  // misal: "S", "M", "L", "50%", "No Ice"
+  string value = 4;
+  int32 position = 5;
+
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message ProductVariant {
+  string id = 1;
+  string product_id = 2;
+
+  // contoh: "ESPRESSO_DOUBLE_HOT_L", "KAOS-HITAM-L"
+  string sku = 3;
+
+  // optional: barcode / EAN / internal code
+  string barcode = 4;
+
+  // label yang tampil di UI, bisa gabungan option
+  string name = 5;
+
+  // pricing
+  int64 price_cents = 6;
+  int64 compare_at_price_cents = 7; // harga coret / before discount
+  int64 cost_price_cents = 8;       // COGS
+
+  VariantStatus status = 9;
+
+  // di level variant juga bisa override tracking inventory
+  bool track_inventory = 10;
+
+  google.protobuf.Struct metadata = 11;
+
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+// mapping kombinasi variant ke option values yang dipilih
+message VariantOptionValue {
+  string variant_id = 1;
+  string option_id = 2;
+  string option_value_id = 3;
+}
+
+message ProductImage {
+  string id = 1;
+  string product_id = 2;
+  // optional: kalau diisi, khusus untuk variant itu
+  string variant_id = 3;
+
+  string url = 4;
+  string alt = 5;
+  int32 position = 6;
+
+  google.protobuf.Struct metadata = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message Category {
+  string id = 1;
+  string tenant_id = 2;
+
+  string name = 3;
+  string slug = 4;
+  string parent_id = 5;
+  int32 position = 6;
+
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// ======================================================
+// EVENTS
+// ======================================================
+
+message ProductCreatedEvent {
+  string product_id = 1;
+  string tenant_id = 2;
+  google.protobuf.Timestamp occurred_at = 3;
+}
+
+message ProductUpdatedEvent {
+  string product_id = 1;
+  string tenant_id = 2;
+  google.protobuf.Timestamp occurred_at = 3;
+}
+
+message VariantCreatedEvent {
+  string variant_id = 1;
+  string product_id = 2;
+  string tenant_id = 3;
+  google.protobuf.Timestamp occurred_at = 4;
+}
+
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
+
+message CreateProductRequest {
+  string tenant_id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  ProductType product_type = 5;
+  bool has_variants = 6;
+  bool track_inventory = 7;
+  google.protobuf.Struct metadata = 8;
 }
 
 message CreateProductResponse {
   Product product = 1;
 }
 
-// GetProductRequest retrieves a product by id within a tenant.
-message GetProductRequest {
-  string tenant_id = 1;
-  string id = 2;
-}
-
-message GetProductResponse {
-  Product product = 1;
-}
-
-// UpdateProductRequest updates fields of an existing product. The product.id
-// must be set and tenant_id must match the owning tenant.
 message UpdateProductRequest {
-  string tenant_id = 1;
-  Product product = 2;
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  ProductStatus status = 5;
+  ProductType product_type = 6;
+  bool has_variants = 7;
+  bool track_inventory = 8;
+  google.protobuf.Struct metadata = 9;
 }
 
 message UpdateProductResponse {
   Product product = 1;
 }
 
-// DeleteProductRequest deletes a product belonging to tenant.
-message DeleteProductRequest {
-  string tenant_id = 1;
-  string id = 2;
+message GetProductRequest {
+  string id = 1;
 }
 
-message DeleteProductResponse {
-  // success indicates whether the deletion succeeded.
-  bool success = 1;
+message GetProductResponse {
+  Product product = 1;
 }
 
-// ListProductsRequest lists products for a tenant. Supports simple paging.
 message ListProductsRequest {
-  // Tenant id is required to scope the query.
   string tenant_id = 1;
-
-  // Optional filter by sku, name, category, brand or status (simple substring match)
-  string query = 2;
-
-  // Maximum number of items to return. Servers may enforce a maximum cap.
-  int32 limit = 3;
-
-  // Opaque page token returned by the previous ListProductsResponse.
-  string page_token = 4;
+  int32 page_size = 2;
+  string page_token = 3;
+  ProductStatus status_filter = 4;
 }
 
 message ListProductsResponse {
@@ -105,12 +230,268 @@ message ListProductsResponse {
   string next_page_token = 2;
 }
 
-// ProductService defines product CRUD operations. All RPCs expect tenant-scoped
-// requests to ensure multi-tenant isolation.
+// ------- Options & Values -------
+
+message CreateProductOptionRequest {
+  string product_id = 1;
+  string name = 2;
+  int32 position = 3;
+}
+
+message CreateProductOptionResponse {
+  ProductOption option = 1;
+}
+
+message ListProductOptionsRequest {
+  string product_id = 1;
+}
+
+message ListProductOptionsResponse {
+  repeated ProductOption options = 1;
+}
+
+message CreateProductOptionValueRequest {
+  string product_id = 1;
+  string option_id = 2;
+  string value = 3;
+  int32 position = 4;
+}
+
+message CreateProductOptionValueResponse {
+  ProductOptionValue option_value = 1;
+}
+
+message ListProductOptionValuesRequest {
+  string option_id = 1;
+}
+
+message ListProductOptionValuesResponse {
+  repeated ProductOptionValue option_values = 1;
+}
+
+// ------- Variants -------
+
+message CreateVariantRequest {
+  string product_id = 1;
+  string sku = 2;
+  string barcode = 3;
+  string name = 4;
+
+  int64 price_cents = 5;
+  int64 compare_at_price_cents = 6;
+  int64 cost_price_cents = 7;
+
+  bool track_inventory = 8;
+
+  // kombinasi option yang dipilih
+  repeated VariantOptionValue selected_options = 9;
+
+  google.protobuf.Struct metadata = 10;
+}
+
+message CreateVariantResponse {
+  ProductVariant variant = 1;
+}
+
+message UpdateVariantRequest {
+  string id = 1;
+  string sku = 2;
+  string barcode = 3;
+  string name = 4;
+
+  int64 price_cents = 5;
+  int64 compare_at_price_cents = 6;
+  int64 cost_price_cents = 7;
+
+  VariantStatus status = 8;
+  bool track_inventory = 9;
+
+  google.protobuf.Struct metadata = 10;
+}
+
+message UpdateVariantResponse {
+  ProductVariant variant = 1;
+}
+
+message ListVariantsRequest {
+  string product_id = 1;
+}
+
+message ListVariantsResponse {
+  repeated ProductVariant variants = 1;
+}
+
+// ------- Images -------
+
+message AddProductImageRequest {
+  string product_id = 1;
+  string variant_id = 2;
+  string url = 3;
+  string alt = 4;
+  int32 position = 5;
+  google.protobuf.Struct metadata = 6;
+}
+
+message AddProductImageResponse {
+  ProductImage image = 1;
+}
+
+message ListProductImagesRequest {
+  string product_id = 1;
+}
+
+message ListProductImagesResponse {
+  repeated ProductImage images = 1;
+}
+
+// ------- Categories -------
+
+message CreateCategoryRequest {
+  string tenant_id = 1;
+  string name = 2;
+  string slug = 3;
+  string parent_id = 4;
+  int32 position = 5;
+}
+
+message CreateCategoryResponse {
+  Category category = 1;
+}
+
+message ListCategoriesRequest {
+  string tenant_id = 1;
+}
+
+message ListCategoriesResponse {
+  repeated Category categories = 1;
+}
+
+// ======================================================
+// PRODUCT SERVICE
+// ======================================================
+
 service ProductService {
-  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {}
-  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {}
-  rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse) {}
-  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse) {}
-  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse) {}
+
+  // -------- Products --------
+
+  rpc CreateProduct(CreateProductRequest)
+      returns (CreateProductResponse) {
+    option (google.api.http) = {
+      post: "/v1/products"
+      body: "*"
+    };
+  }
+
+  rpc UpdateProduct(UpdateProductRequest)
+      returns (UpdateProductResponse) {
+    option (google.api.http) = {
+      patch: "/v1/products/{id}"
+      body: "*"
+    };
+  }
+
+  rpc GetProduct(GetProductRequest)
+      returns (GetProductResponse) {
+    option (google.api.http) = {
+      get: "/v1/products/{id}"
+    };
+  }
+
+  rpc ListProducts(ListProductsRequest)
+      returns (ListProductsResponse) {
+    option (google.api.http) = {
+      get: "/v1/products"
+    };
+  }
+
+  // -------- Options & Values --------
+
+  rpc CreateProductOption(CreateProductOptionRequest)
+      returns (CreateProductOptionResponse) {
+    option (google.api.http) = {
+      post: "/v1/products/{product_id}/options"
+      body: "*"
+    };
+  }
+
+  rpc ListProductOptions(ListProductOptionsRequest)
+      returns (ListProductOptionsResponse) {
+    option (google.api.http) = {
+      get: "/v1/products/{product_id}/options"
+    };
+  }
+
+  rpc CreateProductOptionValue(CreateProductOptionValueRequest)
+      returns (CreateProductOptionValueResponse) {
+    option (google.api.http) = {
+      post: "/v1/products/{product_id}/options/{option_id}/values"
+      body: "*"
+    };
+  }
+
+  rpc ListProductOptionValues(ListProductOptionValuesRequest)
+      returns (ListProductOptionValuesResponse) {
+    option (google.api.http) = {
+      get: "/v1/options/{option_id}/values"
+    };
+  }
+
+  // -------- Variants --------
+
+  rpc CreateVariant(CreateVariantRequest)
+      returns (CreateVariantResponse) {
+    option (google.api.http) = {
+      post: "/v1/products/{product_id}/variants"
+      body: "*"
+    };
+  }
+
+  rpc UpdateVariant(UpdateVariantRequest)
+      returns (UpdateVariantResponse) {
+    option (google.api.http) = {
+      patch: "/v1/variants/{id}"
+      body: "*"
+    };
+  }
+
+  rpc ListVariants(ListVariantsRequest)
+      returns (ListVariantsResponse) {
+    option (google.api.http) = {
+      get: "/v1/products/{product_id}/variants"
+    };
+  }
+
+  // -------- Images --------
+
+  rpc AddProductImage(AddProductImageRequest)
+      returns (AddProductImageResponse) {
+    option (google.api.http) = {
+      post: "/v1/products/{product_id}/images"
+      body: "*"
+    };
+  }
+
+  rpc ListProductImages(ListProductImagesRequest)
+      returns (ListProductImagesResponse) {
+    option (google.api.http) = {
+      get: "/v1/products/{product_id}/images"
+    };
+  }
+
+  // -------- Categories --------
+
+  rpc CreateCategory(CreateCategoryRequest)
+      returns (CreateCategoryResponse) {
+    option (google.api.http) = {
+      post: "/v1/categories"
+      body: "*"
+    };
+  }
+
+  rpc ListCategories(ListCategoriesRequest)
+      returns (ListCategoriesResponse) {
+    option (google.api.http) = {
+      get: "/v1/categories"
+    };
+  }
 }

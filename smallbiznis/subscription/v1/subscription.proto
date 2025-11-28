@@ -8,73 +8,58 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
-// ============================================
-// Enums
-// ============================================
-
+// ===============================================================
+// ENUMS
+// ===============================================================
 enum BillingInterval {
   BILLING_INTERVAL_UNSPECIFIED = 0;
-  MONTHLY     = 1;
-  YEARLY      = 2;
-  WEEKLY      = 3;
-  DAILY       = 4;
+  MONTHLY = 1;
+  YEARLY = 2;
+  WEEKLY = 3;
+  DAILY = 4;
 }
 
 enum SubscriptionStatus {
   SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
- ACTIVE      = 1;
- TRIALING    = 2;
- PAST_DUE    = 3;
- CANCELED    = 4;
- INCOMPLETE  = 5;
+  ACTIVE = 1;
+  TRIALING = 2;
+  PAST_DUE = 3;
+  CANCELED = 4;
+  INCOMPLETE = 5;
 }
 
-// proration behavior when changing plans
 enum ProrationBehavior {
   PRORATION_BEHAVIOR_UNSPECIFIED = 0;
-  PRORATE     = 1;
-  NO_PRORATE  = 2;
+  PRORATE = 1;
+  NO_PRORATE = 2;
 }
 
-
-// ============================================
-// Models
-// ============================================
+// ===============================================================
+// DOMAIN MODELS
+// ===============================================================
 
 message PlanFeatureQuota {
-  // e.g. "workflow.execution", "automation.run", "email.sent"
   string usage_key = 1;
-
-  // units included per billing period (0 = no included quota)
   int64 included_units = 2;
-
-  // cost (cents) for each extra unit beyond included_units
   int64 overage_price_cents = 3;
-
-  // if true, usage beyond included_units is blocked instead of billed
   bool hard_limit = 4;
 }
 
 message SubscriptionPlan {
   string id = 1;
-  string code = 2;         // e.g. "basic", "pro", "enterprise"
+  string code = 2;
   string name = 3;
   string description = 4;
 
   BillingInterval interval = 5;
 
-  // base recurring price per interval (cents)
   int64 price_cents = 6;
-
-  // ISO currency code, e.g. "USD", "IDR"
   string currency_code = 7;
 
   bool active = 8;
 
-  // free trial duration when starting on this plan (in days)
   int32 default_trial_days = 9;
 
-  // feature-based quotas and overage pricing
   repeated PlanFeatureQuota feature_quotas = 10;
 
   google.protobuf.Struct metadata = 11;
@@ -82,50 +67,53 @@ message SubscriptionPlan {
 
 message Subscription {
   string id = 1;
+
   string tenant_id = 2;
 
-  // reference to SubscriptionPlan.code (preferred) or id
   string plan_code = 3;
-  string plan_id   = 4;
+  string plan_id = 4;
 
   SubscriptionStatus status = 5;
 
   bool auto_renew = 6;
-
-  // if true, usage beyond quota is billed as overage
   bool allow_overage_billing = 7;
 
-  google.protobuf.Timestamp start_at               = 8;
-  google.protobuf.Timestamp current_period_start   = 9;
-  google.protobuf.Timestamp current_period_end     = 10;
+  google.protobuf.Timestamp start_at = 8;
+  google.protobuf.Timestamp current_period_start = 9;
+  google.protobuf.Timestamp current_period_end = 10;
 
-  // trial window (can overlap with first period)
-  google.protobuf.Timestamp trial_start_at         = 11;
-  google.protobuf.Timestamp trial_end_at           = 12;
+  google.protobuf.Timestamp trial_start_at = 11;
+  google.protobuf.Timestamp trial_end_at = 12;
 
-  // scheduled cancellation at end of period
-  google.protobuf.Timestamp cancel_at              = 13;
-  google.protobuf.Timestamp canceled_at            = 14;
+  google.protobuf.Timestamp cancel_at = 13;
+  google.protobuf.Timestamp canceled_at = 14;
 
-  google.protobuf.Struct metadata                  = 15;
+  google.protobuf.Struct metadata = 15;
 }
 
+// ===============================================================
+// EVENTS → Publish ke EventBus untuk BIlling Service
+// ===============================================================
+message SubscriptionCreatedEvent {
+  string subscription_id = 1;
+  string tenant_id = 2;
+  string plan_code = 3;
+  int32 trial_days = 4;
+  google.protobuf.Timestamp occurred_at = 5;
+}
 
-// ============================================
-// Requests / Responses
-// ============================================
+// ===============================================================
+// REQUEST / RESPONSE
+// ===============================================================
 
 message CreateSubscriptionRequest {
   string tenant_id = 1;
 
-  // plan to subscribe to (either code or id must be provided)
   string plan_code = 2;
-  string plan_id   = 3;
+  string plan_id = 3;
 
-  // override default trial days from plan
   int32 trial_days_override = 4;
 
-  // if false, subscription may be created in INCOMPLETE until payment method added
   bool start_immediately = 5;
 }
 
@@ -134,10 +122,7 @@ message CreateSubscriptionResponse {
 }
 
 message GetSubscriptionRequest {
-  // get by subscription id
   string id = 1;
-
-  // or get current subscription by tenant
   string tenant_id = 2;
 }
 
@@ -158,9 +143,6 @@ message ListSubscriptionsResponse {
 
 message CancelSubscriptionRequest {
   string id = 1;
-
-  // if true, cancel at end of current_period_end
-  // if false, cancel immediately
   bool cancel_at_period_end = 2;
 }
 
@@ -170,10 +152,8 @@ message CancelSubscriptionResponse {
 
 message ChangeSubscriptionPlanRequest {
   string id = 1;
-
   string new_plan_code = 2;
-  string new_plan_id   = 3;
-
+  string new_plan_id = 3;
   ProrationBehavior proration_behavior = 4;
 }
 
@@ -181,45 +161,43 @@ message ChangeSubscriptionPlanResponse {
   Subscription subscription = 1;
 }
 
-
-// ===============================
-// Subscription Service
-// ===============================
-
+// ===============================================================
+// SUBSCRIPTION SERVICE
+// ===============================================================
 service SubscriptionService {
 
-  // Create a subscription for a tenant on a given plan.
-  rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse) {
+  rpc CreateSubscription(CreateSubscriptionRequest)
+      returns (CreateSubscriptionResponse) {
     option (google.api.http) = {
       post: "/v1/subscriptions"
       body: "*"
     };
   }
 
-  // Get subscription by id or current subscription by tenant.
-  rpc GetSubscription(GetSubscriptionRequest) returns (GetSubscriptionResponse) {
+  rpc GetSubscription(GetSubscriptionRequest)
+      returns (GetSubscriptionResponse) {
     option (google.api.http) = {
       get: "/v1/subscriptions:get"
     };
   }
 
-  // List subscriptions for a tenant (history / multi-subscription support).
-  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+  rpc ListSubscriptions(ListSubscriptionsRequest)
+      returns (ListSubscriptionsResponse) {
     option (google.api.http) = {
       get: "/v1/subscriptions"
     };
   }
 
-  // Cancel a subscription (immediately or at period end).
-  rpc CancelSubscription(CancelSubscriptionRequest) returns (CancelSubscriptionResponse) {
+  rpc CancelSubscription(CancelSubscriptionRequest)
+      returns (CancelSubscriptionResponse) {
     option (google.api.http) = {
       post: "/v1/subscriptions/{id}:cancel"
       body: "*"
     };
   }
 
-  // Change plan for an active subscription.
-  rpc ChangeSubscriptionPlan(ChangeSubscriptionPlanRequest) returns (ChangeSubscriptionPlanResponse) {
+  rpc ChangeSubscriptionPlan(ChangeSubscriptionPlanRequest)
+      returns (ChangeSubscriptionPlanResponse) {
     option (google.api.http) = {
       post: "/v1/subscriptions/{id}:change-plan"
       body: "*"

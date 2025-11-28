@@ -4,97 +4,142 @@ package smallbiznis.audit.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/audit/v1;auditv1";
 
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
-import "google/api/annotations.proto";
 
-// ===============================
+// ======================================================
+// ENUMS
+// ======================================================
+
+enum ActorType {
+  ACTOR_TYPE_UNSPECIFIED = 0;
+  USER = 1;
+  SERVICE_ACCOUNT = 2;
+  SYSTEM = 3;
+}
+
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+
+  CREATED = 1;
+  UPDATED = 2;
+  DELETED = 3;
+
+  LOGIN = 10;
+  LOGOUT = 11;
+
+  STATUS_CHANGED = 20;
+  PERMISSION_CHANGED = 21;
+
+  CUSTOM = 99;
+}
+
+// ======================================================
 // MODELS
-// ===============================
+// ======================================================
 
-// Audit event type
-enum AuditAction {
-  AUDIT_ACTION_UNSPECIFIED = 0;
+message AuditEvent {
+  string id = 1;
+  string tenant_id = 2;
 
-  CREATED   = 1;
-  UPDATED   = 2;
-  DELETED   = 3;
+  ActorType actor_type = 3;
+  string actor_id = 4; // user_id / service_id / system constant
 
-  LOGIN     = 10;
-  LOGOUT    = 11;
+  string action = 5;        // e.g. "created_user", "update_product"
+  ActionType action_type = 6;
 
-  PERMISSION_CHANGED = 20;
-  SUBSCRIPTION_CHANGED = 21;
-  SYSTEM_EVENT = 99;
+  string resource_type = 7; // "product", "order", "voucher", "tenant"
+  string resource_id = 8;
+
+  google.protobuf.Struct old_values = 9; // minimal diff
+  google.protobuf.Struct new_values = 10;
+
+  string ip_address = 11;
+  string user_agent = 12;
+
+  google.protobuf.Struct metadata = 13;
+
+  google.protobuf.Timestamp created_at = 14;
 }
 
-// Audit record
-message AuditRecord {
-  string id = 1;                    // uuid
-  string tenant_id = 2;              // multi-tenant support
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
 
-  AuditAction action = 3;
-  string resource_type = 4;         // "product", "order", "voucher", "user"
-  string resource_id = 5;           // string to support uuid/slugs
-
-  string actor_user_id = 6;         // user who caused the event
-  string actor_service = 7;         // internal service (e.g. "billing", "voucher")
-
-  google.protobuf.Timestamp occurred_at = 8;
-
-  // Optional payload (before/after values, metadata)
-  google.protobuf.Struct data = 9;
-}
-
-// ===============================
-// REQUEST & RESPONSE
-// ===============================
-
-message RecordAuditRequest {
-  AuditRecord record = 1;
-}
-
-message RecordAuditResponse {
-  bool success = 1;
-}
-
-message ListAuditRequest {
+message CreateAuditEventRequest {
   string tenant_id = 1;
-  string resource_type = 2;          // optional filter
-  string resource_id = 3;            // optional
 
-  int32 page = 4;
-  int32 page_size = 5;
+  ActorType actor_type = 2;
+  string actor_id = 3;
 
-  google.protobuf.Timestamp from = 6;
-  google.protobuf.Timestamp to   = 7;
+  string action = 4;
+  ActionType action_type = 5;
+
+  string resource_type = 6;
+  string resource_id = 7;
+
+  google.protobuf.Struct old_values = 8;
+  google.protobuf.Struct new_values = 9;
+
+  string ip_address = 10;
+  string user_agent = 11;
+
+  google.protobuf.Struct metadata = 12;
 }
 
-message ListAuditResponse {
-  repeated AuditRecord records = 1;
-  int32 page = 2;
-  int32 page_size = 3;
-  int32 total_pages = 4;
+message CreateAuditEventResponse {
+  AuditEvent event = 1;
 }
 
-// ===============================
+message ListAuditEventsRequest {
+  string tenant_id = 1;
+  string resource_type = 2;
+  string resource_id = 3;
+  string actor_id = 4;
+  ActionType action_type = 5;
+  int32 page_size = 6;
+  string page_token = 7;
+}
+
+message ListAuditEventsResponse {
+  repeated AuditEvent events = 1;
+  string next_page_token = 2;
+}
+
+message GetAuditEventRequest {
+  string id = 1;
+}
+
+message GetAuditEventResponse {
+  AuditEvent event = 1;
+}
+
+// ======================================================
 // SERVICE
-// ===============================
+// ======================================================
 
 service AuditService {
 
-  rpc RecordAudit(RecordAuditRequest)
-      returns (RecordAuditResponse) {
+  rpc CreateAuditEvent(CreateAuditEventRequest)
+      returns (CreateAuditEventResponse) {
     option (google.api.http) = {
-      post: "/v1/audit/record"
+      post: "/v1/audit/events"
       body: "*"
     };
   }
 
-  rpc ListAudit(ListAuditRequest)
-      returns (ListAuditResponse) {
+  rpc ListAuditEvents(ListAuditEventsRequest)
+      returns (ListAuditEventsResponse) {
     option (google.api.http) = {
-      get: "/v1/audit/logs"
+      get: "/v1/audit/events"
+    };
+  }
+
+  rpc GetAuditEvent(GetAuditEventRequest)
+      returns (GetAuditEventResponse) {
+    option (google.api.http) = {
+      get: "/v1/audit/events/{id}"
     };
   }
 }

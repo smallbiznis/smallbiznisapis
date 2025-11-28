@@ -1,0 +1,280 @@
+syntax = "proto3";
+
+package smallbiznis.checkout.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/checkout/v1;checkoutv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ======================================================
+// ENUMS
+// ======================================================
+
+enum CheckoutStatus {
+  CHECKOUT_STATUS_UNSPECIFIED = 0;
+  CHECKOUT_PENDING = 1;
+  CHECKOUT_AWAITING_PAYMENT = 2;
+  CHECKOUT_COMPLETED = 3;
+  CHECKOUT_EXPIRED = 4;
+  CHECKOUT_CANCELLED = 5;
+}
+
+enum CheckoutPaymentMethod {
+  CHECKOUT_PAYMENT_METHOD_UNSPECIFIED = 0;
+  CHECKOUT_PAYMENT_CASH = 1;
+  CHECKOUT_PAYMENT_CARD = 2;
+  CHECKOUT_PAYMENT_EWALLET = 3;
+  CHECKOUT_PAYMENT_BANK_TRANSFER = 4;
+  CHECKOUT_PAYMENT_QRIS = 5;
+  CHECKOUT_PAYMENT_INTERNAL_BALANCE = 6;
+}
+
+// ======================================================
+// MODELS
+// ======================================================
+
+message CheckoutItem {
+  string product_id = 1;
+  string variant_id = 2;
+  int64 quantity = 3;
+
+  // snapshot info for UI (optional)
+  string name = 4;
+  int64 unit_price_cents = 5;
+
+  google.protobuf.Struct metadata = 6;
+}
+
+message CheckoutPriceComponent {
+  string code = 1;          // e.g. "SUBTOTAL", "VOUCHER", "POINTS", "TAX", "SHIPPING"
+  string label = 2;         // e.g. "Subtotal", "Voucher Discount"
+  int64 amount_cents = 3;   // positive or negative depending on type
+  google.protobuf.Struct metadata = 4;
+}
+
+message CheckoutPriceBreakdown {
+  int64 subtotal_cents = 1;
+  int64 discount_cents = 2;
+  int64 tax_cents = 3;
+  int64 shipping_cents = 4;
+  int64 total_cents = 5;
+
+  repeated CheckoutPriceComponent components = 6;
+}
+
+message CheckoutSession {
+  string id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+  string location_id = 4;
+
+  repeated CheckoutItem items = 5;
+
+  string voucher_code = 6;
+  int64 points_to_use = 7;
+
+  CheckoutPriceBreakdown price = 8;
+
+  CheckoutStatus status = 9;
+  CheckoutPaymentMethod payment_method = 10;
+
+  // reference to external payment provider (Midtrans/Xendit/etc)
+  string payment_session_id = 11;
+  string payment_redirect_url = 12;
+
+  string order_id = 13; // from TransactionService if completed
+
+  google.protobuf.Timestamp expires_at = 14;
+
+  google.protobuf.Struct metadata = 15;
+
+  google.protobuf.Timestamp created_at = 16;
+  google.protobuf.Timestamp updated_at = 17;
+}
+
+// ======================================================
+// EVENTS
+// ======================================================
+
+message CheckoutCreatedEvent {
+  string checkout_id = 1;
+  string tenant_id = 2;
+  int64 total_cents = 3;
+  google.protobuf.Timestamp occurred_at = 4;
+}
+
+message CheckoutCompletedEvent {
+  string checkout_id = 1;
+  string tenant_id = 2;
+  string order_id = 3;
+  int64 total_cents = 4;
+  google.protobuf.Timestamp occurred_at = 5;
+}
+
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
+
+// 1) Hitung total tanpa membuat session (stateless quote)
+// ------------------------------------------------------
+
+message CalculateQuoteRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  string location_id = 3;
+
+  repeated CheckoutItem items = 4;
+
+  // opsional: langsung test voucher & points
+  string voucher_code = 5;
+  int64 points_to_use = 6;
+
+  google.protobuf.Struct metadata = 7;
+}
+
+message CalculateQuoteResponse {
+  CheckoutPriceBreakdown price = 1;
+
+  // untuk UI
+  string normalized_voucher_code = 2;
+  int64 points_applied = 3;
+
+  // optional flags
+  bool voucher_valid = 4;
+  string voucher_error = 5;
+  bool points_valid = 6;
+  string points_error = 7;
+}
+
+// 2) Membuat CheckoutSession (stateful)
+// -------------------------------------
+
+message CreateCheckoutSessionRequest {
+  string tenant_id = 1;
+  string user_id = 2;
+  string location_id = 3;
+
+  repeated CheckoutItem items = 4;
+
+  string voucher_code = 5;
+  int64 points_to_use = 6;
+
+  CheckoutPaymentMethod payment_method = 7;
+
+  google.protobuf.Struct metadata = 8;
+}
+
+message CreateCheckoutSessionResponse {
+  CheckoutSession session = 1;
+}
+
+// 3) Ambil CheckoutSession
+// ------------------------
+
+message GetCheckoutSessionRequest {
+  string id = 1;
+}
+
+message GetCheckoutSessionResponse {
+  CheckoutSession session = 1;
+}
+
+// 4) Update (misal change payment method / re-calc)
+// -------------------------------------------------
+
+message UpdateCheckoutSessionRequest {
+  string id = 1;
+
+  // field opsional yang boleh berubah
+  repeated CheckoutItem items = 2;
+  string voucher_code = 3;
+  int64 points_to_use = 4;
+  CheckoutPaymentMethod payment_method = 5;
+
+  google.protobuf.Struct metadata = 6;
+}
+
+message UpdateCheckoutSessionResponse {
+  CheckoutSession session = 1;
+}
+
+// 5) Create Payment Session (ke payment provider)
+// -----------------------------------------------
+
+message CreatePaymentSessionRequest {
+  string checkout_id = 1;
+}
+
+message CreatePaymentSessionResponse {
+  CheckoutSession session = 1;
+}
+
+// 6) Commit -> benar-benar membuat Order di TransactionService
+// ------------------------------------------------------------
+
+message CommitCheckoutRequest {
+  string checkout_id = 1;
+}
+
+message CommitCheckoutResponse {
+  string order_id = 1;
+  CheckoutSession session = 2;
+}
+
+// ======================================================
+// SERVICE
+// ======================================================
+
+service CheckoutService {
+
+  // Kalkulasi tanpa membuat session (bisa dipanggil berkali-kali di frontend)
+  rpc CalculateQuote(CalculateQuoteRequest)
+      returns (CalculateQuoteResponse) {
+    option (google.api.http) = {
+      post: "/v1/checkout:calculate"
+      body: "*"
+    };
+  }
+
+  // Buat checkout session (stateful)
+  rpc CreateCheckoutSession(CreateCheckoutSessionRequest)
+      returns (CreateCheckoutSessionResponse) {
+    option (google.api.http) = {
+      post: "/v1/checkout/sessions"
+      body: "*"
+    };
+  }
+
+  rpc GetCheckoutSession(GetCheckoutSessionRequest)
+      returns (GetCheckoutSessionResponse) {
+    option (google.api.http) = {
+      get: "/v1/checkout/sessions/{id}"
+    };
+  }
+
+  rpc UpdateCheckoutSession(UpdateCheckoutSessionRequest)
+      returns (UpdateCheckoutSessionResponse) {
+    option (google.api.http) = {
+      patch: "/v1/checkout/sessions/{id}"
+      body: "*"
+    };
+  }
+
+  rpc CreatePaymentSession(CreatePaymentSessionRequest)
+      returns (CreatePaymentSessionResponse) {
+    option (google.api.http) = {
+      post: "/v1/checkout/sessions/{checkout_id}:create-payment"
+      body: "*"
+    };
+  }
+
+  rpc CommitCheckout(CommitCheckoutRequest)
+      returns (CommitCheckoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/checkout/sessions/{checkout_id}:commit"
+      body: "*"
+    };
+  }
+}

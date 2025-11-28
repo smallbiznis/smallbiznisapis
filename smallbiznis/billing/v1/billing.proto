@@ -8,36 +8,30 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
-// ==========================================================
-// ENUM – Standardized Billing Error Codes
-// ==========================================================
+
+// ===============================================================
+// ENUMS
+// ===============================================================
 enum BillingErrorCode {
-  BILLING_ERROR_CODE_UNSPECIFIED       = 0;
+  BILLING_ERROR_CODE_UNSPECIFIED = 0;
 
-  // Pricing-related
-  BILLING_ERROR_USAGE_KEY_NOT_FOUND    = 1;
+  BILLING_ERROR_USAGE_KEY_NOT_FOUND = 1;
 
-  // Balance & trial
-  BILLING_ERROR_INSUFFICIENT_BALANCE   = 2;
-  BILLING_ERROR_TRIAL_EXPIRED          = 3;
-  BILLING_ERROR_TRIAL_NOT_INITIALIZED  = 4;
+  BILLING_ERROR_INSUFFICIENT_BALANCE = 2;
+  BILLING_ERROR_TRIAL_EXPIRED = 3;
+  BILLING_ERROR_TRIAL_NOT_INITIALIZED = 4;
 
-  // Internal errors
-  BILLING_ERROR_INTERNAL                = 100;
+  BILLING_ERROR_INTERNAL = 100;
 }
 
-// ==========================================================
-// Message: BillingError (standardized error envelope)
-// ==========================================================
 message BillingError {
   BillingErrorCode code = 1;
   string message = 2;
 }
 
-
-// ==========================================================
-// Models
-// ==========================================================
+// ===============================================================
+// DOMAIN MODELS
+// ===============================================================
 
 message TrialStatus {
   bool enabled = 1;
@@ -46,23 +40,25 @@ message TrialStatus {
   int64 balance_cents = 3;
 
   google.protobuf.Timestamp trial_start_at = 4;
-  google.protobuf.Timestamp trial_end_at   = 5;
+  google.protobuf.Timestamp trial_end_at = 5;
 }
 
 message Balance {
   string tenant_id = 1;
-  int64 balance_cents = 2;
-  google.protobuf.Timestamp updated_at = 3;
+
+  int64 trial_balance_cents = 2;
+  int64 paid_balance_cents = 3;
+
+  google.protobuf.Timestamp updated_at = 4;
 }
 
 message PricingRule {
   string usage_key = 1;
-  int64 cost_per_unit = 2;     // base cost per unit
-  int64 min_charge = 3;        // minimum charge
-  int64 max_charge = 4;        // cap on charge
+  int64 cost_per_unit = 2;
+  int64 min_charge = 3;
+  int64 max_charge = 4;
 }
 
-// usage event from service usage
 message UsageEvent {
   string tenant_id = 1;
   string usage_key = 2;
@@ -81,29 +77,23 @@ message UsageRecord {
   google.protobuf.Timestamp created_at = 8;
 }
 
-
-// ==========================================================
-// Event Envelope (EventCatalog standard)
-// ==========================================================
-
-message BillingEventEnvelope {
-  string event_id = 1;
-  string event_type = 2; // smallbiznis.billing.<entity>.<action>.v1
-  google.protobuf.Timestamp occurred_at = 3;
-
-  // raw event payload, flexible
-  google.protobuf.Struct data = 4;
-
-  // metadata (tenant_id, source, trace_id, user_id, etc.)
-  google.protobuf.Struct metadata = 5;
+// ===============================================================
+// SUBSCRIPTION EVENT ENTRYPOINT
+// ===============================================================
+message OnSubscriptionCreatedRequest {
+  string tenant_id = 1;
+  string plan_code = 2;
+  int32 trial_days = 3;
 }
 
+message OnSubscriptionCreatedResponse {
+  TrialStatus trial = 1;
+}
 
-// ==========================================================
-// Service RPC Definitions
-// ==========================================================
+// ===============================================================
+// REQUEST / RESPONSE
+// ===============================================================
 
-// 1. Init Trial (initial credit assigned)
 message InitTrialRequest {
   string tenant_id = 1;
   int64 initial_balance_cents = 2;
@@ -115,7 +105,6 @@ message InitTrialResponse {
   BillingError error = 2;
 }
 
-// 2. Get Trial Status
 message GetTrialStatusRequest {
   string tenant_id = 1;
 }
@@ -125,7 +114,6 @@ message GetTrialStatusResponse {
   BillingError error = 2;
 }
 
-// 3. Record Usage (usage-based cost billing)
 message RecordUsageResponse {
   bool success = 1;
   BillingErrorCode error_code = 2;
@@ -134,7 +122,6 @@ message RecordUsageResponse {
   int64 remaining_balance_cents = 4;
 }
 
-// 4. Check trial + balance gating
 message CheckTrialAndBalanceRequest {
   string tenant_id = 1;
 }
@@ -149,7 +136,6 @@ message CheckTrialAndBalanceResponse {
   BillingError error = 5;
 }
 
-// 5. Get Balance Only
 message GetBalanceRequest {
   string tenant_id = 1;
 }
@@ -159,42 +145,26 @@ message GetBalanceResponse {
   BillingError error = 2;
 }
 
-
-// ==========================================================
-// Billing Service
-// ==========================================================
+// ===============================================================
+// BILLING SERVICE
+// ===============================================================
 service BillingService {
 
-  rpc InitTrial(InitTrialRequest) returns (InitTrialResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/trial:init"
-      body: "*"
-    };
-  }
+  // dipanggil oleh SubscriptionService setelah create subscription
+  rpc OnSubscriptionCreated(OnSubscriptionCreatedRequest)
+      returns (OnSubscriptionCreatedResponse);
 
-  rpc GetTrialStatus(GetTrialStatusRequest) returns (GetTrialStatusResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/trial/status"
-    };
-  }
+  rpc InitTrial(InitTrialRequest) returns (InitTrialResponse);
 
-  rpc RecordUsage(UsageEvent) returns (RecordUsageResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/usage"
-      body: "*"
-    };
-  }
+  rpc GetTrialStatus(GetTrialStatusRequest)
+      returns (GetTrialStatusResponse);
+
+  rpc RecordUsage(UsageEvent)
+      returns (RecordUsageResponse);
 
   rpc CheckTrialAndBalance(CheckTrialAndBalanceRequest)
-       returns (CheckTrialAndBalanceResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/check"
-    };
-  }
+      returns (CheckTrialAndBalanceResponse);
 
-  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/balance"
-    };
-  }
+  rpc GetBalance(GetBalanceRequest)
+      returns (GetBalanceResponse);
 }

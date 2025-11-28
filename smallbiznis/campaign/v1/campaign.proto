@@ -1,0 +1,278 @@
+syntax = "proto3";
+
+package smallbiznis.campaign.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/campaign/v1;campaignv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ======================================================
+// ENUMS
+// ======================================================
+
+enum CampaignStatus {
+  CAMPAIGN_STATUS_UNSPECIFIED = 0;
+  DRAFT = 1;
+  ACTIVE = 2;
+  INACTIVE = 3;
+  EXPIRED = 4;
+}
+
+enum CampaignType {
+  CAMPAIGN_TYPE_UNSPECIFIED = 0;
+  DISCOUNT = 1;         // percent, fixed, free items
+  VOUCHER_ISSUE = 2;    // auto-generate voucher
+  LOYALTY_BONUS = 3;    // extra points
+  AUTOMATION = 4;       // send notification, webhook, etc.
+}
+
+enum ConditionOperator {
+  OPERATOR_UNSPECIFIED = 0;
+  EQUALS = 1;
+  NOT_EQUALS = 2;
+  GREATER_THAN = 3;
+  GREATER_OR_EQUAL = 4;
+  LESS_THAN = 5;
+  LESS_OR_EQUAL = 6;
+  IN = 7;
+  NOT_IN = 8;
+}
+
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+  APPLY_PERCENT_DISCOUNT = 1;
+  APPLY_FIXED_DISCOUNT = 2;
+  APPLY_FREE_ITEM = 3;
+
+  ISSUE_VOUCHER = 4;
+  ISSUE_POINTS = 5;
+
+  SEND_NOTIFICATION = 6;
+  CALL_WEBHOOK = 7;
+}
+
+// ======================================================
+// MODELS
+// ======================================================
+
+message Campaign {
+  string id = 1;
+  string tenant_id = 2;
+
+  string name = 3;
+  string description = 4;
+
+  CampaignType type = 5;
+  CampaignStatus status = 6;
+
+  google.protobuf.Timestamp start_at = 7;
+  google.protobuf.Timestamp end_at = 8;
+
+  google.protobuf.Struct metadata = 9;
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message CampaignCondition {
+  string id = 1;
+  string campaign_id = 2;
+
+  string field = 3;             // "order.total", "user.city", "product.category"
+  ConditionOperator operator = 4;
+  google.protobuf.Struct value = 5; // any type: number/string/list
+
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message CampaignAction {
+  string id = 1;
+  string campaign_id = 2;
+
+  ActionType type = 3;
+
+  // e.g. discount percent, discount value, voucher pool id, points
+  google.protobuf.Struct config = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+}
+
+// ======================================================
+// EVALUATION RESULT (API untuk CheckoutService)
+// ======================================================
+
+message DiscountResult {
+  string campaign_id = 1;
+  string label = 2;
+  int64 amount_cents = 3;
+}
+
+message VoucherIssueResult {
+  string voucher_id = 1;
+  string campaign_id = 2;
+}
+
+message LoyaltyBonusResult {
+  string campaign_id = 1;
+  int64 points = 2;
+}
+
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
+
+// ------ CRUD CAMPAIGN ------
+
+message CreateCampaignRequest {
+  string tenant_id = 1;
+  string name = 2;
+  string description = 3;
+  CampaignType type = 4;
+  google.protobuf.Timestamp start_at = 5;
+  google.protobuf.Timestamp end_at = 6;
+  google.protobuf.Struct metadata = 7;
+}
+
+message CreateCampaignResponse {
+  Campaign campaign = 1;
+}
+
+message UpdateCampaignStatusRequest {
+  string id = 1;
+  CampaignStatus status = 2;
+}
+
+message UpdateCampaignStatusResponse {
+  Campaign campaign = 1;
+}
+
+message GetCampaignRequest {
+  string id = 1;
+}
+
+message GetCampaignResponse {
+  Campaign campaign = 1;
+  repeated CampaignCondition conditions = 2;
+  repeated CampaignAction actions = 3;
+}
+
+message ListCampaignsRequest {
+  string tenant_id = 1;
+  CampaignStatus status_filter = 2;
+}
+
+message ListCampaignsResponse {
+  repeated Campaign campaigns = 1;
+}
+
+// ------ CONDITIONS ------
+
+message AddConditionRequest {
+  string campaign_id = 1;
+
+  string field = 2;
+  ConditionOperator operator = 3;
+  google.protobuf.Struct value = 4;
+}
+
+message AddConditionResponse {
+  CampaignCondition condition = 1;
+}
+
+// ------ ACTIONS ------
+
+message AddActionRequest {
+  string campaign_id = 1;
+
+  ActionType type = 2;
+  google.protobuf.Struct config = 3;
+}
+
+message AddActionResponse {
+  CampaignAction action = 1;
+}
+
+// ------ EVALUATE CAMPAIGN (used by Checkout) ------
+
+message EvaluateCampaignsRequest {
+  string tenant_id = 1;
+
+  // input context for conditions
+  google.protobuf.Struct context = 2;
+
+  // e.g. output needed by checkout:
+  // order total, product list, user info, transaction count, etc.
+}
+
+message EvaluateCampaignsResponse {
+  repeated DiscountResult discounts = 1;
+  repeated VoucherIssueResult vouchers = 2;
+  repeated LoyaltyBonusResult bonuses = 3;
+}
+
+// ======================================================
+// SERVICE
+// ======================================================
+
+service CampaignService {
+
+  // Campaign Core
+  rpc CreateCampaign(CreateCampaignRequest)
+      returns (CreateCampaignResponse) {
+    option (google.api.http) = {
+      post: "/v1/campaigns"
+      body: "*"
+    };
+  }
+
+  rpc UpdateCampaignStatus(UpdateCampaignStatusRequest)
+      returns (UpdateCampaignStatusResponse) {
+    option (google.api.http) = {
+      post: "/v1/campaigns/{id}:status"
+      body: "*"
+    };
+  }
+
+  rpc GetCampaign(GetCampaignRequest)
+      returns (GetCampaignResponse) {
+    option (google.api.http) = {
+      get: "/v1/campaigns/{id}"
+    };
+  }
+
+  rpc ListCampaigns(ListCampaignsRequest)
+      returns (ListCampaignsResponse) {
+    option (google.api.http) = {
+      get: "/v1/campaigns"
+    };
+  }
+
+  // Conditions
+  rpc AddCondition(AddConditionRequest)
+      returns (AddConditionResponse) {
+    option (google.api.http) = {
+      post: "/v1/campaigns/{campaign_id}/conditions"
+      body: "*"
+    };
+  }
+
+  // Actions
+  rpc AddAction(AddActionRequest)
+      returns (AddActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/campaigns/{campaign_id}/actions"
+      body: "*"
+    };
+  }
+
+  // Evaluate (main API for Checkout)
+  rpc EvaluateCampaigns(EvaluateCampaignsRequest)
+      returns (EvaluateCampaignsResponse) {
+    option (google.api.http) = {
+      post: "/v1/campaigns:evaluate"
+      body: "*"
+    };
+  }
+}

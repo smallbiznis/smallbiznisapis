@@ -4,86 +4,124 @@ package smallbiznis.notification.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/notification/v1;notificationv1";
 
-import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 
-// ===============================
+// ======================================================
 // ENUMS
-// ===============================
+// ======================================================
 
-enum NotificationChannel {
-  NOTIFICATION_CHANNEL_UNSPECIFIED = 0;
-  EMAIL       = 1;
-  SMS         = 2;
-  WHATSAPP    = 3;
-  PUSH        = 4;
-  WEBHOOK     = 5;
+enum Channel {
+  CHANNEL_UNSPECIFIED = 0;
+  EMAIL = 1;
+  WHATSAPP = 2;
+  SMS = 3;
+  PUSH = 4;
+  INAPP = 5;             // Inbox message
+  WEBHOOK = 6;
 }
 
-// ===============================
+enum NotificationStatus {
+  NOTIFICATION_STATUS_UNSPECIFIED = 0;
+  QUEUED = 1;
+  SENT = 2;
+  FAILED = 3;
+  DELIVERED = 4;
+}
+
+enum AttemptStatus {
+  ATTEMPT_STATUS_UNSPECIFIED = 0;
+  ATTEMPT_SUCCESS = 1;
+  ATTEMPT_FAILED = 2;
+}
+
+// ======================================================
 // MODELS
-// ===============================
+// ======================================================
 
-// Generic request to send notification.
-message SendNotificationRequest {
-  string tenant_id = 1;
-  NotificationChannel channel = 2;
+// -------- TEMPLATE --------
 
-  // Assignment of recipient depends on channel.
-  string to = 3; // email addr, phone number, token, webhook URL
-
-  // Title/subject for EMAIL and PUSH
-  string title = 4;
-
-  // Body template variables resolved on server.
-  string template_id = 5;
-
-  // Custom data for template rendering.
-  google.protobuf.Struct variables = 6;
-
-  // For debug/testing environments
-  bool dry_run = 7;
-}
-
-// Generic send response.
-message SendNotificationResponse {
-  bool success = 1;
-  string message_id = 2;
-  google.protobuf.Timestamp sent_at = 3;
-}
-
-// Manage templates
 message NotificationTemplate {
   string id = 1;
-  string name = 2;
-  NotificationChannel channel = 3;
+  string tenant_id = 2;
 
-  // Subject/title (email & push)
-  string title = 4;
+  string name = 3;
+  Channel channel = 4;
 
-  // Content body (html/text/markdown)
-  string body = 5;
+  string subject = 5;     // email only
+  string body = 6;        // html/text template
 
-  // Optional metadata
-  google.protobuf.Struct metadata = 6;
+  google.protobuf.Struct metadata = 7;
+
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
 }
+
+// -------- MESSAGE --------
+
+message NotificationMessage {
+  string id = 1;
+  string tenant_id = 2;
+
+  Channel channel = 3;
+
+  string template_id = 4;
+
+  string recipient = 5;        // email/phone/token/user_id
+  string subject = 6;
+  string body = 7;
+
+  NotificationStatus status = 8;
+
+  google.protobuf.Struct variables = 9; // original vars before render
+  google.protobuf.Struct metadata = 10;
+
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+// -------- DELIVERY ATTEMPT --------
+
+message DeliveryAttempt {
+  string id = 1;
+  string message_id = 2;
+
+  AttemptStatus status = 3;
+  string provider_response = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+// -------- PROVIDER CONFIG --------
+
+message ChannelProviderConfig {
+  string id = 1;
+  string tenant_id = 2;
+
+  Channel channel = 3;
+
+  google.protobuf.Struct config = 4; // smtp creds, whatsapp api key, FCM key, etc.
+
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// ======================================================
+// REQUESTS / RESPONSES
+// ======================================================
+
+// ------- TEMPLATE CRUD -------
 
 message CreateTemplateRequest {
   string tenant_id = 1;
-  NotificationTemplate template = 2;
+  string name = 2;
+  Channel channel = 3;
+  string subject = 4;
+  string body = 5;
+  google.protobuf.Struct metadata = 6;
 }
 
 message CreateTemplateResponse {
-  NotificationTemplate template = 1;
-}
-
-message GetTemplateRequest {
-  string tenant_id = 1;
-  string template_id = 2;
-}
-
-message GetTemplateResponse {
   NotificationTemplate template = 1;
 }
 
@@ -95,39 +133,108 @@ message ListTemplatesResponse {
   repeated NotificationTemplate templates = 1;
 }
 
-// ===============================
+// ------- SEND MESSAGE -------
+
+message SendNotificationRequest {
+  string tenant_id = 1;
+
+  Channel channel = 2;
+
+  string template_id = 3;
+  string recipient = 4;
+
+  google.protobuf.Struct variables = 5;   // to render template
+  google.protobuf.Struct metadata = 6;
+}
+
+message SendNotificationResponse {
+  NotificationMessage message = 1;
+}
+
+// ------- GET MESSAGE -------
+
+message GetNotificationRequest {
+  string id = 1;
+}
+
+message GetNotificationResponse {
+  NotificationMessage message = 1;
+  repeated DeliveryAttempt attempts = 2;
+}
+
+// ------- PROVIDER CONFIG -------
+
+message SetChannelConfigRequest {
+  string tenant_id = 1;
+  Channel channel = 2;
+  google.protobuf.Struct config = 3;
+}
+
+message SetChannelConfigResponse {
+  ChannelProviderConfig config = 1;
+}
+
+message GetChannelConfigRequest {
+  string tenant_id = 1;
+  Channel channel = 2;
+}
+
+message GetChannelConfigResponse {
+  ChannelProviderConfig config = 1;
+}
+
+// ======================================================
 // SERVICE
-// ===============================
+// ======================================================
 
 service NotificationService {
 
-  rpc SendNotification(SendNotificationRequest)
-      returns (SendNotificationResponse) {
-    option (google.api.http) = {
-      post: "/v1/notification/send"
-      body: "*"
-    };
-  }
-
+  // Templates
   rpc CreateTemplate(CreateTemplateRequest)
       returns (CreateTemplateResponse) {
     option (google.api.http) = {
-      post: "/v1/notification/templates"
+      post: "/v1/notifications/templates"
       body: "*"
-    };
-  }
-
-  rpc GetTemplate(GetTemplateRequest)
-      returns (GetTemplateResponse) {
-    option (google.api.http) = {
-      get: "/v1/notification/templates/{template_id}"
     };
   }
 
   rpc ListTemplates(ListTemplatesRequest)
       returns (ListTemplatesResponse) {
     option (google.api.http) = {
-      get: "/v1/notification/templates"
+      get: "/v1/notifications/templates"
+    };
+  }
+
+  // Sending
+  rpc SendNotification(SendNotificationRequest)
+      returns (SendNotificationResponse) {
+    option (google.api.http) = {
+      post: "/v1/notifications/send"
+      body: "*"
+    };
+  }
+
+  // Message detail + attempts
+  rpc GetNotification(GetNotificationRequest)
+      returns (GetNotificationResponse) {
+    option (google.api.http) = {
+      get: "/v1/notifications/{id}"
+    };
+  }
+
+  // Provider config
+  rpc SetChannelConfig(SetChannelConfigRequest)
+      returns (SetChannelConfigResponse) {
+    option (google.api.http) = {
+      post: "/v1/notifications/config"
+      body: "*"
+    };
+  }
+
+  rpc GetChannelConfig(GetChannelConfigRequest)
+      returns (GetChannelConfigResponse) {
+    option (google.api.http) = {
+      get: "/v1/notifications/config"
     };
   }
 }

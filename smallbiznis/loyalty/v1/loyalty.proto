@@ -45,7 +45,7 @@ message LoyaltyWallet {
 
   TierLevel tier = 6;
 
-  google.protobuf.Tensor metadata = 7;
+  google.protobuf.Struct metadata = 7;
 
   google.protobuf.Timestamp created_at = 8;
   google.protobuf.Timestamp updated_at = 9;

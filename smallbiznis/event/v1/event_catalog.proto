@@ -37,6 +37,7 @@ enum EventSubject {
 
   // Billing events
   BILLING_USAGE_RECORDED  = 20;  // "billing.usage_recorded"
+  BILLING_TRIAL_EXPIRED   = 21; // "billing.trial_expired"
 
   // Tenant events
   TENANT_CREATED          = 30;  // "tenant.created"
@@ -49,7 +50,9 @@ enum EventSubject {
   INVENTORY_LOW_STOCK     = 50;  // "inventory.low_stock"
 
   // Subscription events
-  SUBSCRIPTION_CHANGED    = 60;  // "subscription.changed"
+  SUBSCRIPTION_CREATED    = 60;  // "subscription.created"
+  SUBSCRIPTION_CHANGED    = 61;  // "subscription.changed"
+  SUBSCRIPTION_TRIAL_EXPIRED = 62; // "subscription.trial_expired"
 
   // Domain events
   DOMAIN_VERIFIED         = 70;  // "domain.verified"

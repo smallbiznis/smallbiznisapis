@@ -26,6 +26,7 @@ enum SubscriptionStatus {
   PAST_DUE = 3;
   CANCELED = 4;
   INCOMPLETE = 5;
+  TRIAL_EXPIRED = 6;
 }
 
 enum ProrationBehavior {

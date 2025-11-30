@@ -9,16 +9,14 @@ import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
 
-// ===============================================================
+// =======================================================================
 // ENUMS
-// ===============================================================
+// =======================================================================
 enum BillingErrorCode {
   BILLING_ERROR_CODE_UNSPECIFIED = 0;
 
-  // pricing / usage
   BILLING_ERROR_USAGE_KEY_NOT_FOUND = 1;
 
-  // balance & trial
   BILLING_ERROR_INSUFFICIENT_BALANCE = 2;
   BILLING_ERROR_TRIAL_EXPIRED        = 3;
   BILLING_ERROR_TRIAL_NOT_INITIALIZED = 4;
@@ -31,30 +29,33 @@ message BillingError {
   string message = 2;
 }
 
-// ===============================================================
+
+// =======================================================================
 // DOMAIN MODELS
-// ===============================================================
+// =======================================================================
 
+// Status trial tenant (aktif / expired + sisa saldo)
 message TrialStatus {
-  bool enabled = 1;
-  bool expired = 2;
+  bool enabled = 1; // trial aktif
+  bool expired = 2; // trial sudah habis
 
-  // total trial credit allocated for this tenant
-  int64 balance_cents = 3;
+  int64 balance_cents = 3; // sisa trial credit
 
   google.protobuf.Timestamp trial_start_at = 4;
   google.protobuf.Timestamp trial_end_at   = 5;
 }
 
+// Balance hanya untuk trial (seperti GCP Free Trial)
 message Balance {
   string tenant_id = 1;
 
+  // free trial credit
   int64 trial_balance_cents = 2;
-  int64 paid_balance_cents  = 3;
 
-  google.protobuf.Timestamp updated_at = 4;
+  google.protobuf.Timestamp updated_at = 3;
 }
 
+// Aturan harga untuk usage-based metric
 message PricingRule {
   string usage_key = 1;
   int64 cost_per_unit = 2;
@@ -62,6 +63,7 @@ message PricingRule {
   int64 max_charge    = 4;
 }
 
+// Event penggunaan service (usage-based billing)
 message UsageEvent {
   string tenant_id = 1;
   string usage_key = 2;
@@ -69,6 +71,7 @@ message UsageEvent {
   google.protobuf.Struct metadata = 4;
 }
 
+// Catatan usage yang sudah dihitung
 message UsageRecord {
   string id = 1;
   string tenant_id = 2;
@@ -77,32 +80,35 @@ message UsageRecord {
   int64 amount     = 4;
   int64 cost_cents = 5;
 
-  // balances after this usage is applied
+  // sisa balance trial setelah deduction
   int64 trial_balance_left = 6;
-  int64 paid_balance_left  = 7;
 
-  google.protobuf.Struct metadata      = 8;
-  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Struct metadata = 7;
+  google.protobuf.Timestamp created_at = 8;
 }
 
-// ===============================================================
-// SUBSCRIPTION EVENT ENTRYPOINT (MAIN ONBOARDING PATH)
-// ===============================================================
+
+// =======================================================================
+// ENTRYPOINT DARI SUBSCRIPTION SERVICE
+// =======================================================================
+
+// Dipanggil saat tenant memilih plan & subscription dibuat
 message OnSubscriptionCreatedRequest {
   string tenant_id = 1;
   string plan_code = 2;
-  int32 trial_days = 3; // comes from SubscriptionPlan.default_trial_days
+  int32 trial_days = 3; // dikirim langsung dari SubscriptionService
 }
 
 message OnSubscriptionCreatedResponse {
   TrialStatus trial = 1;
 }
 
-// ===============================================================
-// REQUEST / RESPONSE
-// ===============================================================
 
-// INTERNAL / ADMIN USE ONLY – NOT USED IN NORMAL ONBOARDING FLOW
+// =======================================================================
+// REQUEST / RESPONSE
+// =======================================================================
+
+// INTERNAL ONLY: opsional untuk repair atau migration
 message InitTrialRequest {
   string tenant_id = 1;
   int64 initial_balance_cents = 2;
@@ -110,8 +116,8 @@ message InitTrialRequest {
 }
 
 message InitTrialResponse {
-  TrialStatus trial   = 1;
-  BillingError error  = 2;
+  TrialStatus trial = 1;
+  BillingError error = 2;
 }
 
 message GetTrialStatusRequest {
@@ -119,17 +125,16 @@ message GetTrialStatusRequest {
 }
 
 message GetTrialStatusResponse {
-  TrialStatus trial   = 1;
-  BillingError error  = 2;
+  TrialStatus trial = 1;
+  BillingError error = 2;
 }
 
 message RecordUsageResponse {
   bool success = 1;
   BillingErrorCode error_code = 2;
 
-  int64 cost_cents                       = 3;
-  int64 remaining_trial_balance_cents    = 4;
-  int64 remaining_paid_balance_cents     = 5;
+  int64 cost_cents = 3;
+  int64 remaining_trial_balance_cents = 4;
 }
 
 message CheckTrialAndBalanceRequest {
@@ -142,6 +147,7 @@ message CheckTrialAndBalanceResponse {
   bool allowed      = 3;
 
   TrialStatus trial = 4;
+
   BillingError error = 5;
 }
 
@@ -150,60 +156,33 @@ message GetBalanceRequest {
 }
 
 message GetBalanceResponse {
-  Balance balance   = 1;
+  Balance balance = 1;
   BillingError error = 2;
 }
 
-// ===============================================================
+
+// =======================================================================
 // BILLING SERVICE
-// ===============================================================
+// =======================================================================
 service BillingService {
 
-  // Main onboarding entrypoint:
-  // called by SubscriptionService AFTER a subscription is created.
+  // Dipanggil oleh SubscriptionService setelah subscription dibuat
   rpc OnSubscriptionCreated(OnSubscriptionCreatedRequest)
-      returns (OnSubscriptionCreatedResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/subscriptions:on-created"
-      body: "*"
-    };
-  }
+      returns (OnSubscriptionCreatedResponse);
 
-  // // INTERNAL ONLY – admin/ops, not used in tenant onboarding.
-  // rpc InitTrial(InitTrialRequest) returns (InitTrialResponse) {
-  //   option (google.api.http) = {
-  //     post: "/v1/billing/trial:init"
-  //     body: "*"
-  //   };
-  // }
+  // INTERNAL — bukan bagian dari onboarding
+  // rpc InitTrial(InitTrialRequest)
+  //     returns (InitTrialResponse);
 
   rpc GetTrialStatus(GetTrialStatusRequest)
-      returns (GetTrialStatusResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/trial/status"
-    };
-  }
+      returns (GetTrialStatusResponse);
 
-  // Usage-based billing entrypoint, used by other services.
   rpc RecordUsage(UsageEvent)
-      returns (RecordUsageResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/usage"
-      body: "*"
-    };
-  }
+      returns (RecordUsageResponse);
 
   rpc CheckTrialAndBalance(CheckTrialAndBalanceRequest)
-      returns (CheckTrialAndBalanceResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/check"
-    };
-  }
+      returns (CheckTrialAndBalanceResponse);
 
   rpc GetBalance(GetBalanceRequest)
-      returns (GetBalanceResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/balance"
-    };
-  }
+      returns (GetBalanceResponse);
 }

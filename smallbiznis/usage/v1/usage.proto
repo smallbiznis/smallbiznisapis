@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package smallbiznis.usage.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/usage/v1;usagev1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+enum UsageMetricType {
+  USAGE_METRIC_TYPE_UNSPECIFIED = 0;
+  USAGE_METRIC_TYPE_COUNTER     = 1; // e.g. API calls
+  USAGE_METRIC_TYPE_GAUGE       = 2; // e.g. concurrent connections
+}
+
+message UsageMetricDefinition {
+  string           code        = 1; // e.g. "api_calls"
+  string           name        = 2;
+  string           description = 3;
+  UsageMetricType  type        = 4;
+  string           unit        = 5; // "calls", "GB", etc
+}
+
+// Raw usage event
+message UsageRecord {
+  string                     id          = 1;
+  string                     tenant_id   = 2;
+  string                     subscription_id = 3;
+  string                     metric_code = 4;
+  double                     value       = 5;
+  google.protobuf.Timestamp  recorded_at = 6;
+  string                     idempotency_key = 7;
+  google.protobuf.Struct     metadata    = 8;
+}
+
+// Aggregated usage per window (hour/day/month)
+message UsageAggregation {
+  string                     tenant_id        = 1;
+  string                     subscription_id  = 2;
+  string                     metric_code      = 3;
+  double                     total_value      = 4;
+  google.protobuf.Timestamp  window_start     = 5;
+  google.protobuf.Timestamp  window_end       = 6;
+  string                     window_granularity = 7; // "hour", "day", "month"
+}
+
+message IngestUsageRequest {
+  UsageRecord record = 1;
+}
+
+message IngestUsageResponse {
+  string id = 1;
+}
+
+message ListUsageRequest {
+  string tenant_id       = 1;
+  string subscription_id = 2;
+  string metric_code     = 3;
+  google.protobuf.Timestamp from = 4;
+  google.protobuf.Timestamp to   = 5;
+  int32  page_size       = 10;
+  string page_token      = 11;
+}
+
+message ListUsageResponse {
+  repeated UsageRecord records        = 1;
+  string               next_page_token = 2;
+}
+
+message GetUsageSummaryRequest {
+  string tenant_id       = 1;
+  string subscription_id = 2;
+  string metric_code     = 3;
+  google.protobuf.Timestamp from = 4;
+  google.protobuf.Timestamp to   = 5;
+}
+
+message GetUsageSummaryResponse {
+  repeated UsageAggregation aggregations = 1;
+}
+
+// Untuk daftar metric yang tersedia (dipakai UI / integrasi)
+message ListUsageMetricsRequest {}
+
+message ListUsageMetricsResponse {
+  repeated UsageMetricDefinition metrics = 1;
+}
+
+service UsageService {
+
+  rpc IngestUsage(IngestUsageRequest) returns (IngestUsageResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/usage"
+      body: "*"
+    };
+  }
+
+  rpc ListUsage(ListUsageRequest) returns (ListUsageResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/usage"
+    };
+  }
+
+  rpc GetUsageSummary(GetUsageSummaryRequest) returns (GetUsageSummaryResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/usage/summary"
+    };
+  }
+
+  rpc ListUsageMetrics(ListUsageMetricsRequest) returns (ListUsageMetricsResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/usage/metrics"
+    };
+  }
+}

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package smallbiznis.credit.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/credit/v1;creditv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+import "smallbiznis/common/money.proto";
+import "smallbiznis/invoice/v1/invoice.proto"; // if you wire with buf, sesuaikan path
+
+enum CreditType {
+  CREDIT_TYPE_UNSPECIFIED = 0;
+  CREDIT_TYPE_ADJUSTMENT  = 1;
+  CREDIT_TYPE_REFUND      = 2;
+  CREDIT_TYPE_BALANCE     = 3;
+}
+
+message CreditNote {
+  string                     id           = 1;
+  string                     tenant_id    = 2;
+  string                     invoice_id   = 3;
+  CreditType                 type         = 4;
+  smallbiznis.common.Money                      amount       = 5;
+  string                     reason       = 6;
+  google.protobuf.Struct     metadata     = 7;
+  google.protobuf.Timestamp  created_at   = 10;
+}
+
+message CreateCreditNoteRequest {
+  string     invoice_id = 1;
+  CreditType type       = 2;
+  smallbiznis.common.Money      amount     = 3;
+  string     reason     = 4;
+}
+
+message CreateCreditNoteResponse {
+  CreditNote credit_note = 1;
+}
+
+message ListCreditNotesRequest {
+  string tenant_id  = 1;
+  string invoice_id = 2;
+}
+
+message ListCreditNotesResponse {
+  repeated CreditNote credit_notes = 1;
+}
+
+service CreditService {
+  rpc CreateCreditNote(CreateCreditNoteRequest) returns (CreateCreditNoteResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/invoices/{invoice_id}/credits"
+      body: "*"
+    };
+  }
+
+  rpc ListCreditNotes(ListCreditNotesRequest) returns (ListCreditNotesResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/credits"
+    };
+  }
+}

@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package smallbiznis.billing_event.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing_event/v1;billingeventv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ======================================
+// ENUMS
+// ======================================
+
+enum BillingEventType {
+  BILLING_EVENT_UNSPECIFIED = 0;
+
+  SUBSCRIPTION_CREATED = 1;
+  SUBSCRIPTION_RENEWED = 2;
+  SUBSCRIPTION_CANCELLED = 3;
+
+  INVOICE_GENERATED = 10;
+  INVOICE_PAID      = 11;
+  INVOICE_OVERDUE   = 12;
+
+  PAYMENT_SUCCEEDED = 20;
+  PAYMENT_FAILED    = 21;
+  PAYMENT_RETRY     = 22;
+
+  USAGE_RECORDED    = 30;
+  RATING_COMPLETED  = 31;
+}
+
+// ======================================
+// MODEL
+// ======================================
+
+message BillingEvent {
+  string id = 1;
+  BillingEventType type = 2;
+
+  string tenant_id  = 3;
+  string resource_id = 4; // subscription_id / invoice_id / payment_id / metric_code
+
+  google.protobuf.Struct payload = 10;
+
+  google.protobuf.Timestamp created_at = 20;
+}
+
+// ======================================
+// Webhook Delivery
+// ======================================
+
+message WebhookEndpoint {
+  string id        = 1;
+  string tenant_id = 2;
+  string url       = 3;
+  bool   active    = 4;
+}
+
+message DeliverWebhookRequest {
+  string event_id   = 1;
+  string endpoint_id = 2;
+}
+
+message DeliverWebhookResponse {
+  bool delivered = 1;
+}
+
+// ======================================
+// SERVICE
+// ======================================
+
+service BillingEventService {
+
+  rpc EmitEvent(BillingEvent) returns (BillingEvent) {
+    option (google.api.http) = {
+      post: "/v1/billing/events"
+      body: "*"
+    };
+  }
+
+  rpc DeliverWebhook(DeliverWebhookRequest)
+      returns (DeliverWebhookResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/events/{event_id}/deliver/{endpoint_id}"
+      body: "*"
+    };
+  }
+}

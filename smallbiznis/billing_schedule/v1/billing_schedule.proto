@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package smallbiznis.billing_schedule.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing_schedule/v1;billingschedulev1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+enum ScheduleTaskType {
+  SCHEDULE_TASK_UNSPECIFIED = 0;
+  SCHEDULE_TASK_RENEWAL      = 1;
+  SCHEDULE_TASK_TRIAL_EXPIRY = 2;
+  SCHEDULE_TASK_DUNNING      = 3;
+  SCHEDULE_TASK_RATING_CLOSE = 4;
+}
+
+message RenewalTask {
+  string subscription_id = 1;
+}
+
+message TrialExpiryTask {
+  string subscription_id = 1;
+}
+
+message DunningRetryTask {
+  string invoice_id = 1;
+}
+
+message RatingWindowCloseTask {
+  string subscription_id = 1;
+  string metric_code     = 2;
+}
+
+message RunScheduleRequest {
+  ScheduleTaskType type = 1;
+  google.protobuf.Timestamp scheduled_at = 2;
+}
+
+message RunScheduleResponse {
+  bool success = 1;
+}
+
+// ======================================
+// SERVICE
+// ======================================
+
+service BillingScheduleService {
+
+  rpc RunRenewal(RenewalTask) returns (RunScheduleResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/schedule/renew"
+      body: "*"
+    };
+  }
+
+  rpc RunTrialExpiry(TrialExpiryTask) returns (RunScheduleResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/schedule/trial-expiry"
+      body: "*"
+    };
+  }
+
+  rpc RunDunning(DunningRetryTask) returns (RunScheduleResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/schedule/dunning"
+      body: "*"
+    };
+  }
+
+  rpc RunRatingWindowClose(RatingWindowCloseTask)
+      returns (RunScheduleResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/schedule/rating-close"
+      body: "*"
+    };
+  }
+}

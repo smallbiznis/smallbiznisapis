@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package smallbiznis.billing.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing/v1;billingv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+message TaxRule {
+  string id            = 1;
+  string region_code   = 2; // e.g. "ID", "SG", "EU-DE"
+  string name          = 3; // "PPN", "VAT"
+  double rate_percent  = 4;
+  bool   is_default    = 5;
+  bool   is_active     = 6;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message ListTaxRulesRequest {
+  string region_code = 1;
+}
+
+message ListTaxRulesResponse {
+  repeated TaxRule rules = 1;
+}
+
+service TaxService {
+  rpc ListTaxRules(ListTaxRulesRequest) returns (ListTaxRulesResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/tax/rules"
+    };
+  }
+}

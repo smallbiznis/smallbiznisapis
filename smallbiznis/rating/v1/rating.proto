@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package smallbiznis.rating.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/rating/v1;ratingv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "smallbiznis/pricing/v1/pricing.proto";
+
+// ======================================
+// MODELS
+// ======================================
+
+message UsageForRating {
+  string subscription_id = 1;
+  string metric_code     = 2;
+  double total_value     = 3;
+}
+
+message RatingResultItem {
+  string metric_code = 1;
+  double quantity    = 2;
+
+  // output line item
+  int64  amount_cents = 3;
+  string currency_code = 4;
+
+  google.protobuf.Struct metadata = 10;
+}
+
+message RatingResult {
+  string subscription_id = 1;
+  repeated RatingResultItem items = 2;
+  google.protobuf.Timestamp rated_at = 3;
+}
+
+// ======================================
+// REQUESTS
+// ======================================
+
+message RateSubscriptionRequest {
+  string subscription_id = 1;
+  google.protobuf.Timestamp period_start = 2;
+  google.protobuf.Timestamp period_end   = 3;
+}
+
+message RateSubscriptionResponse {
+  RatingResult result = 1;
+}
+
+// ======================================
+// SERVICE
+// ======================================
+
+service RatingService {
+  rpc RateSubscription(RateSubscriptionRequest)
+      returns (RateSubscriptionResponse) {
+    option (google.api.http) = {
+      post: "/v1/rating/subscriptions/{subscription_id}:rate"
+      body: "*"
+    };
+  }
+}

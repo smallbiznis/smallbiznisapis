@@ -18,12 +18,12 @@ GRPCPLUGIN ?= /usr/local/bin/grpc_$(LANGUAGE)_plugin
 # Choose the proto include directory.
 PROTOINCLUDE ?= /usr/local/include
 
-GATEWAY_DIR ?= ./grpc-gateway
+GATEWAY_DIR ?= ./third_party/grpc-gateway
 
 # Choose protoc binary
 PROTOC ?= protoc -I .
 
-GOOGLEAPIS ?= ./googleapis
+GOOGLEAPIS ?= ./third_party/googleapis
 
 # Choose gapic directory
 # GAPIC_OUT ?= ./gapic

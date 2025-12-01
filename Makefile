@@ -69,3 +69,33 @@ build-docs:
 clean:
 	rm $(patsubst %,$(OUTPUT)/%,$(DEPS)) 2> /dev/null
 	rm -rd $(OUTPUT)
+
+VERSION ?= $(shell cat VERSION)
+
+.PHONY: release
+release:
+	@echo "Releasing version $(VERSION)"
+	git add .
+	git commit -m "chore: release $(VERSION)"
+	git tag $(VERSION)
+	git push origin main --tags
+
+.PHONY: gen
+gen:
+	buf generate
+	go mod tidy
+
+.PHONY: bump-patch
+bump-patch:
+	@echo "Bumping patch"
+	./scripts/bump.sh patch
+
+.PHONY: bump-minor
+bump-minor:
+	@echo "Bumping minor"
+	./scripts/bump.sh minor
+
+.PHONY: bump-major
+bump-major:
+	@echo "Bumping major"
+	./scripts/bump.sh major

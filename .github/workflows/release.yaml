@@ -1,0 +1,44 @@
+name: Release Version
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout APIs repo (source)
+        uses: actions/checkout@v4
+
+      - name: Install Buf
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Generate protobuf
+        run: buf generate
+
+      - name: Checkout go-genproto
+        uses: actions/checkout@v4
+        with:
+          repository: smallbiznis/go-genproto
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: gen
+
+      - name: Sync generated files
+        run: |
+          rsync -av --delete gen/go/ gen/
+
+      - name: Commit + Tag go-genproto
+        working-directory: gen
+        run: |
+          git config user.email "bot@smallbiznis.io"
+          git config user.name "SmallBiznis Bot"
+          git add .
+          git commit -m "release $GITHUB_REF_NAME"
+          git tag $GITHUB_REF_NAME
+          git push origin main --tags

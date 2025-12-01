@@ -80,11 +80,6 @@ release:
 	git tag $(VERSION)
 	git push origin main --tags
 
-.PHONY: gen
-gen:
-	buf generate
-	go mod tidy
-
 .PHONY: bump-patch
 bump-patch:
 	@echo "Bumping patch"

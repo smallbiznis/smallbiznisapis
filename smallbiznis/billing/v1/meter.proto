@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package smallbiznis.billing.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing/v1;billingv1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum MeterStatus {
+  METER_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+}
+
+// ============================================================
+// DOMAIN MODELS
+// ============================================================
+
+// PricingRule is reused for usage metering.
+// (Reminder: This is additive. Does not modify billing.proto.)
+message MeterPricingRule {
+  int64 cost_per_unit = 1;
+  int64 min_charge = 2;
+  int64 max_charge = 3;
+}
+
+// Meter defines a usage measurement unit (usage_key).
+message Meter {
+  string id = 1;
+  string partner_id = 2;
+  string product_id = 3;
+
+  string usage_key = 4;               // unique usage identifier
+  string display_name = 5;            // shown in invoice line items
+  string description = 6;
+
+  MeterPricingRule pricing = 7;
+  MeterStatus status = 8;
+
+  google.protobuf.Struct metadata = 9;
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+// ============================================================
+// REQUEST / RESPONSE
+// ============================================================
+
+message CreateMeterRequest {
+  string partner_id = 1;
+  string product_id = 2;
+
+  string usage_key = 3;
+  string display_name = 4;
+  string description = 5;
+
+  MeterPricingRule pricing = 6;
+  google.protobuf.Struct metadata = 7;
+}
+
+message CreateMeterResponse {
+  Meter meter = 1;
+}
+
+message UpdateMeterRequest {
+  string id = 1;
+
+  string display_name = 2;
+  string description = 3;
+  MeterPricingRule pricing = 4;
+  MeterStatus status = 5;
+  google.protobuf.Struct metadata = 6;
+}
+
+message UpdateMeterResponse {
+  Meter meter = 1;
+}
+
+message GetMeterRequest {
+  string id = 1;
+}
+
+message GetMeterResponse {
+  Meter meter = 1;
+}
+
+message ListMetersRequest {
+  string partner_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListMetersResponse {
+  repeated Meter meters = 1;
+  string next_page_token = 2;
+}
+
+// ============================================================
+// METER SERVICE
+// ============================================================
+
+service MeterService {
+
+  rpc CreateMeter(CreateMeterRequest) returns (CreateMeterResponse) {
+    option (google.api.http) = {
+      post: "/v1/meters"
+      body: "*"
+    };
+  }
+
+  rpc UpdateMeter(UpdateMeterRequest) returns (UpdateMeterResponse) {
+    option (google.api.http) = {
+      patch: "/v1/meters/{id}"
+      body: "*"
+    };
+  }
+
+  rpc GetMeter(GetMeterRequest) returns (GetMeterResponse) {
+    option (google.api.http) = {
+      get: "/v1/meters/{id}"
+    };
+  }
+
+  rpc ListMeters(ListMetersRequest) returns (ListMetersResponse) {
+    option (google.api.http) = {
+      get: "/v1/meters"
+    };
+  }
+}

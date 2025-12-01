@@ -8,20 +8,25 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
-
-// =======================================================================
+// ============================================================
 // ENUMS
-// =======================================================================
+// ============================================================
+
+enum MeterStatus {
+  METER_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+}
+
 enum BillingErrorCode {
   BILLING_ERROR_CODE_UNSPECIFIED = 0;
 
-  BILLING_ERROR_USAGE_KEY_NOT_FOUND = 1;
+  BILLING_ERROR_TRIAL_NOT_INITIALIZED = 1;
+  BILLING_ERROR_TRIAL_EXPIRED         = 2;
+  BILLING_ERROR_METER_NOT_FOUND       = 3;
+  BILLING_ERROR_NO_ACTIVE_PERIOD      = 4;
 
-  BILLING_ERROR_INSUFFICIENT_BALANCE = 2;
-  BILLING_ERROR_TRIAL_EXPIRED        = 3;
-  BILLING_ERROR_TRIAL_NOT_INITIALIZED = 4;
-
-  BILLING_ERROR_INTERNAL = 100;
+  BILLING_ERROR_INTERNAL              = 100;
 }
 
 message BillingError {
@@ -29,128 +34,144 @@ message BillingError {
   string message = 2;
 }
 
-
-// =======================================================================
+// ============================================================
 // DOMAIN MODELS
-// =======================================================================
+// ============================================================
 
-// Status trial tenant (aktif / expired + sisa saldo)
+// Trial status per tenant
 message TrialStatus {
-  bool enabled = 1; // trial aktif
-  bool expired = 2; // trial sudah habis
+  bool enabled = 1;
+  bool expired = 2;
 
-  int64 balance_cents = 3; // sisa trial credit
+  int64 trial_balance_cents = 3;
 
   google.protobuf.Timestamp trial_start_at = 4;
   google.protobuf.Timestamp trial_end_at   = 5;
 }
 
-// Balance hanya untuk trial (seperti GCP Free Trial)
+// Fast-path balance (mirror of trial credits)
 message Balance {
   string tenant_id = 1;
-
-  // free trial credit
   int64 trial_balance_cents = 2;
-
   google.protobuf.Timestamp updated_at = 3;
 }
 
-// Aturan harga untuk usage-based metric
-message PricingRule {
-  string usage_key = 1;
-  int64 cost_per_unit = 2;
-  int64 min_charge    = 3;
-  int64 max_charge    = 4;
-}
-
-// Event penggunaan service (usage-based billing)
-message UsageEvent {
-  string tenant_id = 1;
-  string usage_key = 2;
-  int64 amount     = 3;
-  google.protobuf.Struct metadata = 4;
-}
-
-// Catatan usage yang sudah dihitung
-message UsageRecord {
+// Product under a tenant (grouping for meters)
+message Product {
   string id = 1;
   string tenant_id = 2;
 
-  string usage_key = 3;
-  int64 amount     = 4;
-  int64 cost_cents = 5;
+  string name = 3;
+  string description = 4;
 
-  // sisa balance trial setelah deduction
-  int64 trial_balance_left = 6;
+  google.protobuf.Struct metadata = 5;
 
-  google.protobuf.Struct metadata = 7;
-  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
 }
 
+// Pricing rule for a meter
+message MeterPricingRule {
+  int64 cost_per_unit = 1;
+  int64 min_charge     = 2;
+  int64 max_charge     = 3;
+}
 
-// =======================================================================
-// ENTRYPOINT DARI SUBSCRIPTION SERVICE
-// =======================================================================
+// Meter definition (unit of billing)
+// Example usage_key: "api.requests", "email.sent"
+message Meter {
+  string id = 1;
+  string tenant_id = 2;
+  string product_id = 3;
 
-// Dipanggil saat tenant memilih plan & subscription dibuat
+  string usage_key = 4;
+  string display_name = 5;
+  string description = 6;
+
+  MeterPricingRule pricing = 7;
+  MeterStatus status       = 8;
+
+  google.protobuf.Struct metadata = 9;
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+// Billing period (e.g. monthly) per tenant
+message BillingPeriod {
+  string id = 1;
+  string tenant_id = 2;
+
+  google.protobuf.Timestamp period_start = 3;
+  google.protobuf.Timestamp period_end   = 4;
+
+  string status = 5; // OPEN / CLOSED / INVOICED
+
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// Recorded usage (trial or billable)
+// Jika period_id kosong → masih trial (belum diinvoice).
+message UsageRecord {
+  string id = 1;
+  string tenant_id = 2;
+  string product_id = 3;
+  string meter_id = 4;
+
+  string period_id = 5; // "" if still on trial
+  int64 amount     = 6;
+  int64 cost_cents = 7;
+
+  int64 trial_balance_left = 8;
+
+  google.protobuf.Struct metadata      = 9;
+  google.protobuf.Timestamp created_at = 10;
+}
+
+// ============================================================
+// CORE BILLING RPC (dipakai Subscription + middleware internal)
+// ============================================================
+
+// Dipanggil SubscriptionService ketika subscription pertama kali dibuat.
 message OnSubscriptionCreatedRequest {
   string tenant_id = 1;
   string plan_code = 2;
-  int32 trial_days = 3; // dikirim langsung dari SubscriptionService
+  int32 trial_days = 3; // 0 → pakai default dari SubscriptionService
 }
 
 message OnSubscriptionCreatedResponse {
   TrialStatus trial = 1;
-}
-
-
-// =======================================================================
-// REQUEST / RESPONSE
-// =======================================================================
-
-// INTERNAL ONLY: opsional untuk repair atau migration
-message InitTrialRequest {
-  string tenant_id = 1;
-  int64 initial_balance_cents = 2;
-  int32 trial_days = 3;
-}
-
-message InitTrialResponse {
-  TrialStatus trial = 1;
   BillingError error = 2;
 }
 
+// Dipanggil oleh middleware / service internal untuk mencatat usage.
+message RecordUsageRequest {
+  string tenant_id = 1;
+  string product_id = 2;
+  string usage_key = 3;
+  int64 amount = 4;
+  google.protobuf.Struct metadata = 5;
+}
+
+message RecordUsageResponse {
+  bool success = 1;
+  int64 cost_cents = 2;
+  int64 trial_balance_left = 3;
+  BillingError error = 4;
+}
+
+// Mendapatkan status trial terkini.
 message GetTrialStatusRequest {
   string tenant_id = 1;
 }
 
 message GetTrialStatusResponse {
-  TrialStatus trial = 1;
+  TrialStatus status = 1;
   BillingError error = 2;
 }
 
-message RecordUsageResponse {
-  bool success = 1;
-  BillingErrorCode error_code = 2;
-
-  int64 cost_cents = 3;
-  int64 remaining_trial_balance_cents = 4;
-}
-
-message CheckTrialAndBalanceRequest {
-  string tenant_id = 1;
-}
-
-message CheckTrialAndBalanceResponse {
-  bool trial_active = 1;
-  bool has_balance  = 2;
-  bool allowed      = 3;
-
-  TrialStatus trial = 4;
-
-  BillingError error = 5;
-}
-
+// Mendapatkan balance trial (mirror fast-path).
 message GetBalanceRequest {
   string tenant_id = 1;
 }
@@ -160,29 +181,243 @@ message GetBalanceResponse {
   BillingError error = 2;
 }
 
+// ============================================================
+// METER ADMIN API (tenant bisa define meter sendiri)
+// ============================================================
 
-// =======================================================================
-// BILLING SERVICE
-// =======================================================================
+message CreateMeterRequest {
+  string tenant_id = 1;
+  string product_id = 2;
+
+  string usage_key = 3;
+  string display_name = 4;
+  string description = 5;
+
+  MeterPricingRule pricing = 6;
+  google.protobuf.Struct metadata = 7;
+}
+
+message CreateMeterResponse {
+  Meter meter = 1;
+}
+
+message UpdateMeterRequest {
+  string id = 1;
+
+  string display_name = 2;
+  string description = 3;
+  MeterPricingRule pricing = 4;
+  MeterStatus status = 5;
+  google.protobuf.Struct metadata = 6;
+}
+
+message UpdateMeterResponse {
+  Meter meter = 1;
+}
+
+message GetMeterRequest {
+  string id = 1;
+}
+
+message GetMeterResponse {
+  Meter meter = 1;
+}
+
+message ListMetersRequest {
+  string tenant_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListMetersResponse {
+  repeated Meter meters = 1;
+  string next_page_token = 2;
+}
+
+// ============================================================
+// PRODUCT ADMIN API (opsional, untuk grouping meter)
+// ============================================================
+
+message CreateProductRequest {
+  string tenant_id = 1;
+
+  string name = 2;
+  string description = 3;
+  google.protobuf.Struct metadata = 4;
+}
+
+message CreateProductResponse {
+  Product product = 1;
+}
+
+message UpdateProductRequest {
+  string id = 1;
+
+  string name = 2;
+  string description = 3;
+  google.protobuf.Struct metadata = 4;
+}
+
+message UpdateProductResponse {
+  Product product = 1;
+}
+
+message GetProductRequest {
+  string id = 1;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+message ListProductsRequest {
+  string tenant_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+  string next_page_token = 2;
+}
+
+// ============================================================
+// BILLING PERIOD QUERY API (read-only untuk now)
+// ============================================================
+
+message GetCurrentBillingPeriodRequest {
+  string tenant_id = 1;
+}
+
+message GetCurrentBillingPeriodResponse {
+  BillingPeriod period = 1;
+  BillingError error = 2;
+}
+
+message ListBillingPeriodsRequest {
+  string tenant_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListBillingPeriodsResponse {
+  repeated BillingPeriod periods = 1;
+  string next_page_token = 2;
+}
+
+// ============================================================
+// SERVICES
+// ============================================================
+
 service BillingService {
 
-  // Dipanggil oleh SubscriptionService setelah subscription dibuat
+  // Subscription → Billing
   rpc OnSubscriptionCreated(OnSubscriptionCreatedRequest)
-      returns (OnSubscriptionCreatedResponse);
+      returns (OnSubscriptionCreatedResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/subscription-created"
+      body: "*"
+    };
+  }
 
-  // INTERNAL — bukan bagian dari onboarding
-  // rpc InitTrial(InitTrialRequest)
-  //     returns (InitTrialResponse);
+  // Middleware / internal services → Billing
+  rpc RecordUsage(RecordUsageRequest)
+      returns (RecordUsageResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/usage"
+      body: "*"
+    };
+  }
 
+  // Query trial & balance
   rpc GetTrialStatus(GetTrialStatusRequest)
-      returns (GetTrialStatusResponse);
-
-  rpc RecordUsage(UsageEvent)
-      returns (RecordUsageResponse);
-
-  rpc CheckTrialAndBalance(CheckTrialAndBalanceRequest)
-      returns (CheckTrialAndBalanceResponse);
+      returns (GetTrialStatusResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/trial-status"
+    };
+  }
 
   rpc GetBalance(GetBalanceRequest)
-      returns (GetBalanceResponse);
+      returns (GetBalanceResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/balance"
+    };
+  }
+
+  // Billing period read-only (untuk UI / reporting)
+  rpc GetCurrentBillingPeriod(GetCurrentBillingPeriodRequest)
+      returns (GetCurrentBillingPeriodResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/current-period"
+    };
+  }
+
+  rpc ListBillingPeriods(ListBillingPeriodsRequest)
+      returns (ListBillingPeriodsResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/periods"
+    };
+  }
+
+  // Meter management
+  rpc CreateMeter(CreateMeterRequest)
+      returns (CreateMeterResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/meters"
+      body: "*"
+    };
+  }
+
+  rpc UpdateMeter(UpdateMeterRequest)
+      returns (UpdateMeterResponse) {
+    option (google.api.http) = {
+      patch: "/v1/billing/meters/{id}"
+      body: "*"
+    };
+  }
+
+  rpc GetMeter(GetMeterRequest)
+      returns (GetMeterResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/meters/{id}"
+    };
+  }
+
+  rpc ListMeters(ListMetersRequest)
+      returns (ListMetersResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/meters"
+    };
+  }
+
+  // Product management
+  rpc CreateProduct(CreateProductRequest)
+      returns (CreateProductResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/products"
+      body: "*"
+    };
+  }
+
+  rpc UpdateProduct(UpdateProductRequest)
+      returns (UpdateProductResponse) {
+    option (google.api.http) = {
+      patch: "/v1/billing/products/{id}"
+      body: "*"
+    };
+  }
+
+  rpc GetProduct(GetProductRequest)
+      returns (GetProductResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/products/{id}"
+    };
+  }
+
+  rpc ListProducts(ListProductsRequest)
+      returns (ListProductsResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/products"
+    };
+  }
 }

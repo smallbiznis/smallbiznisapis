@@ -11,6 +11,7 @@ import "google/api/annotations.proto";
 // ===============================================================
 // ENUMS
 // ===============================================================
+
 enum BillingInterval {
   BILLING_INTERVAL_UNSPECIFIED = 0;
   MONTHLY = 1;
@@ -36,41 +37,19 @@ enum ProrationBehavior {
 }
 
 // ===============================================================
-// DOMAIN MODELS
+// DOMAIN MODEL
 // ===============================================================
-
-message PlanFeatureQuota {
-  string usage_key = 1;
-  int64 included_units = 2;
-  int64 overage_price_cents = 3;
-  bool hard_limit = 4;
-}
-
-message SubscriptionPlan {
-  string id = 1;
-  string code = 2;
-  string name = 3;
-  string description = 4;
-
-  BillingInterval interval = 5;
-
-  int64 price_cents = 6;
-  string currency_code = 7;
-
-  bool active = 8;
-
-  int32 default_trial_days = 9;
-
-  repeated PlanFeatureQuota feature_quotas = 10;
-
-  google.protobuf.Struct metadata = 11;
-}
+// NOTE:
+// Plan definition TIDAK ADA DI SINI lagi.
+// Plan hanya diambil dari PricingService, dan Subscription hanya referensikan plan_id & plan_code.
+//
 
 message Subscription {
   string id = 1;
 
   string tenant_id = 2;
 
+  // reference to pricing module
   string plan_code = 3;
   string plan_id = 4;
 
@@ -93,8 +72,9 @@ message Subscription {
 }
 
 // ===============================================================
-// EVENTS → Publish ke EventBus untuk BIlling Service
+// EVENTS
 // ===============================================================
+
 message SubscriptionCreatedEvent {
   string subscription_id = 1;
   string tenant_id = 2;
@@ -110,6 +90,7 @@ message SubscriptionCreatedEvent {
 message CreateSubscriptionRequest {
   string tenant_id = 1;
 
+  // must match pricing plan
   string plan_code = 2;
   string plan_id = 3;
 
@@ -163,8 +144,9 @@ message ChangeSubscriptionPlanResponse {
 }
 
 // ===============================================================
-// SUBSCRIPTION SERVICE
+// SERVICE
 // ===============================================================
+
 service SubscriptionService {
 
   rpc CreateSubscription(CreateSubscriptionRequest)

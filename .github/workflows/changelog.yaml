@@ -1,0 +1,28 @@
+name: Update Changelog
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate CHANGELOG
+        uses: TriPSs/conventional-changelog-action@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          git-user-name: "SmallBiznis Bot"
+          git-user-email: "bot@smallbiznis.io"
+          output-file: "CHANGELOG.md"
+          release-count: 30
+
+      - name: Commit CHANGELOG update
+        run: |
+          git add CHANGELOG.md
+          git commit -m "docs: update changelog for $GITHUB_REF_NAME"
+          git push

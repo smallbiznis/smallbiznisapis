@@ -1,0 +1,329 @@
+syntax = "proto3";
+
+package smallbiznis.catalog.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/catalog/v1;catalogv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ===============================================================
+// ENUMS
+// ===============================================================
+
+enum ProductStatus {
+  PRODUCT_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+  DRAFT = 3;
+  ARCHIVED = 4;
+}
+
+enum ProductType {
+  PRODUCT_TYPE_UNSPECIFIED = 0;
+  PHYSICAL = 1;
+  DIGITAL = 2;
+  SERVICE = 3;
+  SUBSCRIPTION = 4; // for add-ons or modules
+}
+
+enum SKUStatus {
+  SKU_STATUS_UNSPECIFIED = 0;
+  SKU_ACTIVE = 1;
+  SKU_INACTIVE = 2;
+}
+
+enum UnitType {
+  UNIT_TYPE_UNSPECIFIED = 0;
+  UNIT_PCS = 1;
+  UNIT_KG = 2;
+  UNIT_G = 3;
+  UNIT_LITER = 4;
+  UNIT_BOX = 5;
+  UNIT_PACKET = 6;
+  UNIT_MONTH = 7;
+  UNIT_YEAR = 8;
+}
+
+// ===============================================================
+// MODELS
+// ===============================================================
+
+// ------------------------------
+// CATEGORY
+// ------------------------------
+message Category {
+  string id = 1;
+  string tenant_id = 2;
+
+  string name = 3;
+  string slug = 4;
+
+  string parent_id = 5;
+
+  bool active = 6;
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+// ------------------------------
+// OPTION + OPTION VALUE
+// ------------------------------
+message Option {
+  string id = 1;
+  string tenant_id = 2;
+  string name = 3;  // Size, Color
+  google.protobuf.Timestamp created_at = 10;
+}
+
+message OptionValue {
+  string id = 1;
+  string option_id = 2;
+  string value = 3; // "Red", "XL"
+}
+
+// ------------------------------
+// PRODUCT CORE
+// ------------------------------
+message Product {
+  string id = 1;
+  string tenant_id = 2;
+
+  string name = 3;
+  string slug = 4;
+  string description = 5;
+
+  ProductStatus status = 6;
+  ProductType   type   = 7;
+
+  repeated string image_urls = 8;
+
+  // categories
+  repeated string category_ids = 9;
+
+  google.protobuf.Struct attributes = 20; // custom key-value properties
+
+  google.protobuf.Timestamp created_at = 30;
+  google.protobuf.Timestamp updated_at = 31;
+}
+
+// ------------------------------
+// VARIANT
+// ------------------------------
+message Variant {
+  string id = 1;
+  string product_id = 2;
+
+  string name = 3; // "Red / XL"
+
+  // option + value selection:
+  repeated VariantOptionValue option_values = 4;
+
+  string sku_id = 5;
+}
+
+message VariantOptionValue {
+  string option_id = 1;
+  string value_id  = 2;
+}
+
+// ------------------------------
+// SKU (STOCK KEEPING UNIT)
+// ------------------------------
+message SKU {
+  string id = 1;
+  string tenant_id = 2;
+
+  // link to product or variant
+  string product_id = 3;
+  string variant_id = 4;
+
+  string code = 5;       // unique SKU code
+  string barcode = 6;    // EAN, UPC
+
+  SKUStatus status = 7;
+
+  UnitType unit_type = 8;
+
+  double weight_kg = 9;
+  double width_cm  = 10;
+  double height_cm = 11;
+  double length_cm = 12;
+
+  google.protobuf.Struct metadata = 20;
+
+  google.protobuf.Timestamp created_at = 30;
+  google.protobuf.Timestamp updated_at = 31;
+}
+
+// ===============================================================
+// REQUESTS / RESPONSES
+// ===============================================================
+
+// ---------- Product ----------
+message CreateProductRequest {
+  Product product = 1;
+}
+
+message CreateProductResponse {
+  Product product = 1;
+}
+
+message GetProductRequest {
+  string id = 1;
+  string tenant_id = 2;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+message ListProductsRequest {
+  string tenant_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+  ProductStatus status = 4;
+}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+  string next_page_token = 2;
+}
+
+// ---------- Variant ----------
+message CreateVariantRequest {
+  Variant variant = 1;
+}
+
+message CreateVariantResponse {
+  Variant variant = 1;
+}
+
+message ListVariantsRequest {
+  string product_id = 1;
+}
+
+message ListVariantsResponse {
+  repeated Variant variants = 1;
+}
+
+// ---------- SKU ----------
+message CreateSKURequest {
+  SKU sku = 1;
+}
+
+message CreateSKUResponse {
+  SKU sku = 1;
+}
+
+message GetSKURequest {
+  string id = 1;
+  string tenant_id = 2;
+}
+
+message GetSKUResponse {
+  SKU sku = 1;
+}
+
+message ListSKUsRequest {
+  string tenant_id = 1;
+  string product_id = 2;
+}
+
+message ListSKUsResponse {
+  repeated SKU skus = 1;
+}
+
+// ---------- Category ----------
+message CreateCategoryRequest {
+  Category category = 1;
+}
+
+message CreateCategoryResponse {
+  Category category = 1;
+}
+
+message ListCategoriesRequest {
+  string tenant_id = 1;
+}
+
+message ListCategoriesResponse {
+  repeated Category categories = 1;
+}
+
+// ===============================================================
+// SERVICE
+// ===============================================================
+
+service CatalogService {
+
+  // Product
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {
+    option (google.api.http) = {
+      post: "/v1/catalog/products"
+      body: "*"
+    };
+  }
+
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {
+    option (google.api.http) = {
+      get: "/v1/catalog/products/{id}"
+    };
+  }
+
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse) {
+    option (google.api.http) = {
+      get: "/v1/catalog/products"
+    };
+  }
+
+  // Variant
+  rpc CreateVariant(CreateVariantRequest) returns (CreateVariantResponse) {
+    option (google.api.http) = {
+      post: "/v1/catalog/variants"
+      body: "*"
+    };
+  }
+
+  rpc ListVariants(ListVariantsRequest) returns (ListVariantsResponse) {
+    option (google.api.http) = {
+      get: "/v1/catalog/products/{product_id}/variants"
+    };
+  }
+
+  // SKU
+  rpc CreateSKU(CreateSKURequest) returns (CreateSKUResponse) {
+    option (google.api.http) = {
+      post: "/v1/catalog/skus"
+      body: "*"
+    };
+  }
+
+  rpc GetSKU(GetSKURequest) returns (GetSKUResponse) {
+    option (google.api.http) = {
+      get: "/v1/catalog/skus/{id}"
+    };
+  }
+
+  rpc ListSKUs(ListSKUsRequest) returns (ListSKUsResponse) {
+    option (google.api.http) = {
+      get: "/v1/catalog/skus"
+    };
+  }
+
+  // Category
+  rpc CreateCategory(CreateCategoryRequest) returns (CreateCategoryResponse) {
+    option (google.api.http) = {
+      post: "/v1/catalog/categories"
+      body: "*"
+    };
+  }
+
+  rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse) {
+    option (google.api.http) = {
+      get: "/v1/catalog/categories"
+    };
+  }
+}

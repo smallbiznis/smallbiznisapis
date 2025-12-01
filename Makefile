@@ -18,12 +18,12 @@ GRPCPLUGIN ?= /usr/local/bin/grpc_$(LANGUAGE)_plugin
 # Choose the proto include directory.
 PROTOINCLUDE ?= /usr/local/include
 
-GATEWAY_DIR ?= ./grpc-gateway
+GATEWAY_DIR ?= ./third_party/grpc-gateway
 
 # Choose protoc binary
 PROTOC ?= protoc -I .
 
-GOOGLEAPIS ?= ./googleapis
+GOOGLEAPIS ?= ./third_party/googleapis
 
 # Choose gapic directory
 # GAPIC_OUT ?= ./gapic
@@ -69,3 +69,28 @@ build-docs:
 clean:
 	rm $(patsubst %,$(OUTPUT)/%,$(DEPS)) 2> /dev/null
 	rm -rd $(OUTPUT)
+
+VERSION ?= $(shell cat VERSION)
+
+.PHONY: release
+release:
+	@echo "Releasing version $(VERSION)"
+	git add .
+	git commit -m "chore: release $(VERSION)"
+	git tag $(VERSION)
+	git push origin main --tags
+
+.PHONY: bump-patch
+bump-patch:
+	@echo "Bumping patch"
+	./scripts/bump.sh patch
+
+.PHONY: bump-minor
+bump-minor:
+	@echo "Bumping minor"
+	./scripts/bump.sh minor
+
+.PHONY: bump-major
+bump-major:
+	@echo "Bumping major"
+	./scripts/bump.sh major

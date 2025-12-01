@@ -100,7 +100,6 @@ message TenantUserAddedEvent {
 message CreateTenantRequest {
   string name = 1;
   string slug = 2;
-  string owner_user_id = 3;
 }
 
 message CreateTenantResponse {

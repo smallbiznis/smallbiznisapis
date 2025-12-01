@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package smallbiznis.billing.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing/v1;billingv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+enum PaymentProvider {
+  PAYMENT_PROVIDER_UNSPECIFIED = 0;
+  PAYMENT_PROVIDER_STRIPE      = 1;
+  PAYMENT_PROVIDER_XENDIT      = 2;
+  PAYMENT_PROVIDER_MIDTRANS    = 3;
+  PAYMENT_PROVIDER_DUMMY       = 9; // for sandbox
+}
+
+enum PaymentMethodType {
+  PAYMENT_METHOD_TYPE_UNSPECIFIED = 0;
+  PAYMENT_METHOD_TYPE_CARD        = 1;
+  PAYMENT_METHOD_TYPE_VA          = 2;
+  PAYMENT_METHOD_TYPE_EWALLET     = 3;
+}
+
+enum PaymentStatus {
+  PAYMENT_STATUS_UNSPECIFIED = 0;
+  PAYMENT_STATUS_PENDING     = 1;
+  PAYMENT_STATUS_PROCESSING  = 2;
+  PAYMENT_STATUS_SUCCEEDED   = 3;
+  PAYMENT_STATUS_FAILED      = 4;
+  PAYMENT_STATUS_REFUNDED    = 5;
+}
+
+message PaymentMethod {
+  string              id             = 1;
+  string              tenant_id      = 2;
+  PaymentProvider     provider       = 3;
+  PaymentMethodType   type           = 4;
+  string              display_name   = 5; // e.g. "Visa **** 4242"
+  string              last4          = 6;
+  string              exp_month      = 7;
+  string              exp_year       = 8;
+  bool                is_default     = 9;
+  google.protobuf.Struct provider_data = 20;
+  google.protobuf.Timestamp created_at = 30;
+  google.protobuf.Timestamp updated_at = 31;
+}
+
+message PaymentAttempt {
+  string                     id           = 1;
+  string                     tenant_id    = 2;
+  string                     invoice_id   = 3;
+  string                     payment_method_id = 4;
+  PaymentStatus              status       = 5;
+  string                     provider_transaction_id = 6;
+  google.protobuf.Timestamp  attempted_at = 7;
+  google.protobuf.Struct     metadata     = 8;
+}
+
+// Requests / Responses
+
+message ListPaymentMethodsRequest {
+  string tenant_id = 1;
+}
+
+message ListPaymentMethodsResponse {
+  repeated PaymentMethod methods = 1;
+}
+
+message AttachPaymentMethodRequest {
+  string              tenant_id     = 1;
+  PaymentProvider     provider      = 2;
+  PaymentMethodType   type          = 3;
+  google.protobuf.Struct provider_payload = 4; // token, VA info, etc
+  bool                set_as_default = 5;
+}
+
+message AttachPaymentMethodResponse {
+  PaymentMethod method = 1;
+}
+
+message ChargeInvoiceRequest {
+  string invoice_id          = 1;
+  string payment_method_id   = 2; // optional, use default if empty
+}
+
+message ChargeInvoiceResponse {
+  PaymentAttempt attempt = 1;
+}
+
+message GetPaymentAttemptsRequest {
+  string invoice_id = 1;
+}
+
+message GetPaymentAttemptsResponse {
+  repeated PaymentAttempt attempts = 1;
+}
+
+service PaymentService {
+
+  rpc ListPaymentMethods(ListPaymentMethodsRequest) returns (ListPaymentMethodsResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/tenants/{tenant_id}/payment-methods"
+    };
+  }
+
+  rpc AttachPaymentMethod(AttachPaymentMethodRequest) returns (AttachPaymentMethodResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/tenants/{tenant_id}/payment-methods"
+      body: "*"
+    };
+  }
+
+  rpc ChargeInvoice(ChargeInvoiceRequest) returns (ChargeInvoiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/invoices/{invoice_id}:charge"
+      body: "*"
+    };
+  }
+
+  rpc GetPaymentAttempts(GetPaymentAttemptsRequest) returns (GetPaymentAttemptsResponse) {
+    option (google.api.http) = {
+      get: "/v1/billing/invoices/{invoice_id}/payments"
+    };
+  }
+}

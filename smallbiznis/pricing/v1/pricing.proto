@@ -1,3 +1,4 @@
+// IMPORTANT: LOCKED SPEC. Only change with explicit migration.
 syntax = "proto3";
 
 package smallbiznis.pricing.v1;

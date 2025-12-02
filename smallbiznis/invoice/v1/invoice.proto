@@ -8,6 +8,8 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
+import "smallbiznis/rating/v1/rating.proto";
+import "smallbiznis/invoice/v1/invoice.proto";
 import "smallbiznis/common/money.proto";
 
 // ============================================
@@ -131,6 +133,14 @@ message GetInvoicePdfRequest {
 message GetInvoicePdfResponse {
   // Bisa signed URL atau path internal
   string pdf_url = 1;
+}
+
+message GenerateInvoiceRequest {
+  smallbiznis.rating.v1.RatingResult rating_result = 1;
+}
+
+message GenerateInvoiceResponse {
+  smallbiznis.invoice.v1.Invoice invoice = 1;
 }
 
 // ============================================

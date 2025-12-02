@@ -27,10 +27,21 @@ message ListTaxRulesResponse {
   repeated TaxRule rules = 1;
 }
 
+message TaxCalculationRequest {
+  int64 subtotal_cents = 1;
+  string country = 2;
+  string region = 3;
+}
+
+message TaxCalculationResponse {
+  int64 tax_cents = 1;
+}
+
 service TaxService {
   rpc ListTaxRules(ListTaxRulesRequest) returns (ListTaxRulesResponse) {
     option (google.api.http) = {
       get: "/v1/billing/tax/rules"
     };
   }
+  rpc CalculateTax(TaxCalculationRequest) returns (TaxCalculationResponse);
 }

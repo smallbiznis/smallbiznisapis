@@ -14,28 +14,40 @@ import "google/protobuf/struct.proto";
 
 enum PricingModel {
   PRICING_MODEL_UNSPECIFIED = 0;
-  PRICING_MODEL_FLAT        = 1; // flat monthly fee
-  PRICING_MODEL_METERED     = 2; // based on usage
-  PRICING_MODEL_TIERED      = 3; // volume/tiered
-  PRICING_MODEL_PACKAGE     = 4; // bundled usage
+
+  // 1 price per month / per billing cycle
+  PRICING_MODEL_FLAT        = 1;
+
+  // Usage × unit_price_cents
+  PRICING_MODEL_METERED     = 2;
+
+  // Volume / Tiered pricing
+  PRICING_MODEL_TIERED      = 3;
+
+  // Bundled plan: included units + overage
+  PRICING_MODEL_PACKAGE     = 4;
 }
 
 // ======================================
 // MODELS
 // ======================================
 
+// A Plan MAY have multiple meters for different metrics.
+// Example:
+//  - workflow.executed (metered)
+//  - sms.sent (package)
+//  - voucher.issued (tiered)
 message Plan {
   string id = 1;
   string code = 2;
   string name = 3;
   string description = 4;
 
-  PricingModel pricing_model = 5;
+  string currency_code = 10;  // e.g. IDR, USD
+  int64 base_price_cents = 11; // used for flat plans
 
-  int64 base_price_cents = 6;
-  string currency_code    = 7;
-
-  repeated PlanTier tiers = 10;
+  // Plans can have multiple meters (multi-metric pricing)
+  repeated PlanMeter meters = 20;
 
   google.protobuf.Struct metadata = 90;
 
@@ -44,23 +56,53 @@ message Plan {
   google.protobuf.Timestamp updated_at = 102;
 }
 
-message PlanTier {
-  string metric_code = 1; // "api_calls"
-  int64  up_to       = 2; // e.g. up to 10000 calls
-  int64  unit_price_cents = 3;
+
+// A per-metric pricing definition
+message PlanMeter {
+  string metric_code = 1; // "workflow.executed", "sms.sent"
+
+  PricingModel pricing_model = 2;
+
+  // Applies ONLY for PRICING_MODEL_METERED
+  int64 unit_price_cents = 3;
+
+  // Applies ONLY for PRICING_MODEL_PACKAGE
+  int64 included_units = 4;
+  int64 overage_unit_price_cents = 5;
+
+  // Applies ONLY for PRICING_MODEL_TIERED
+  repeated PlanTier tiers = 6;
+
+  google.protobuf.Struct metadata = 90;
 }
 
+
+// Single tier for tiered pricing model
+message PlanTier {
+  int64 up_to = 1;              // up to X units
+  int64 unit_price_cents = 2;   // price per unit
+}
+
+
 // ======================================
-// REQUEST / RESPONSE
+// REQUESTS / RESPONSES
 // ======================================
 
-message GetPlanRequest { string id = 1; }
+message GetPlanRequest {
+  string id = 1;
+}
 
-message ListPlansRequest { bool active_only = 1; }
+message GetPlanByCodeRequest {
+  string code = 1;
+}
 
-message ListPlansResponse { repeated Plan plans = 1; }
+message ListPlansRequest {
+  bool active_only = 1;
+}
 
-message GetPlanByCodeRequest { string code = 1; }
+message ListPlansResponse {
+  repeated Plan plans = 1;
+}
 
 message CreatePlanRequest {
   Plan plan = 1;
@@ -77,21 +119,15 @@ message CreatePlanResponse {
 service PricingService {
 
   rpc GetPlan(GetPlanRequest) returns (Plan) {
-    option (google.api.http) = {
-      get: "/v1/pricing/plans/{id}"
-    };
+    option (google.api.http) = { get: "/v1/pricing/plans/{id}" };
   }
 
   rpc GetPlanByCode(GetPlanByCodeRequest) returns (Plan) {
-    option (google.api.http) = {
-      get: "/v1/pricing/plans/code/{code}"
-    };
+    option (google.api.http) = { get: "/v1/pricing/plans/code/{code}" };
   }
 
   rpc ListPlans(ListPlansRequest) returns (ListPlansResponse) {
-    option (google.api.http) = {
-      get: "/v1/pricing/plans"
-    };
+    option (google.api.http) = { get: "/v1/pricing/plans" };
   }
 
   rpc CreatePlan(CreatePlanRequest) returns (CreatePlanResponse) {

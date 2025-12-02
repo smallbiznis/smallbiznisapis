@@ -40,19 +40,22 @@ enum InvoiceLineItemType {
 
 message InvoiceLineItem {
   string                id            = 1;
-  InvoiceLineItemType   type          = 2;
-  string                description   = 3;
-  int64                 quantity      = 4;
-  smallbiznis.common.Money                 unit_price    = 5;
-  smallbiznis.common.Money                 amount        = 6;
-  string                metric_code   = 7;  // e.g. "api_calls"
-  google.protobuf.Struct metadata     = 8;
+  string invoice_id = 2;
+  InvoiceLineItemType   type          = 3;
+  string                description   = 4;
+  int64                 quantity      = 5;
+  smallbiznis.common.Money                 unit_price    = 6;
+  smallbiznis.common.Money                 amount_cents        = 7;
+  string                metric_code   = 8;  // e.g. "api_calls"
+  google.protobuf.Struct metadata     = 9;
 }
 
 message TaxBreakdown {
-  string name          = 1;   // e.g. "PPN"
-  double rate_percent  = 2;   // e.g. 11.0
-  smallbiznis.common.Money  amount        = 3;
+  string id            = 1;
+  string invoice_id    = 2;
+  string name          = 3;   // e.g. "PPN"
+  double rate_percent  = 4;   // e.g. 11.0
+  smallbiznis.common.Money  amount_cents        = 5;
 }
 
 message Invoice {

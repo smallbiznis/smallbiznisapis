@@ -8,8 +8,6 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
-import "smallbiznis/rating/v1/rating.proto";
-import "smallbiznis/invoice/v1/invoice.proto";
 import "smallbiznis/common/money.proto";
 
 // ============================================
@@ -42,12 +40,12 @@ enum InvoiceLineItemType {
 
 message InvoiceLineItem {
   string                id            = 1;
-  string invoice_id = 2;
+  string                invoice_id    = 2;
   InvoiceLineItemType   type          = 3;
   string                description   = 4;
-  int64                 quantity      = 5;
-  smallbiznis.common.Money                 unit_price    = 6;
-  smallbiznis.common.Money                 amount_cents        = 7;
+  double                quantity      = 5;
+  smallbiznis.common.Money unit_price = 6;
+  smallbiznis.common.Money amount     = 7;
   string                metric_code   = 8;  // e.g. "api_calls"
   google.protobuf.Struct metadata     = 9;
 }
@@ -57,40 +55,40 @@ message TaxBreakdown {
   string invoice_id    = 2;
   string name          = 3;   // e.g. "PPN"
   double rate_percent  = 4;   // e.g. 11.0
-  smallbiznis.common.Money  amount_cents        = 5;
+  smallbiznis.common.Money amount = 5;
 }
 
 message Invoice {
-  string                           id                  = 1;
-  string                           tenant_id           = 2;
-  string                           subscription_id     = 3;
-  string                           invoice_number      = 4;
-  InvoiceStatus                    status              = 5;
+  string                    id              = 1;
+  string                    tenant_id       = 2;
+  string                    subscription_id = 3;
+  string                    invoice_number  = 4;
+  InvoiceStatus             status          = 5;
 
-  google.protobuf.Timestamp        billing_period_start = 10;
-  google.protobuf.Timestamp        billing_period_end   = 11;
-  google.protobuf.Timestamp        issued_at            = 12;
-  google.protobuf.Timestamp        due_at               = 13;
-  google.protobuf.Timestamp        paid_at              = 14;
-  google.protobuf.Timestamp        void_at              = 15;
+  google.protobuf.Timestamp billing_period_start = 10;
+  google.protobuf.Timestamp billing_period_end   = 11;
+  google.protobuf.Timestamp issued_at            = 12;
+  google.protobuf.Timestamp due_at               = 13;
+  google.protobuf.Timestamp paid_at              = 14;
+  google.protobuf.Timestamp void_at              = 15;
 
-  repeated InvoiceLineItem         line_items          = 20;
-  smallbiznis.common.Money                            subtotal            = 21;
-  smallbiznis.common.Money                            discount_total      = 22;
-  smallbiznis.common.Money                            tax_total           = 23;
-  smallbiznis.common.Money                            total               = 24;
-  smallbiznis.common.Money                            amount_paid         = 25;
-  smallbiznis.common.Money                            amount_due          = 26;
+  repeated InvoiceLineItem  line_items      = 20;
+  smallbiznis.common.Money  subtotal        = 21;
+  smallbiznis.common.Money  discount_total  = 22;
+  smallbiznis.common.Money  tax_total       = 23;
+  smallbiznis.common.Money  total           = 24;
+  smallbiznis.common.Money  amount_paid     = 25;
+  smallbiznis.common.Money  amount_due      = 26;
 
-  repeated TaxBreakdown            taxes               = 30;
+  repeated TaxBreakdown     taxes           = 30;
 
-  string                           currency_code       = 40;
-  string                           customer_reference  = 41;
+  string                    currency_code   = 40;
+  string                    customer_reference = 41;
 
-  google.protobuf.Struct           metadata            = 90;
+  google.protobuf.Struct    metadata        = 90;
 
-  google.protobuf.Timestamp        created_at          = 100;
-  google.protobuf.Timestamp        updated_at          = 101;
+  google.protobuf.Timestamp created_at      = 100;
+  google.protobuf.Timestamp updated_at      = 101;
 }
 
 // ============================================
@@ -102,27 +100,28 @@ message GetInvoiceRequest {
 }
 
 message ListInvoicesRequest {
-  string tenant_id     = 1;
-  string subscription_id = 2;
-  int32  page_size     = 10;
-  string page_token    = 11;
-  InvoiceStatus status = 12;
+  string        tenant_id       = 1;
+  string        subscription_id = 2;
+  int32         page_size       = 10;
+  string        page_token      = 11;
+  InvoiceStatus status          = 12;
 }
 
 message ListInvoicesResponse {
-  repeated Invoice invoices   = 1;
-  string          next_page_token = 2;
+  repeated Invoice invoices        = 1;
+  string          next_page_token  = 2;
 }
 
+// Dipanggil scheduler / subscription renewal
 message GenerateInvoiceForSubscriptionRequest {
   string subscription_id = 1;
-  // Jika diisi, override billing period
+  // optional override billing period
   google.protobuf.Timestamp billing_period_start = 2;
   google.protobuf.Timestamp billing_period_end   = 3;
-  bool   dry_run = 4; // jika true, hanya preview, tidak persist
+  bool   dry_run = 4; // if true, preview only, do not persist
 }
 
-message GenerateInvoiceResponse {
+message GenerateInvoiceForSubscriptionResponse {
   Invoice invoice = 1;
 }
 
@@ -131,16 +130,8 @@ message GetInvoicePdfRequest {
 }
 
 message GetInvoicePdfResponse {
-  // Bisa signed URL atau path internal
+  // e.g. signed URL or internal path
   string pdf_url = 1;
-}
-
-message GenerateInvoiceRequest {
-  smallbiznis.rating.v1.RatingResult rating_result = 1;
-}
-
-message GenerateInvoiceResponse {
-  smallbiznis.invoice.v1.Invoice invoice = 1;
 }
 
 // ============================================
@@ -163,7 +154,7 @@ service InvoiceService {
 
   // Dipanggil oleh scheduler / subscription renewal
   rpc GenerateInvoiceForSubscription(GenerateInvoiceForSubscriptionRequest)
-      returns (GenerateInvoiceResponse) {
+      returns (GenerateInvoiceForSubscriptionResponse) {
     option (google.api.http) = {
       post: "/v1/billing/subscriptions/{subscription_id}/generate-invoice"
       body: "*"

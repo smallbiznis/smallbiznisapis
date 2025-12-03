@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package smallbiznis.billing.v1;
+package smallbiznis.payment.v1;
 
-option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing/v1;billingv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/payment/v1;paymentv1";
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
@@ -13,7 +13,7 @@ enum PaymentProvider {
   PAYMENT_PROVIDER_STRIPE      = 1;
   PAYMENT_PROVIDER_XENDIT      = 2;
   PAYMENT_PROVIDER_MIDTRANS    = 3;
-  PAYMENT_PROVIDER_DUMMY       = 9; // for sandbox
+  PAYMENT_PROVIDER_DUMMY       = 9;
 }
 
 enum PaymentMethodType {
@@ -37,7 +37,7 @@ message PaymentMethod {
   string              tenant_id      = 2;
   PaymentProvider     provider       = 3;
   PaymentMethodType   type           = 4;
-  string              display_name   = 5; // e.g. "Visa **** 4242"
+  string              display_name   = 5;
   string              last4          = 6;
   string              exp_month      = 7;
   string              exp_year       = 8;
@@ -58,8 +58,6 @@ message PaymentAttempt {
   google.protobuf.Struct     metadata     = 8;
 }
 
-// Requests / Responses
-
 message ListPaymentMethodsRequest {
   string tenant_id = 1;
 }
@@ -72,7 +70,7 @@ message AttachPaymentMethodRequest {
   string              tenant_id     = 1;
   PaymentProvider     provider      = 2;
   PaymentMethodType   type          = 3;
-  google.protobuf.Struct provider_payload = 4; // token, VA info, etc
+  google.protobuf.Struct provider_payload = 4;
   bool                set_as_default = 5;
 }
 
@@ -82,7 +80,7 @@ message AttachPaymentMethodResponse {
 
 message ChargeInvoiceRequest {
   string invoice_id          = 1;
-  string payment_method_id   = 2; // optional, use default if empty
+  string payment_method_id   = 2;
 }
 
 message ChargeInvoiceResponse {

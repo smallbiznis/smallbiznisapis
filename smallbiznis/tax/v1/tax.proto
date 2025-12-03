@@ -1,12 +1,13 @@
 syntax = "proto3";
 
-package smallbiznis.billing.v1;
+package smallbiznis.tax.v1;
 
-option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing/v1;billingv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/tax/v1;taxv1";
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
+import "smallbiznis/common/money.proto";
 
 message TaxRule {
   string id            = 1;
@@ -28,13 +29,13 @@ message ListTaxRulesResponse {
 }
 
 message TaxCalculationRequest {
-  int64 subtotal_cents = 1;
+  smallbiznis.common.Money subtotal = 1;
   string country = 2;
   string region = 3;
 }
 
 message TaxCalculationResponse {
-  int64 tax_cents = 1;
+  smallbiznis.common.Money tax = 1;
 }
 
 service TaxService {
@@ -43,5 +44,11 @@ service TaxService {
       get: "/v1/billing/tax/rules"
     };
   }
-  rpc CalculateTax(TaxCalculationRequest) returns (TaxCalculationResponse);
+
+  rpc CalculateTax(TaxCalculationRequest) returns (TaxCalculationResponse) {
+    option (google.api.http) = {
+      post: "/v1/billing/tax/calculate"
+      body: "*"
+    };
+  }
 }

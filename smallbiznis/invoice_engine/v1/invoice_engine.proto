@@ -7,6 +7,9 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/invoice_engi
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "smallbiznis/common/money.proto";
+import "smallbiznis/rating/v1/rating.proto";
+import "smallbiznis/pricing/v1/pricing.proto";
+import "smallbiznis/invoice/v1/invoice.proto";
 
 // ============================================================
 // ENUMS
@@ -28,19 +31,58 @@ enum BillingPeriodStatus {
 }
 
 // ============================================================
+// PRICING / PLAN SNAPSHOTS
+// ============================================================
+
+// Snapshot of a single tier pricing at rating time
+message TierPriceSnapshot {
+  int64 up_to             = 1; // e.g. up to N units
+  int64 unit_price_cents  = 2; // price per unit in cents
+}
+
+// Snapshot of a single meter pricing at rating time
+message MeterPriceSnapshot {
+  string metric_code = 1; // must match PlanMeter.metric_code
+
+  smallbiznis.pricing.v1.PricingModel pricing_model = 2;
+
+  int64 unit_price_cents          = 3; // for metered / default tier
+  int64 included_units            = 4; // for package / included
+  int64 overage_unit_price_cents  = 5; // overage beyond included/tier
+
+  repeated TierPriceSnapshot tiers = 10;
+
+  google.protobuf.Struct metadata = 20;
+}
+
+// Snapshot of plan pricing context at rating time
+message PlanSnapshot {
+  string plan_id    = 1;
+  string plan_code  = 2;
+  string plan_name  = 3;
+
+  smallbiznis.pricing.v1.PricingModel pricing_model = 4;
+  string currency_code = 5;
+
+  repeated MeterPriceSnapshot meters = 10;
+
+  google.protobuf.Struct metadata = 20;
+}
+
+// ============================================================
 // COMMON MODELS
 // ============================================================
 
 // A single computed charge component (usage/recurring/proration/etc)
 message ChargeComponent {
-  string id = 1;
+  string id          = 1;
   string description = 2;
-  int64 quantity = 3;
+  double quantity    = 3;
   smallbiznis.common.Money unit_price = 4;
-  smallbiznis.common.Money amount = 5;
+  smallbiznis.common.Money amount     = 5;
 
   // type: recurring, usage, tax, discount, adjustment, overage
-  string type = 6;
+  smallbiznis.invoice.v1.InvoiceLineItemType type = 6;
 
   string metric_code = 7;
   google.protobuf.Struct metadata = 20;
@@ -60,7 +102,7 @@ message DiscountResult {
 
 // Result after applying credits
 message CreditResult {
-  smallbiznis.common.Money credit_used = 1;
+  smallbiznis.common.Money credit_used      = 1;
   smallbiznis.common.Money credit_remaining = 2;
 }
 
@@ -68,13 +110,32 @@ message CreditResult {
 // INVOICE BUILD & COMPUTATION
 // ============================================================
 
+// Build charges directly from RatingResult + PlanSnapshot (Stripe-like path)
+message BuildChargesFromRatingRequest {
+  string tenant_id       = 1;
+  string subscription_id = 2;
+
+  smallbiznis.rating.v1.RatingResult rating_result = 3;
+  PlanSnapshot plan_snapshot = 4;
+
+  bool dry_run = 10; // do not persist anything
+}
+
+message BuildChargesFromRatingResponse {
+  repeated ChargeComponent line_items = 1;
+  smallbiznis.common.Money subtotal   = 10;
+
+  google.protobuf.Struct metadata     = 20;
+}
+
 // Build all line items for the invoice (usage + recurring + proration)
+// Engine can internally query rating / pricing if needed.
 message BuildInvoiceRequest {
-  string tenant_id = 1;
+  string tenant_id       = 1;
   string subscription_id = 2;
 
   google.protobuf.Timestamp billing_period_start = 3;
-  google.protobuf.Timestamp billing_period_end = 4;
+  google.protobuf.Timestamp billing_period_end   = 4;
 
   bool dry_run = 10; // do not persist
 }
@@ -82,12 +143,15 @@ message BuildInvoiceRequest {
 message BuildInvoiceResponse {
   repeated ChargeComponent line_items = 1;
 
-  smallbiznis.common.Money subtotal = 10;
+  smallbiznis.common.Money subtotal       = 10;
   smallbiznis.common.Money discount_total = 11;
-  smallbiznis.common.Money tax_total = 12;
-  smallbiznis.common.Money total = 13;
+  smallbiznis.common.Money tax_total      = 12;
+  smallbiznis.common.Money total          = 13;
 
-  google.protobuf.Struct metadata = 20;
+  google.protobuf.Timestamp billing_period_start = 30;
+  google.protobuf.Timestamp billing_period_end   = 31;
+
+  google.protobuf.Struct metadata = 40;
 }
 
 // ============================================================
@@ -95,13 +159,13 @@ message BuildInvoiceResponse {
 // ============================================================
 
 message ProrationRequest {
-  string tenant_id = 1;
+  string tenant_id       = 1;
   string subscription_id = 2;
 
   ProrationType proration_type = 3;
 
   google.protobuf.Timestamp from_time = 10;
-  google.protobuf.Timestamp to_time = 11;
+  google.protobuf.Timestamp to_time   = 11;
 
   smallbiznis.common.Money old_amount = 20;
   smallbiznis.common.Money new_amount = 21;
@@ -110,7 +174,7 @@ message ProrationRequest {
 }
 
 message ProrationResponse {
-  repeated ChargeComponent proration_items = 1;
+  repeated ChargeComponent proration_items      = 1;
   smallbiznis.common.Money total_proration_amount = 2;
 }
 
@@ -156,9 +220,9 @@ message ApplyCreditRequest {
 }
 
 message ApplyCreditResponse {
-  smallbiznis.common.Money credit_used = 1;
-  smallbiznis.common.Money credit_remaining = 2;
-  smallbiznis.common.Money amount_due_after_credit = 3;
+  smallbiznis.common.Money credit_used              = 1;
+  smallbiznis.common.Money credit_remaining         = 2;
+  smallbiznis.common.Money amount_due_after_credit  = 3;
 }
 
 // ============================================================
@@ -166,29 +230,29 @@ message ApplyCreditResponse {
 // ============================================================
 
 message FinalizeInvoiceRequest {
-  string tenant_id = 1;
+  string tenant_id       = 1;
   string subscription_id = 2;
 
-  repeated ChargeComponent line_items = 10;
-  repeated ChargeComponent taxes = 11;
-  repeated ChargeComponent discounts = 12;
+  repeated ChargeComponent line_items  = 10;
+  repeated ChargeComponent taxes       = 11;
+  repeated ChargeComponent discounts   = 12;
 
-  smallbiznis.common.Money subtotal = 20;
+  smallbiznis.common.Money subtotal       = 20;
   smallbiznis.common.Money discount_total = 21;
-  smallbiznis.common.Money tax_total = 22;
-  smallbiznis.common.Money total = 23;
+  smallbiznis.common.Money tax_total      = 22;
+  smallbiznis.common.Money total          = 23;
 
   google.protobuf.Timestamp billing_period_start = 30;
-  google.protobuf.Timestamp billing_period_end = 31;
+  google.protobuf.Timestamp billing_period_end   = 31;
 
   bool generate_invoice_number = 40;
 }
 
 message FinalizeInvoiceResponse {
-  string invoice_id = 1;
+  string invoice_id     = 1;
   string invoice_number = 2;
 
-  smallbiznis.common.Money total = 10;
+  smallbiznis.common.Money total      = 10;
   smallbiznis.common.Money amount_due = 11;
 
   google.protobuf.Timestamp issued_at = 20;
@@ -196,6 +260,7 @@ message FinalizeInvoiceResponse {
 
 // ============================================================
 // BILLING PERIOD MANAGEMENT
+// (opsional, bisa dipegang BillingService, tapi dipertahankan di sini)
 // ============================================================
 
 message OpenBillingPeriodRequest {
@@ -236,7 +301,11 @@ message GenerateInvoiceNumberResponse {
 
 service InvoiceEngineService {
 
-  // Build line items + total (dry-run or real)
+  // Build line items directly from RatingResult + PlanSnapshot (Stripe-like)
+  rpc BuildChargesFromRating(BuildChargesFromRatingRequest)
+      returns (BuildChargesFromRatingResponse);
+
+  // Build line items + totals from subscription + billing period
   rpc BuildInvoice(BuildInvoiceRequest) returns (BuildInvoiceResponse);
 
   // Internal proration pipeline
@@ -254,7 +323,7 @@ service InvoiceEngineService {
   // Finalize and persist invoice
   rpc FinalizeInvoice(FinalizeInvoiceRequest) returns (FinalizeInvoiceResponse);
 
-  // Billing period control
+  // Billing period control (optional)
   rpc OpenBillingPeriod(OpenBillingPeriodRequest) returns (OpenBillingPeriodResponse);
   rpc CloseBillingPeriod(CloseBillingPeriodRequest) returns (CloseBillingPeriodResponse);
 

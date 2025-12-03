@@ -38,6 +38,3 @@ node_modules/
 # buf
 **/buf.lock
 gen/
-
-# docs
-docs

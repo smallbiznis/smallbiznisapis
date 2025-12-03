@@ -162,12 +162,7 @@ service BillingService {
   }
 
   rpc RecordUsage(RecordUsageRequest)
-      returns (RecordUsageResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/usage"
-      body: "*"
-    };
-  }
+      returns (RecordUsageResponse);
 
   rpc GetTrialStatus(GetTrialStatusRequest)
       returns (GetTrialStatusResponse) {

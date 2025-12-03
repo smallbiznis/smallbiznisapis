@@ -44,8 +44,12 @@ message Plan {
   string name = 3;
   string description = 4;
 
+  PricingModel pricing_model = 5;
+
   string currency_code = 10;  // e.g. IDR, USD
   int64 base_price_cents = 11; // used for flat plans
+
+  int64 default_trial_days = 12; // e.g 14
 
   // Plans can have multiple meters (multi-metric pricing)
   repeated PlanMeter meters = 20;

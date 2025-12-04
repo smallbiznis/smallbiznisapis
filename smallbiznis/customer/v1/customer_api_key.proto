@@ -4,112 +4,143 @@ package smallbiznis.customer.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/customer/v1;customerv1";
 
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
 // ApiKey represents a tenant-owned credential for server-to-server API access.
 // Keys are never attached to customers and must be scoped to a tenant.
 message ApiKey {
   // Unique identifier for the API key record.
-  string id = 1;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 
   // Tenant that owns and manages this API key.
-  string tenant_id = 2;
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 
   // Friendly name for operator reference (e.g., "Production key").
-  string name = 3;
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
 
   // Safe prefix that can be logged and shown to users (e.g., "sb_live_abc123").
-  string key_prefix = 4;
+  string key_prefix = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Hash of the secret key material (bcrypt/argon2). Plaintext is never stored.
-  string hashed_key = 5;
+  string hashed_key = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Indicates whether the key has been revoked and should be rejected.
-  bool revoked = 6;
+  bool revoked = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Creation and update timestamps.
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  google.protobuf.Timestamp created_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Timestamp of the last successful usage, useful for rotation policies.
-  google.protobuf.Timestamp last_used_at = 9;
+  google.protobuf.Timestamp last_used_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Allowed scopes for this key (e.g., "usage:write", "invoice:read").
-  repeated string scopes = 10;
+  repeated string scopes = 10 [(google.api.field_behavior) = REQUIRED];
 
   // Optional expiration timestamp after which the key is invalid.
-  google.protobuf.Timestamp expires_at = 11;
+  google.protobuf.Timestamp expires_at = 11 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Request to create a new API key for a tenant.
 message CreateApiKeyRequest {
   // Tenant that will own the key.
-  string tenant_id = 1;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
   // Friendly name to identify the key.
-  string name = 2;
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
   // Scopes granted to the key.
-  repeated string scopes = 3;
+  repeated string scopes = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Response containing the stored key record and the one-time plaintext value.
 message CreateApiKeyResponse {
   // Persisted key metadata.
-  ApiKey key = 1;
+  ApiKey key = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   // Plain text secret returned once at creation time.
-  string plain_text_key = 2;
+  string plain_text_key = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Request to list keys for a tenant.
 message ListApiKeysRequest {
   // Tenant whose keys should be returned.
-  string tenant_id = 1;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Response containing all API keys for the tenant.
 message ListApiKeysResponse {
-  repeated ApiKey keys = 1;
+  repeated ApiKey keys = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Request to revoke an API key.
 message RevokeApiKeyRequest {
   // Tenant that owns the key (authorization guard).
-  string tenant_id = 1;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
   // Identifier of the key to revoke.
-  string key_id = 2;
+  string key_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 }
 
 // Response confirming revocation status.
 message RevokeApiKeyResponse {
-  bool success = 1;
+  bool success = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Request to rotate an API key, returning a new key and revoking the old one.
 message RotateApiKeyRequest {
   // Tenant that owns the key.
-  string tenant_id = 1;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
   // Identifier of the key to rotate.
-  string key_id = 2;
+  string key_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 }
 
 // Response containing both the revoked key and the newly issued key.
 message RotateApiKeyResponse {
-  ApiKey old_key = 1;
-  ApiKey new_key = 2;
-  string new_plain_text_key = 3;
+  ApiKey old_key = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  ApiKey new_key = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string new_plain_text_key = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ApiKeyService manages tenant-scoped API keys used for accessing the billing
 // platform. Customers never receive API keys.
 service ApiKeyService {
   // Create a new API key for the tenant, returning the plaintext once.
-  rpc CreateApiKey(CreateApiKeyRequest) returns (CreateApiKeyResponse);
+  rpc CreateApiKey(CreateApiKeyRequest) returns (CreateApiKeyResponse) {
+    option (google.api.http) = {
+      post: "/v1/api-keys"
+      body: "*"
+    };
+  }
 
   // List all API keys for a tenant.
-  rpc ListApiKeys(ListApiKeysRequest) returns (ListApiKeysResponse);
+  rpc ListApiKeys(ListApiKeysRequest) returns (ListApiKeysResponse) {
+    option (google.api.http) = { get: "/v1/api-keys" };
+  }
 
   // Revoke an existing API key so it can no longer be used.
-  rpc RevokeApiKey(RevokeApiKeyRequest) returns (RevokeApiKeyResponse);
+  rpc RevokeApiKey(RevokeApiKeyRequest) returns (RevokeApiKeyResponse) {
+    option (google.api.http) = {
+      post: "/v1/api-keys/{key_id}:revoke"
+      body: "*"
+    };
+  }
 
   // Rotate an API key by issuing a new secret and revoking the old one.
-  rpc RotateApiKey(RotateApiKeyRequest) returns (RotateApiKeyResponse);
+  rpc RotateApiKey(RotateApiKeyRequest) returns (RotateApiKeyResponse) {
+    option (google.api.http) = {
+      post: "/v1/api-keys/{key_id}:rotate"
+      body: "*"
+    };
+  }
 }

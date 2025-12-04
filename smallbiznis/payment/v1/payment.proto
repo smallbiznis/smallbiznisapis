@@ -6,6 +6,7 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/payment/v1;p
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
 
 enum PaymentProvider {
@@ -33,66 +34,75 @@ enum PaymentStatus {
 }
 
 message PaymentMethod {
-  string              id             = 1;
-  string              tenant_id      = 2;
-  PaymentProvider     provider       = 3;
-  PaymentMethodType   type           = 4;
-  string              display_name   = 5;
+  string              id             = 1 [(google.api.field_behavior) = REQUIRED,
+                                           (google.api.field_behavior) = IMMUTABLE];
+  string              tenant_id      = 2 [(google.api.field_behavior) = REQUIRED,
+                                           (google.api.field_behavior) = IMMUTABLE];
+  PaymentProvider     provider       = 3 [(google.api.field_behavior) = REQUIRED];
+  PaymentMethodType   type           = 4 [(google.api.field_behavior) = REQUIRED];
+  string              display_name   = 5 [(google.api.field_behavior) = REQUIRED];
   string              last4          = 6;
   string              exp_month      = 7;
   string              exp_year       = 8;
   bool                is_default     = 9;
   google.protobuf.Struct provider_data = 20;
-  google.protobuf.Timestamp created_at = 30;
-  google.protobuf.Timestamp updated_at = 31;
+  google.protobuf.Timestamp created_at = 30 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 31 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message PaymentAttempt {
-  string                     id           = 1;
-  string                     tenant_id    = 2;
-  string                     invoice_id   = 3;
-  string                     payment_method_id = 4;
-  PaymentStatus              status       = 5;
+  string                     id           = 1 [(google.api.field_behavior) = REQUIRED,
+                                               (google.api.field_behavior) = IMMUTABLE];
+  string                     tenant_id    = 2 [(google.api.field_behavior) = REQUIRED,
+                                               (google.api.field_behavior) = IMMUTABLE];
+  string                     invoice_id   = 3 [(google.api.field_behavior) = REQUIRED];
+  string                     payment_method_id = 4 [(google.api.field_behavior) = REQUIRED];
+  PaymentStatus              status       = 5 [(google.api.field_behavior) = REQUIRED];
   string                     provider_transaction_id = 6;
-  google.protobuf.Timestamp  attempted_at = 7;
+  google.protobuf.Timestamp  attempted_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
   google.protobuf.Struct     metadata     = 8;
 }
 
 message ListPaymentMethodsRequest {
-  string tenant_id = 1;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED,
+                        (google.api.field_behavior) = IMMUTABLE];
 }
 
 message ListPaymentMethodsResponse {
-  repeated PaymentMethod methods = 1;
+  repeated PaymentMethod methods = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message AttachPaymentMethodRequest {
-  string              tenant_id     = 1;
-  PaymentProvider     provider      = 2;
-  PaymentMethodType   type          = 3;
-  google.protobuf.Struct provider_payload = 4;
+  string              tenant_id     = 1 [(google.api.field_behavior) = REQUIRED,
+                                         (google.api.field_behavior) = IMMUTABLE];
+  PaymentProvider     provider      = 2 [(google.api.field_behavior) = REQUIRED];
+  PaymentMethodType   type          = 3 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Struct provider_payload = 4 [(google.api.field_behavior) = REQUIRED];
   bool                set_as_default = 5;
 }
 
 message AttachPaymentMethodResponse {
-  PaymentMethod method = 1;
+  PaymentMethod method = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message ChargeInvoiceRequest {
-  string invoice_id          = 1;
-  string payment_method_id   = 2;
+  string invoice_id          = 1 [(google.api.field_behavior) = REQUIRED,
+                                   (google.api.field_behavior) = IMMUTABLE];
+  string payment_method_id   = 2 [(google.api.field_behavior) = REQUIRED,
+                                   (google.api.field_behavior) = IMMUTABLE];
 }
 
 message ChargeInvoiceResponse {
-  PaymentAttempt attempt = 1;
+  PaymentAttempt attempt = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetPaymentAttemptsRequest {
-  string invoice_id = 1;
+  string invoice_id = 1 [(google.api.field_behavior) = REQUIRED,
+                          (google.api.field_behavior) = IMMUTABLE];
 }
 
 message GetPaymentAttemptsResponse {
-  repeated PaymentAttempt attempts = 1;
+  repeated PaymentAttempt attempts = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 service PaymentService {

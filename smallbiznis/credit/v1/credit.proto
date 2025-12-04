@@ -6,6 +6,7 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/credit/v1;cr
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
 import "smallbiznis/common/money.proto";
 
@@ -17,47 +18,64 @@ enum CreditType {
 }
 
 message CreditNote {
-  string                     id           = 1;
-  string                     tenant_id    = 2;
-  string                     invoice_id   = 3;
-  CreditType                 type         = 4;
-  smallbiznis.common.Money   amount       = 5;
-  string                     reason       = 6;
-  google.protobuf.Struct     metadata     = 7;
-  google.protobuf.Timestamp  created_at   = 10;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+  string invoice_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+  CreditType type = 4 [(google.api.field_behavior) = REQUIRED];
+  smallbiznis.common.Money amount = 5 [(google.api.field_behavior) = REQUIRED];
+  string reason = 6 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Struct metadata = 7;
+  google.protobuf.Timestamp created_at = 10
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message CreateCreditNoteRequest {
-  string                     invoice_id = 1;
-  CreditType                 type       = 2;
-  smallbiznis.common.Money   amount     = 3;
-  string                     reason     = 4;
+  string invoice_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+  CreditType type = 2 [(google.api.field_behavior) = REQUIRED];
+  smallbiznis.common.Money amount = 3 [(google.api.field_behavior) = REQUIRED];
+  string reason = 4 [(google.api.field_behavior) = REQUIRED];
 }
 
 message CreateCreditNoteResponse {
-  CreditNote credit_note = 1;
+  CreditNote credit_note = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message ListCreditNotesRequest {
-  string tenant_id  = 1;
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
   string invoice_id = 2;
 }
 
 message ListCreditNotesResponse {
-  repeated CreditNote credit_notes = 1;
+  repeated CreditNote credit_notes = 1
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 service CreditService {
   rpc CreateCreditNote(CreateCreditNoteRequest) returns (CreateCreditNoteResponse) {
     option (google.api.http) = {
-      post: "/v1/billing/invoices/{invoice_id}/credits"
+      post: "/v1/credit-notes"
       body: "*"
     };
   }
 
   rpc ListCreditNotes(ListCreditNotesRequest) returns (ListCreditNotesResponse) {
     option (google.api.http) = {
-      get: "/v1/billing/credits"
+      get: "/v1/credit-notes"
     };
   }
 }

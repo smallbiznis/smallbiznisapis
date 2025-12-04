@@ -6,48 +6,57 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/tax/v1;taxv1
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
 import "smallbiznis/common/money.proto";
 
 message TaxRule {
-  string id            = 1;
-  string region_code   = 2; // e.g. "ID", "SG", "EU-DE"
-  string name          = 3; // "PPN", "VAT"
-  double rate_percent  = 4;
-  bool   is_default    = 5;
-  bool   is_active     = 6;
-  google.protobuf.Timestamp created_at = 10;
-  google.protobuf.Timestamp updated_at = 11;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+  string region_code = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ]; // e.g. "ID", "SG", "EU-DE"
+  string name = 3 [(google.api.field_behavior) = REQUIRED]; // "PPN", "VAT"
+  double rate_percent = 4 [(google.api.field_behavior) = REQUIRED];
+  bool is_default = 5;
+  bool is_active = 6 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp created_at = 10
+      [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 11
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message ListTaxRulesRequest {
-  string region_code = 1;
+  string region_code = 1 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message ListTaxRulesResponse {
-  repeated TaxRule rules = 1;
+  repeated TaxRule rules = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message TaxCalculationRequest {
-  smallbiznis.common.Money subtotal = 1;
-  string country = 2;
+  smallbiznis.common.Money subtotal = 1 [(google.api.field_behavior) = REQUIRED];
+  string country = 2 [(google.api.field_behavior) = REQUIRED];
   string region = 3;
 }
 
 message TaxCalculationResponse {
-  smallbiznis.common.Money tax = 1;
+  smallbiznis.common.Money tax = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 service TaxService {
   rpc ListTaxRules(ListTaxRulesRequest) returns (ListTaxRulesResponse) {
     option (google.api.http) = {
-      get: "/v1/billing/tax/rules"
+      get: "/v1/tax-rules"
     };
   }
 
   rpc CalculateTax(TaxCalculationRequest) returns (TaxCalculationResponse) {
     option (google.api.http) = {
-      post: "/v1/billing/tax/calculate"
+      post: "/v1/taxes:calculate"
       body: "*"
     };
   }

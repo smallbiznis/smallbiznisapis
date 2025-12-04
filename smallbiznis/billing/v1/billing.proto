@@ -4,6 +4,8 @@ package smallbiznis.billing.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing/v1;billingv1";
 
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
 // TriggerBillingRequest asks the platform to evaluate a subscription for a
@@ -11,23 +13,36 @@ import "google/protobuf/timestamp.proto";
 // billing.rating.completed.v1 and billing.invoice.created.v1.
 message TriggerBillingRequest {
   // Tenant that owns the subscription.
-  string tenant_id = 1;
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
   // Subscription to rate and invoice.
-  string subscription_id = 2;
+  string subscription_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
   // Billing window start timestamp.
-  google.protobuf.Timestamp period_start = 3;
+  google.protobuf.Timestamp period_start = 3
+      [(google.api.field_behavior) = REQUIRED];
   // Billing window end timestamp.
-  google.protobuf.Timestamp period_end = 4;
+  google.protobuf.Timestamp period_end = 4
+      [(google.api.field_behavior) = REQUIRED];
 }
 
 // TriggerBillingResponse confirms that a billing run was accepted.
 message TriggerBillingResponse {
-  bool accepted = 1;
+  bool accepted = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // BillingService coordinates the billing pipeline (usage → rating → invoice).
 service BillingService {
   // Trigger a billing cycle for a subscription. Typically invoked by schedulers
   // or event handlers after a period closes.
-  rpc TriggerBilling(TriggerBillingRequest) returns (TriggerBillingResponse);
+  rpc TriggerBilling(TriggerBillingRequest) returns (TriggerBillingResponse) {
+    option (google.api.http) = {
+      post: "/v1/billings:trigger"
+      body: "*"
+    };
+  }
 }

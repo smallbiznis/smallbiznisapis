@@ -6,26 +6,34 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/customer/v1;
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
 // Customer belongs to a specific tenant and represents an end-customer that is
 // billed through SmallBiznis. Customers never own API keys; all API access is
 // performed via the parent tenant.
 message Customer {
   // Globally unique customer identifier (Snowflake/ULID as string).
-  string id = 1;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 
   // Tenant that owns this customer and will receive revenue from invoices.
-  string tenant_id = 2;
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 
   // External reference supplied by the tenant for idempotency or lookup in
   // their own systems.
   string external_reference = 3;
 
   // Primary email for billing communication.
-  string email = 4;
+  string email = 4 [(google.api.field_behavior) = REQUIRED];
 
   // Human readable name of the customer.
-  string name = 5;
+  string name = 5 [(google.api.field_behavior) = REQUIRED];
 
   // Contact phone number with country code when available.
   string phone = 6;
@@ -40,8 +48,10 @@ message Customer {
   google.protobuf.Struct shipping_address = 9;
 
   // Timestamps for auditability.
-  google.protobuf.Timestamp created_at = 10;
-  google.protobuf.Timestamp updated_at = 11;
+  google.protobuf.Timestamp created_at = 10
+      [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 11
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Arbitrary metadata for segmentation or analytics.
   google.protobuf.Struct metadata = 12;
@@ -50,21 +60,30 @@ message Customer {
 // Request to create a new customer under a tenant.
 message CreateCustomerRequest {
   // Customer payload to persist. tenant_id is required.
-  Customer customer = 1;
+  Customer customer = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // Request to fetch a customer by ID within a tenant.
 message GetCustomerRequest {
   // Customer identifier.
-  string id = 1;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
   // Tenant guard to ensure cross-tenant isolation.
-  string tenant_id = 2;
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 }
 
 // ListCustomersRequest paginates customers for a tenant.
 message ListCustomersRequest {
   // Tenant whose customers should be returned.
-  string tenant_id = 1;
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
   // Maximum number of records to return.
   int32 page_size = 2;
   // Token to continue from a previous page.
@@ -73,27 +92,45 @@ message ListCustomersRequest {
 
 // ListCustomersResponse returns a page of customers.
 message ListCustomersResponse {
-  repeated Customer customers = 1;
-  string next_page_token = 2;
+  repeated Customer customers = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string next_page_token = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Request to update mutable customer fields. Server should merge metadata based
 // on implementation.
 message UpdateCustomerRequest {
-  Customer customer = 1;
+  Customer customer = 1 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // CustomerService exposes CRUD-style operations for tenant-owned customers.
 service CustomerService {
   // Create a new customer.
-  rpc CreateCustomer(CreateCustomerRequest) returns (Customer);
+  rpc CreateCustomer(CreateCustomerRequest) returns (Customer) {
+    option (google.api.http) = {
+      post: "/v1/customers"
+      body: "*"
+    };
+  }
 
   // Retrieve a single customer by id within a tenant context.
-  rpc GetCustomer(GetCustomerRequest) returns (Customer);
+  rpc GetCustomer(GetCustomerRequest) returns (Customer) {
+    option (google.api.http) = {
+      get: "/v1/customers/{id}"
+    };
+  }
 
   // List customers for a tenant with pagination support.
-  rpc ListCustomers(ListCustomersRequest) returns (ListCustomersResponse);
+  rpc ListCustomers(ListCustomersRequest) returns (ListCustomersResponse) {
+    option (google.api.http) = {
+      get: "/v1/customers"
+    };
+  }
 
   // Update existing customer details.
-  rpc UpdateCustomer(UpdateCustomerRequest) returns (Customer);
+  rpc UpdateCustomer(UpdateCustomerRequest) returns (Customer) {
+    option (google.api.http) = {
+      patch: "/v1/customers/{customer.id}"
+      body: "*"
+    };
+  }
 }

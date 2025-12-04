@@ -5,6 +5,7 @@ package smallbiznis.notification.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/notification/v1;notificationv1";
 
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 
@@ -43,67 +44,75 @@ enum AttemptStatus {
 // -------- TEMPLATE --------
 
 message NotificationTemplate {
-  string id = 1;
-  string tenant_id = 2;
+  string id = 1 [(google.api.field_behavior) = REQUIRED,
+                 (google.api.field_behavior) = IMMUTABLE];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED,
+                        (google.api.field_behavior) = IMMUTABLE];
 
-  string name = 3;
-  Channel channel = 4;
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+  Channel channel = 4 [(google.api.field_behavior) = REQUIRED];
 
-  string subject = 5;     // email only
-  string body = 6;        // html/text template
+  string subject = 5 [(google.api.field_behavior) = REQUIRED];     // email only
+  string body = 6 [(google.api.field_behavior) = REQUIRED];        // html/text template
 
   google.protobuf.Struct metadata = 7;
 
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp created_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // -------- MESSAGE --------
 
 message NotificationMessage {
-  string id = 1;
-  string tenant_id = 2;
+  string id = 1 [(google.api.field_behavior) = REQUIRED,
+                 (google.api.field_behavior) = IMMUTABLE];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED,
+                        (google.api.field_behavior) = IMMUTABLE];
 
-  Channel channel = 3;
+  Channel channel = 3 [(google.api.field_behavior) = REQUIRED];
 
-  string template_id = 4;
+  string template_id = 4 [(google.api.field_behavior) = REQUIRED];
 
-  string recipient = 5;        // email/phone/token/user_id
-  string subject = 6;
-  string body = 7;
+  string recipient = 5 [(google.api.field_behavior) = REQUIRED];        // email/phone/token/user_id
+  string subject = 6 [(google.api.field_behavior) = REQUIRED];
+  string body = 7 [(google.api.field_behavior) = REQUIRED];
 
-  NotificationStatus status = 8;
+  NotificationStatus status = 8 [(google.api.field_behavior) = REQUIRED];
 
   google.protobuf.Struct variables = 9; // original vars before render
   google.protobuf.Struct metadata = 10;
 
-  google.protobuf.Timestamp created_at = 11;
-  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp created_at = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // -------- DELIVERY ATTEMPT --------
 
 message DeliveryAttempt {
-  string id = 1;
-  string message_id = 2;
+  string id = 1 [(google.api.field_behavior) = REQUIRED,
+                 (google.api.field_behavior) = IMMUTABLE];
+  string message_id = 2 [(google.api.field_behavior) = REQUIRED,
+                         (google.api.field_behavior) = IMMUTABLE];
 
-  AttemptStatus status = 3;
+  AttemptStatus status = 3 [(google.api.field_behavior) = REQUIRED];
   string provider_response = 4;
-  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // -------- PROVIDER CONFIG --------
 
 message ChannelProviderConfig {
-  string id = 1;
-  string tenant_id = 2;
+  string id = 1 [(google.api.field_behavior) = REQUIRED,
+                 (google.api.field_behavior) = IMMUTABLE];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED,
+                        (google.api.field_behavior) = IMMUTABLE];
 
-  Channel channel = 3;
+  Channel channel = 3 [(google.api.field_behavior) = REQUIRED];
 
   google.protobuf.Struct config = 4; // smtp creds, whatsapp api key, FCM key, etc.
 
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
+  google.protobuf.Timestamp created_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ======================================================
@@ -113,20 +122,22 @@ message ChannelProviderConfig {
 // ------- TEMPLATE CRUD -------
 
 message CreateTemplateRequest {
-  string tenant_id = 1;
-  string name = 2;
-  Channel channel = 3;
-  string subject = 4;
-  string body = 5;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED,
+                        (google.api.field_behavior) = IMMUTABLE];
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  Channel channel = 3 [(google.api.field_behavior) = REQUIRED];
+  string subject = 4 [(google.api.field_behavior) = REQUIRED];
+  string body = 5 [(google.api.field_behavior) = REQUIRED];
   google.protobuf.Struct metadata = 6;
 }
 
 message CreateTemplateResponse {
-  NotificationTemplate template = 1;
+  NotificationTemplate template = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message ListTemplatesRequest {
-  string tenant_id = 1;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED,
+                        (google.api.field_behavior) = IMMUTABLE];
 }
 
 message ListTemplatesResponse {
@@ -136,51 +147,55 @@ message ListTemplatesResponse {
 // ------- SEND MESSAGE -------
 
 message SendNotificationRequest {
-  string tenant_id = 1;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED,
+                        (google.api.field_behavior) = IMMUTABLE];
 
-  Channel channel = 2;
+  Channel channel = 2 [(google.api.field_behavior) = REQUIRED];
 
-  string template_id = 3;
-  string recipient = 4;
+  string template_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string recipient = 4 [(google.api.field_behavior) = REQUIRED];
 
   google.protobuf.Struct variables = 5;   // to render template
   google.protobuf.Struct metadata = 6;
 }
 
 message SendNotificationResponse {
-  NotificationMessage message = 1;
+  NotificationMessage message = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ------- GET MESSAGE -------
 
 message GetNotificationRequest {
-  string id = 1;
+  string id = 1 [(google.api.field_behavior) = REQUIRED,
+                 (google.api.field_behavior) = IMMUTABLE];
 }
 
 message GetNotificationResponse {
-  NotificationMessage message = 1;
-  repeated DeliveryAttempt attempts = 2;
+  NotificationMessage message = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated DeliveryAttempt attempts = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ------- PROVIDER CONFIG -------
 
 message SetChannelConfigRequest {
-  string tenant_id = 1;
-  Channel channel = 2;
-  google.protobuf.Struct config = 3;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED,
+                        (google.api.field_behavior) = IMMUTABLE];
+  Channel channel = 2 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Struct config = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
 message SetChannelConfigResponse {
-  ChannelProviderConfig config = 1;
+  ChannelProviderConfig config = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message GetChannelConfigRequest {
-  string tenant_id = 1;
-  Channel channel = 2;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED,
+                        (google.api.field_behavior) = IMMUTABLE];
+  Channel channel = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 message GetChannelConfigResponse {
-  ChannelProviderConfig config = 1;
+  ChannelProviderConfig config = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ======================================================

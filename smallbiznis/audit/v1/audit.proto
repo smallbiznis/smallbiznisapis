@@ -5,6 +5,7 @@ package smallbiznis.audit.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/audit/v1;auditv1";
 
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 
@@ -53,24 +54,30 @@ enum ActionType {
 // AuditEvent represents a tenant-facing log record stored for compliance and observability.
 message AuditEvent {
   // Unique identifier for this audit entry.
-  string id = 1;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
   // Tenant namespace owning the audited resource.
-  string tenant_id = 2;
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 
   // Classification of who performed the action.
-  ActorType actor_type = 3;
+  ActorType actor_type = 3 [(google.api.field_behavior) = REQUIRED];
   // Identifier of the actor (user_id, service account id, or system tag).
-  string actor_id = 4;
+  string actor_id = 4 [(google.api.field_behavior) = REQUIRED];
 
   // Domain specific action name, e.g. "created_user" or "update_product".
-  string action = 5;
+  string action = 5 [(google.api.field_behavior) = REQUIRED];
   // ActionType for filtering and analytics.
-  ActionType action_type = 6;
+  ActionType action_type = 6 [(google.api.field_behavior) = REQUIRED];
 
   // Hints for the audited resource.
-  string resource_type = 7;
+  string resource_type = 7 [(google.api.field_behavior) = REQUIRED];
   // Identifier of the resource that changed.
-  string resource_id = 8;
+  string resource_id = 8 [(google.api.field_behavior) = REQUIRED];
 
   // Minimal prior state captured for diffing.
   google.protobuf.Struct old_values = 9;
@@ -86,7 +93,8 @@ message AuditEvent {
   google.protobuf.Struct metadata = 13;
 
   // RFC3339 timestamp when the audit entry was generated.
-  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp created_at = 14
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ======================================================
@@ -96,20 +104,20 @@ message AuditEvent {
 // CreateAuditEventRequest stores a new audit entry tied to a tenant.
 message CreateAuditEventRequest {
   // Tenant namespace responsible for the audited resource.
-  string tenant_id = 1;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
 
   // Actor metadata.
-  ActorType actor_type = 2;
+  ActorType actor_type = 2 [(google.api.field_behavior) = REQUIRED];
   // Actor identifier (user, service account, or system constant).
-  string actor_id = 3;
+  string actor_id = 3 [(google.api.field_behavior) = REQUIRED];
 
   // Domain action details.
-  string action = 4;
-  ActionType action_type = 5;
+  string action = 4 [(google.api.field_behavior) = REQUIRED];
+  ActionType action_type = 5 [(google.api.field_behavior) = REQUIRED];
 
   // Target resource context.
-  string resource_type = 6;
-  string resource_id = 7;
+  string resource_type = 6 [(google.api.field_behavior) = REQUIRED];
+  string resource_id = 7 [(google.api.field_behavior) = REQUIRED];
 
   // Optional snapshot of prior state for comparator.
   google.protobuf.Struct old_values = 8;
@@ -127,13 +135,16 @@ message CreateAuditEventRequest {
 // CreateAuditEventResponse returns the persisted audit event with metadata.
 message CreateAuditEventResponse {
   // Stored audit entry with server generated timestamps.
-  AuditEvent event = 1;
+  AuditEvent event = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ListAuditEventsRequest scopes audit history retrieval.
 message ListAuditEventsRequest {
   // Tenant namespace scope for the query.
-  string tenant_id = 1;
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
   // Optional resource_type filter.
   string resource_type = 2;
   // Optional resource_id filter.
@@ -151,21 +162,24 @@ message ListAuditEventsRequest {
 // ListAuditEventsResponse pages through audit entries.
 message ListAuditEventsResponse {
   // Matching audit entries sorted by created_at descending.
-  repeated AuditEvent events = 1;
+  repeated AuditEvent events = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   // Token clients use to fetch the next page.
-  string next_page_token = 2;
+  string next_page_token = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // GetAuditEventRequest retrieves a single audit entry by id.
 message GetAuditEventRequest {
   // Identifier of the audit entry to fetch.
-  string id = 1;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 }
 
 // GetAuditEventResponse returns the requested audit entry.
 message GetAuditEventResponse {
   // The audit entry requested by id.
-  AuditEvent event = 1;
+  AuditEvent event = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ======================================================
@@ -179,7 +193,7 @@ service AuditService {
   rpc CreateAuditEvent(CreateAuditEventRequest)
       returns (CreateAuditEventResponse) {
     option (google.api.http) = {
-      post: "/v1/audit/events"
+      post: "/v1/audit-events"
       body: "*"
     };
   }
@@ -188,7 +202,7 @@ service AuditService {
   rpc ListAuditEvents(ListAuditEventsRequest)
       returns (ListAuditEventsResponse) {
     option (google.api.http) = {
-      get: "/v1/audit/events"
+      get: "/v1/audit-events"
     };
   }
 
@@ -196,7 +210,7 @@ service AuditService {
   rpc GetAuditEvent(GetAuditEventRequest)
       returns (GetAuditEventResponse) {
     option (google.api.http) = {
-      get: "/v1/audit/events/{id}"
+      get: "/v1/audit-events/{id}"
     };
   }
 }

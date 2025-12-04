@@ -6,6 +6,8 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/tenant/v1;te
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
 // Tenant represents a company account within SmallBiznis Cloud. Tenants can be
 // organized hierarchically to mirror Stripe Connect style parent/child
@@ -13,34 +15,39 @@ import "google/protobuf/timestamp.proto";
 // invoices are scoped to a specific tenant.
 message Tenant {
   // Globally unique tenant identifier (Snowflake/ULID as string).
-  string id = 1;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 
   // Optional parent tenant. Empty for the SmallBiznis platform root or top
   // level accounts. Enables connected account hierarchies.
-  string parent_id = 2;
+  string parent_id = 2 [(google.api.field_behavior) = IMMUTABLE];
 
   // Type of tenant: platform root or connected account.
-  TenantType type = 3;
+  TenantType type = 3 [(google.api.field_behavior) = REQUIRED];
 
   // Human readable display name for the tenant.
-  string name = 4;
+  string name = 4 [(google.api.field_behavior) = REQUIRED];
 
   // URL-safe unique slug used for dashboards or API routing (per tenant unique).
-  string slug = 5;
+  string slug = 5 [(google.api.field_behavior) = REQUIRED];
 
   // Current lifecycle status controlling access to billing APIs.
-  TenantStatus status = 6;
+  TenantStatus status = 6 [(google.api.field_behavior) = REQUIRED];
 
   // Default currency used for pricing and invoicing when no customer override
   // is provided. Examples: "IDR", "USD".
-  string default_currency = 7;
+  string default_currency = 7 [(google.api.field_behavior) = REQUIRED];
 
   // ISO-3166 country code representing the tenant's primary legal entity.
-  string country_code = 8;
+  string country_code = 8 [(google.api.field_behavior) = REQUIRED];
 
   // Timestamps for auditing and data lineage.
-  google.protobuf.Timestamp created_at = 9;
-  google.protobuf.Timestamp updated_at = 10;
+  google.protobuf.Timestamp created_at = 9
+      [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 10
+      [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Arbitrary key/value metadata persisted with the tenant record.
   google.protobuf.Struct metadata = 11;
@@ -73,13 +80,13 @@ message CreateTenantRequest {
   // Optional parent tenant ID for connected account creation.
   string parent_id = 1;
   // Display name of the tenant.
-  string name = 2;
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
   // Unique slug within the parent scope.
-  string slug = 3;
+  string slug = 3 [(google.api.field_behavior) = REQUIRED];
   // Default currency applied to pricing and invoices.
-  string default_currency = 4;
+  string default_currency = 4 [(google.api.field_behavior) = REQUIRED];
   // ISO-3166 country code for regulatory context.
-  string country_code = 5;
+  string country_code = 5 [(google.api.field_behavior) = REQUIRED];
   // Arbitrary metadata stored alongside the tenant.
   google.protobuf.Struct metadata = 6;
 }
@@ -87,7 +94,10 @@ message CreateTenantRequest {
 // Request to retrieve a single tenant by identifier.
 message GetTenantRequest {
   // Tenant identifier to fetch.
-  string id = 1;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
 }
 
 // ListTenantsRequest filters tenants by parent and supports pagination.
@@ -104,25 +114,28 @@ message ListTenantsRequest {
 // Paginated tenant list response.
 message ListTenantsResponse {
   // Tenants matching the filter.
-  repeated Tenant tenants = 1;
+  repeated Tenant tenants = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   // Token to request the next page of results.
-  string next_page_token = 2;
+  string next_page_token = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // UpdateTenantRequest updates mutable tenant fields.
 message UpdateTenantRequest {
   // Tenant identifier to update.
-  string id = 1;
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
   // Updated display name.
-  string name = 2;
+  string name = 2 [(google.api.field_behavior) = OPTIONAL];
   // Updated slug (must remain unique within parent scope).
-  string slug = 3;
+  string slug = 3 [(google.api.field_behavior) = OPTIONAL];
   // Updated status (e.g., suspend or close tenant access).
-  TenantStatus status = 4;
+  TenantStatus status = 4 [(google.api.field_behavior) = OPTIONAL];
   // Updated default currency.
-  string default_currency = 5;
+  string default_currency = 5 [(google.api.field_behavior) = OPTIONAL];
   // Updated country code if the legal entity moves.
-  string country_code = 6;
+  string country_code = 6 [(google.api.field_behavior) = OPTIONAL];
   // Metadata merge/replace based on server behavior.
   google.protobuf.Struct metadata = 7;
 }
@@ -130,14 +143,32 @@ message UpdateTenantRequest {
 // TenantService manages hierarchical tenant accounts and their lifecycle.
 service TenantService {
   // Create a new tenant (platform root or connected account).
-  rpc CreateTenant(CreateTenantRequest) returns (Tenant);
+  rpc CreateTenant(CreateTenantRequest) returns (Tenant) {
+    option (google.api.http) = {
+      post: "/v1/tenants"
+      body: "*"
+    };
+  }
 
   // Retrieve a tenant by ID.
-  rpc GetTenant(GetTenantRequest) returns (Tenant);
+  rpc GetTenant(GetTenantRequest) returns (Tenant) {
+    option (google.api.http) = {
+      get: "/v1/tenants/{id}"
+    };
+  }
 
   // List tenants optionally filtered by parent account.
-  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse) {
+    option (google.api.http) = {
+      get: "/v1/tenants"
+    };
+  }
 
   // Update mutable tenant attributes such as status or metadata.
-  rpc UpdateTenant(UpdateTenantRequest) returns (Tenant);
+  rpc UpdateTenant(UpdateTenantRequest) returns (Tenant) {
+    option (google.api.http) = {
+      patch: "/v1/tenants/{id}"
+      body: "*"
+    };
+  }
 }

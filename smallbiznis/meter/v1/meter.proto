@@ -1,0 +1,89 @@
+// IMPORTANT: LOCKED SPEC. Only change with explicit migration.
+syntax = "proto3";
+
+package smallbiznis.meter.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/meter/v1;meterv1";
+
+import "google/api/annotations.proto";
+
+enum MeterAggregation {
+  METER_AGGREGATION_UNSPECIFIED = 0;
+  SUM = 1;
+  MAX = 2;
+  UNIQUE = 3;
+}
+
+enum MeterTransform {
+  METER_TRANSFORM_UNSPECIFIED = 0;
+  NONE = 1;
+  DIVIDE_1000 = 2;
+  ROUND_UP = 3;
+}
+
+message Meter {
+  string id = 1;
+  string tenant_id = 2;
+  string code = 3;
+  MeterAggregation aggregation = 4;
+  MeterTransform transform = 5;
+}
+
+message CreateMeterRequest {
+  Meter meter = 1;
+}
+
+message CreateMeterResponse {
+  Meter meter = 1;
+}
+
+message GetMeterRequest {
+  string id = 1;
+}
+
+message ListMetersRequest {
+  string tenant_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListMetersResponse {
+  repeated Meter meters = 1;
+  string next_page_token = 2;
+}
+
+message UpdateMeterRequest {
+  Meter meter = 1;
+}
+
+message UpdateMeterResponse {
+  Meter meter = 1;
+}
+
+service MeterService {
+  rpc CreateMeter(CreateMeterRequest) returns (CreateMeterResponse) {
+    option (google.api.http) = {
+      post: "/v2/meters"
+      body: "meter"
+    };
+  }
+
+  rpc GetMeter(GetMeterRequest) returns (Meter) {
+    option (google.api.http) = {
+      get: "/v2/meters/{id}"
+    };
+  }
+
+  rpc ListMeters(ListMetersRequest) returns (ListMetersResponse) {
+    option (google.api.http) = {
+      get: "/v2/meters"
+    };
+  }
+
+  rpc UpdateMeter(UpdateMeterRequest) returns (UpdateMeterResponse) {
+    option (google.api.http) = {
+      patch: "/v2/meters/{meter.id}"
+      body: "meter"
+    };
+  }
+}

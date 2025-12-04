@@ -71,6 +71,7 @@ message Subscription {
   google.protobuf.Timestamp canceled_at = 15;
 
   google.protobuf.Struct metadata = 16;
+  string price_id = 17;
 }
 
 // ===============================================================
@@ -100,6 +101,7 @@ message CreateSubscriptionRequest {
   int32 trial_days_override = 5;
 
   bool start_immediately = 6;
+  string price_id = 7;
 }
 
 message CreateSubscriptionResponse {
@@ -140,6 +142,7 @@ message ChangeSubscriptionPlanRequest {
   string new_plan_code = 2;
   string new_plan_id = 3;
   ProrationBehavior proration_behavior = 4;
+  string new_price_id = 5;
 }
 
 message ChangeSubscriptionPlanResponse {

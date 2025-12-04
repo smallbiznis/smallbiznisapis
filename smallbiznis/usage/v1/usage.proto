@@ -32,22 +32,24 @@ message UsageRecord {
   string                     id          = 1;
   string                     tenant_id   = 2;
   string                     subscription_id = 3;
-  string                     metric_code = 4;
+  string                     metric_code = 4 [deprecated = true]; // replaced by meter_id
   double                     value       = 5;
-  google.protobuf.Timestamp  recorded_at = 6;
+  google.protobuf.Timestamp  event_time  = 6;
   string                     idempotency_key = 7;
   google.protobuf.Struct     metadata    = 8;
+  string                     meter_id    = 9;  // reference to Meter v2
 }
 
 // Aggregated usage per window (hour/day/month)
 message UsageAggregation {
   string                     tenant_id        = 1;
   string                     subscription_id  = 2;
-  string                     metric_code      = 3;
+  string                     metric_code      = 3 [deprecated = true];
   double                     total_value      = 4;
   google.protobuf.Timestamp  window_start     = 5;
   google.protobuf.Timestamp  window_end       = 6;
   string                     window_granularity = 7; // "hour", "day", "month"
+  string                     meter_id         = 8;
 }
 
 message IngestUsageRequest {
@@ -61,9 +63,10 @@ message IngestUsageResponse {
 message ListUsageRequest {
   string tenant_id       = 1;
   string subscription_id = 2;
-  string metric_code     = 3;
+  string metric_code     = 3 [deprecated = true];
   google.protobuf.Timestamp from = 4;
   google.protobuf.Timestamp to   = 5;
+  string meter_id        = 6;
   int32  page_size       = 10;
   string page_token      = 11;
 }
@@ -76,9 +79,10 @@ message ListUsageResponse {
 message GetUsageSummaryRequest {
   string tenant_id       = 1;
   string subscription_id = 2;
-  string metric_code     = 3;
+  string metric_code     = 3 [deprecated = true];
   google.protobuf.Timestamp from = 4;
   google.protobuf.Timestamp to   = 5;
+  string meter_id        = 6;
 }
 
 message GetUsageSummaryResponse {

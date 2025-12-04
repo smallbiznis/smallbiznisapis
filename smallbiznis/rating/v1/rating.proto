@@ -5,19 +5,19 @@ package smallbiznis.rating.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/rating/v1;ratingv1";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/struct.proto";
+import "google/type/money.proto";
 
-message RatingResultItem {
-  string metric_code = 1;
-  double quantity = 2;
-  int64 amount_cents = 3;
-  string currency_code = 4;
-  google.protobuf.Struct metadata = 10;
+message RatedLineItem {
+  string price_id = 1;
+  string meter_id = 2;
+  double quantity = 3;
+  google.type.Money unit_amount = 4;
+  google.type.Money subtotal = 5;
 }
 
 message RatingResult {
   string subscription_id = 1;
-  repeated RatingResultItem items = 2;
+  repeated RatedLineItem line_items = 2;
   google.protobuf.Timestamp rated_at = 3;
 }
 
@@ -31,6 +31,17 @@ message RateSubscriptionResponse {
   RatingResult result = 1;
 }
 
+message RatePriceRequest {
+  string subscription_id = 1;
+  google.protobuf.Timestamp period_start = 2;
+  google.protobuf.Timestamp period_end = 3;
+}
+
+message RatePriceResponse {
+  RatedLineItem line_item = 1;
+}
+
 service RatingService {
   rpc RateSubscription(RateSubscriptionRequest) returns (RateSubscriptionResponse);
+  rpc RatePrice(RatePriceRequest) returns (RatePriceResponse);
 }

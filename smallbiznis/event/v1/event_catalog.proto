@@ -6,34 +6,136 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/event/v1;eve
 
 import "google/protobuf/struct.proto";
 
-// EventSubject enumerates canonical subject strings used across the billing
-// platform. Subjects follow the pattern "<domain>.<action>.v1".
+// ======================================================================
+//  EVENT SUBJECT ENUM (Enterprise Grade — Stripe Style)
+//  Format: domain.object.action.v1
+// ======================================================================
 enum EventSubject {
   EVENT_SUBJECT_UNSPECIFIED = 0;
-  EVENT_SUBJECT_TENANT_CREATED_V1 = 1;           // "tenant.created.v1"
-  EVENT_SUBJECT_CUSTOMER_CREATED_V1 = 2;         // "customer.created.v1"
-  EVENT_SUBJECT_SUBSCRIPTION_CREATED_V1 = 3;     // "subscription.created.v1"
-  EVENT_SUBJECT_SUBSCRIPTION_CANCELED_V1 = 4;    // "subscription.canceled.v1"
-  EVENT_SUBJECT_BILLING_USAGE_RECORDED_V1 = 5;   // "billing.usage.recorded.v1"
-  EVENT_SUBJECT_BILLING_RATING_COMPLETED_V1 = 6; // "billing.rating.completed.v1"
-  EVENT_SUBJECT_BILLING_INVOICE_CREATED_V1 = 7;  // "billing.invoice.created.v1"
+
+  // -------------------------------
+  // TENANT / ACCOUNT EVENTS
+  // -------------------------------
+  TENANT_CREATED_V1 = 1;                     // "tenant.created.v1"
+  TENANT_UPDATED_V1 = 2;                     // "tenant.updated.v1"
+  TENANT_SUSPENDED_V1 = 3;                   // "tenant.suspended.v1"
+  TENANT_ACTIVATED_V1 = 4;                   // "tenant.activated.v1"
+  TENANT_DELETED_V1 = 5;                     // "tenant.deleted.v1"
+  TENANT_API_KEY_CREATED_V1 = 6;             // "tenant.api_key.created.v1"
+  TENANT_API_KEY_REVOKED_V1 = 7;             // "tenant.api_key.revoked.v1"
+  TENANT_API_KEY_ROTATED_V1 = 8;             // "tenant.api_key.rotated.v1"
+
+  // -------------------------------
+  // CUSTOMER EVENTS
+  // -------------------------------
+  CUSTOMER_CREATED_V1 = 20;                  // "customer.created.v1"
+  CUSTOMER_UPDATED_V1 = 21;                  // "customer.updated.v1"
+  CUSTOMER_DELETED_V1 = 22;                  // "customer.deleted.v1"
+  CUSTOMER_BILLING_UPDATED_V1 = 23;          // "customer.billing.updated.v1"
+  CUSTOMER_SHIPPING_UPDATED_V1 = 24;         // "customer.shipping.updated.v1"
+
+  // -------------------------------
+  // PRODUCT & PRICE EVENTS
+  // -------------------------------
+  PRODUCT_CREATED_V1 = 40;                   // "product.created.v1"
+  PRODUCT_UPDATED_V1 = 41;                   // "product.updated.v1"
+  PRODUCT_ARCHIVED_V1 = 42;                  // "product.archived.v1"
+
+  PRICE_CREATED_V1 = 50;                     // "price.created.v1"
+  PRICE_UPDATED_V1 = 51;                     // "price.updated.v1"
+  PRICE_DEACTIVATED_V1 = 52;                 // "price.deactivated.v1"
+
+  // -------------------------------
+  // SUBSCRIPTION EVENTS
+  // -------------------------------
+  SUBSCRIPTION_CREATED_V1 = 70;              // "subscription.created.v1"
+  SUBSCRIPTION_UPDATED_V1 = 71;              // "subscription.updated.v1"
+  SUBSCRIPTION_TRIAL_STARTED_V1 = 72;        // "subscription.trial_started.v1"
+  SUBSCRIPTION_TRIAL_WILL_END_V1 = 73;       // "subscription.trial_will_end.v1"
+  SUBSCRIPTION_TRIAL_ENDED_V1 = 74;          // "subscription.trial_ended.v1"
+  SUBSCRIPTION_PERIOD_STARTED_V1 = 75;       // "subscription.period_started.v1"
+  SUBSCRIPTION_PERIOD_ENDED_V1 = 76;         // "subscription.period_ended.v1"
+  SUBSCRIPTION_RENEWED_V1 = 77;              // "subscription.renewed.v1"
+  SUBSCRIPTION_CANCELLATION_REQUESTED_V1 = 78; // "subscription.cancellation_requested.v1"
+  SUBSCRIPTION_CANCELED_V1 = 79;             // "subscription.canceled.v1"
+  SUBSCRIPTION_PAUSED_V1 = 80;               // "subscription.paused.v1"
+  SUBSCRIPTION_RESUMED_V1 = 81;              // "subscription.resumed.v1"
+
+  // -------------------------------
+  // USAGE EVENTS
+  // -------------------------------
+  USAGE_RECORDED_V1 = 100;                   // "usage.recorded.v1"
+  USAGE_CORRECTED_V1 = 101;                  // "usage.corrected.v1"
+  USAGE_DISCARDED_V1 = 102;                  // "usage.discarded.v1"
+  USAGE_BATCH_RECEIVED_V1 = 103;             // "usage.batch.received.v1"
+  USAGE_BATCH_PROCESSED_V1 = 104;            // "usage.batch.processed.v1"
+
+  // -------------------------------
+  // RATING EVENTS
+  // -------------------------------
+  RATING_STARTED_V1 = 120;                   // "rating.started.v1"
+  RATING_COMPLETED_V1 = 121;                 // "rating.completed.v1"
+  RATING_FAILED_V1 = 122;                    // "rating.failed.v1"
+  RATING_RETRYING_V1 = 123;                  // "rating.retrying.v1"
+
+  // -------------------------------
+  // INVOICE EVENTS
+  // -------------------------------
+  INVOICE_CREATED_V1 = 150;                  // "invoice.created.v1"
+  INVOICE_UPDATED_V1 = 151;                  // "invoice.updated.v1"
+  INVOICE_FINALIZED_V1 = 152;                // "invoice.finalized.v1"
+  INVOICE_SENT_TO_GATEWAY_V1 = 153;          // "invoice.sent_to_gateway.v1"
+  INVOICE_PAYMENT_SUCCEEDED_V1 = 154;        // "invoice.payment_succeeded.v1"
+  INVOICE_PAYMENT_FAILED_V1 = 155;           // "invoice.payment_failed.v1"
+  INVOICE_VOIDED_V1 = 156;                   // "invoice.voided.v1"
+  INVOICE_UNCOLLECTIBLE_V1 = 157;            // "invoice.uncollectible.v1"
+  INVOICE_DELETED_V1 = 158;                  // "invoice.deleted.v1"
+
+  // -------------------------------
+  // PAYMENT EVENTS (future-proof)
+  // -------------------------------
+  PAYMENT_INTENT_CREATED_V1 = 180;           // "payment_intent.created.v1"
+  PAYMENT_INTENT_SUCCEEDED_V1 = 181;         // "payment_intent.succeeded.v1"
+  PAYMENT_INTENT_FAILED_V1 = 182;            // "payment_intent.failed.v1"
 }
 
-// EventCatalogEntry describes a subject and its string representation.
+// ======================================================================
+//  SOURCE SERVICE ENUM
+// ======================================================================
+enum EventSourceService {
+  SOURCE_SERVICE_UNSPECIFIED = 0;
+  TENANT = 1;
+  CUSTOMER = 2;
+  PRICING = 3;
+  SUBSCRIPTION = 4;
+  USAGE = 5;
+  RATING = 6;
+  INVOICE = 7;
+  PAYMENT = 8;
+}
+
+// ======================================================================
+//  EVENT CATALOG ENTRY (Full Metadata for Documentation)
+// ======================================================================
 message EventCatalogEntry {
-  EventSubject subject = 1;
-  string subject_str = 2;
-  string source_service = 3;
-  string description = 4;
-  google.protobuf.Struct sample_payload = 5;
+  EventSubject subject = 1;                   // Enum form
+  string subject_str = 2;                     // Canonical string e.g. "invoice.payment_failed.v1"
+  EventSourceService source_service = 3;      // Owning service/domain
+  string description = 4;                     // Human readable description
+  google.protobuf.Struct sample_payload = 5;  // Example event payload
 }
 
-// EventCatalog aggregates all subjects for documentation and validation.
+// ======================================================================
+//  EVENT CATALOG AGGREGATION
+// ======================================================================
 message EventCatalog {
   repeated EventCatalogEntry events = 1;
 }
 
-// EventCatalogService exposes a read-only registry of supported subjects.
+// ======================================================================
+//  EVENT CATALOG SERVICE (Read-only Registry)
+// ======================================================================
+message ListEventsRequest {}                  // Reserved for future filter-by-domain
 service EventCatalogService {
-  rpc ListEvents(google.protobuf.Struct) returns (EventCatalog) {}
+  rpc ListEvents(ListEventsRequest) returns (EventCatalog);
 }

@@ -4,115 +4,52 @@ package smallbiznis.billing_event.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing_event/v1;billingeventv1";
 
-import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "smallbiznis/event/v1/event.proto";
 
-// ======================================
-// ENUMS
-// ======================================
-
-// BillingEventType enumerates the supported domain event subjects.
-enum BillingEventType {
-  // Default unset value; clients must provide a concrete type.
-  BILLING_EVENT_UNSPECIFIED = 0;
-
-  // Subscription lifecycle events emitted when a subscription is created/renewed/cancelled.
-  SUBSCRIPTION_CREATED = 1;
-  SUBSCRIPTION_RENEWED = 2;
-  SUBSCRIPTION_CANCELLED = 3;
-
-  // Invoice lifecycle events emitted when an invoice is generated, paid, or becomes overdue.
-  INVOICE_GENERATED = 10;
-  INVOICE_PAID      = 11;
-  INVOICE_OVERDUE   = 12;
-
-  // Payment outcome events emitted by the payment processor.
-  PAYMENT_SUCCEEDED = 20;
-  PAYMENT_FAILED    = 21;
-  PAYMENT_RETRY     = 22;
-
-  // Usage and rating events emitted as part of the billing pipeline.
-  USAGE_RECORDED    = 30;
-  RATING_COMPLETED  = 31;
-}
-
-// ======================================
-// MODEL
-// ======================================
-
-// BillingEvent captures emitted domain events for audits and webhook delivery.
+// BillingEvent wraps the generic Event message with billing-specific context for
+// storage and webhook delivery.
 message BillingEvent {
-  // Unique event identifier for idempotency and deduplication.
+  // Unique identifier for the event.
   string id = 1;
-  // Type of domain event, see BillingEventType for available subjects.
-  BillingEventType type = 2;
-
-  // Tenant namespace that owns the resource referenced by this event.
-  string tenant_id  = 3;
-  // Identifier for the affected resource (subscription_id / invoice_id / payment_id / metric_code).
+  // Canonical subject string (see EventSubject in event_catalog.proto).
+  string subject = 2;
+  // Tenant that owns the affected resource.
+  string tenant_id = 3;
+  // Resource identifier related to the event (subscription, invoice, customer).
   string resource_id = 4;
-
-  // Arbitrary payload that carries structured event data.
-  google.protobuf.Struct payload = 10;
-
-  // RFC3339 timestamp when the event was emitted and persisted.
-  google.protobuf.Timestamp created_at = 20;
+  // Structured payload specific to the subject.
+  google.protobuf.Struct payload = 5;
+  // Timestamp when the event was created.
+  google.protobuf.Timestamp created_at = 6;
 }
 
-// ======================================
-// Webhook Delivery
-// ======================================
-
-// WebhookEndpoint defines where billing events are delivered for a tenant.
+// WebhookEndpoint defines destinations for tenant billing events.
 message WebhookEndpoint {
-  // Unique identifier for this webhook endpoint.
-  string id        = 1;
-  // Tenant namespace that owns the webhook subscription.
+  string id = 1;
   string tenant_id = 2;
-  // Callback URL that receives BillingEvent payloads.
-  string url       = 3;
-  // Whether the endpoint is active and should receive deliveries.
-  bool   active    = 4;
+  string url = 3;
+  bool active = 4;
 }
 
-// DeliverWebhookRequest contains the identifiers needed to manually dispatch an event.
+// Request to deliver an event to a webhook endpoint.
 message DeliverWebhookRequest {
-  // BillingEvent id that must be delivered.
-  string event_id   = 1;
-  // Target webhook endpoint id belonging to the same tenant.
+  string event_id = 1;
   string endpoint_id = 2;
 }
 
-// DeliverWebhookResponse reports whether delivery to the subscriber succeeded.
+// Response indicating webhook delivery success.
 message DeliverWebhookResponse {
-  // True when the webhook was delivered and acknowledged by the remote endpoint.
   bool delivered = 1;
 }
 
-// ======================================
-// SERVICE
-// ======================================
-
-// BillingEventService exposes endpoints that emit and deliver billing domain events.
+// BillingEventService persists billing events and manages webhook delivery.
 service BillingEventService {
+  // Emit and store a billing event using the generic envelope for downstream
+  // processing.
+  rpc EmitEvent(smallbiznis.event.v1.Event) returns (BillingEvent);
 
-  // EmitEvent ingests a billing event, persists it, and returns the stored record.
-  // Request must be authorized by a tenant-scoped API key and is idempotent on `id`.
-  rpc EmitEvent(BillingEvent) returns (BillingEvent) {
-    option (google.api.http) = {
-      post: "/v1/billing/events"
-      body: "*"
-    };
-  }
-
-  // DeliverWebhook pushes a previously stored event to a tenant-configured webhook endpoint.
-  // The endpoint_id must belong to the same tenant as the event.
-  rpc DeliverWebhook(DeliverWebhookRequest)
-      returns (DeliverWebhookResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/events/{event_id}/deliver/{endpoint_id}"
-      body: "*"
-    };
-  }
+  // Deliver a stored event to a tenant-configured webhook endpoint.
+  rpc DeliverWebhook(DeliverWebhookRequest) returns (DeliverWebhookResponse);
 }

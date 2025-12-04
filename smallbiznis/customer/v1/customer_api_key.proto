@@ -6,100 +6,110 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/customer/v1;
 
 import "google/protobuf/timestamp.proto";
 
-// ApiKey represents a long-lived credential that authorizes tenant scoped requests.
+// ApiKey represents a tenant-owned credential for server-to-server API access.
+// Keys are never attached to customers and must be scoped to a tenant.
 message ApiKey {
-  // Unique, monotonic identifier for this API key metadata.
+  // Unique identifier for the API key record.
   string id = 1;
-  // Tenant namespace that owns this key.
+
+  // Tenant that owns and manages this API key.
   string tenant_id = 2;
-  // Human friendly label such as "Production Key" that tenants control.
+
+  // Friendly name for operator reference (e.g., "Production key").
   string name = 3;
-  // Safe prefix that is returned in cleartext for logging and pattern matching.
+
+  // Safe prefix that can be logged and shown to users (e.g., "sb_live_abc123").
   string key_prefix = 4;
-  // One-way hash of the secret portion using bcrypt/argon2; used for verification.
+
+  // Hash of the secret key material (bcrypt/argon2). Plaintext is never stored.
   string hashed_key = 5;
-  // Flag indicating whether the key has been revoked and no longer accepts requests.
+
+  // Indicates whether the key has been revoked and should be rejected.
   bool revoked = 6;
-  // RFC3339 timestamp when the key was created; immutable audit field.
+
+  // Creation and update timestamps.
   google.protobuf.Timestamp created_at = 7;
-  // RFC3339 timestamp when the key metadata last changed (name, revoke status, scopes).
   google.protobuf.Timestamp updated_at = 8;
-  // RFC3339 timestamp for the most recent API call authenticated with this key.
+
+  // Timestamp of the last successful usage, useful for rotation policies.
   google.protobuf.Timestamp last_used_at = 9;
-  // Tenant granted permissions, e.g. ["usage:write","invoice:read"], enforced by gateway.
+
+  // Allowed scopes for this key (e.g., "usage:write", "invoice:read").
   repeated string scopes = 10;
+
+  // Optional expiration timestamp after which the key is invalid.
+  google.protobuf.Timestamp expires_at = 11;
 }
 
-// CreateApiKeyRequest is submitted by tenants to provision a new credential.
+// Request to create a new API key for a tenant.
 message CreateApiKeyRequest {
-  // Tenant namespace that will own the key and must match auth context.
+  // Tenant that will own the key.
   string tenant_id = 1;
-  // Friendly label that makes the key discoverable in console lists.
+  // Friendly name to identify the key.
   string name = 2;
-  // Desired permission set for the key; subset of tenant allowed scopes.
+  // Scopes granted to the key.
   repeated string scopes = 3;
 }
 
-// CreateApiKeyResponse returns the stored key metadata and the one-time secret.
+// Response containing the stored key record and the one-time plaintext value.
 message CreateApiKeyResponse {
-  // Persisted ApiKey metadata; secret is never retrievable after creation.
+  // Persisted key metadata.
   ApiKey key = 1;
-  // Plaintext secret (prefix+hash) returned only once so callers must store it securely.
+  // Plain text secret returned once at creation time.
   string plain_text_key = 2;
 }
 
-// ListApiKeysRequest scopes the listing to a tenant namespace.
+// Request to list keys for a tenant.
 message ListApiKeysRequest {
-  // Tenant namespace for which we enumerate API keys.
+  // Tenant whose keys should be returned.
   string tenant_id = 1;
 }
 
-// ListApiKeysResponse streams back the tenant's stored keys with metadata.
+// Response containing all API keys for the tenant.
 message ListApiKeysResponse {
-  // Tenant owned API keys sorted by creation date.
   repeated ApiKey keys = 1;
 }
 
-// RevokeApiKeyRequest invalidates the supplied key_id for a tenant namespace.
+// Request to revoke an API key.
 message RevokeApiKeyRequest {
-  // Tenant namespace that owns the key being revoked.
+  // Tenant that owns the key (authorization guard).
   string tenant_id = 1;
-  // Identifier of the ApiKey to revoke.
+  // Identifier of the key to revoke.
   string key_id = 2;
 }
 
-// RevokeApiKeyResponse acknowledges successful revocation.
+// Response confirming revocation status.
 message RevokeApiKeyResponse {
-  // True when revocation succeeded and the key is no longer accepted.
   bool success = 1;
 }
 
-// RotateApiKeyRequest instructs the service to create a replacement key.
+// Request to rotate an API key, returning a new key and revoking the old one.
 message RotateApiKeyRequest {
-  // Tenant namespace that owns the key pair.
+  // Tenant that owns the key.
   string tenant_id = 1;
-  // Admin-supplied identifier of the key to rotate.
+  // Identifier of the key to rotate.
   string key_id = 2;
 }
 
-// RotateApiKeyResponse includes both the previous metadata and the new plaintext secret.
+// Response containing both the revoked key and the newly issued key.
 message RotateApiKeyResponse {
-  // Metadata for the still-valid old key.
   ApiKey old_key = 1;
-  // Newly created metadata for the replacement credential.
   ApiKey new_key = 2;
-  // Plaintext secret for the replacement key, only returned once.
   string new_plain_text_key = 3;
 }
 
-// ApiKeyService manages tenant-scoped API keys for Billing-as-a-Service clients.
+// ApiKeyService manages tenant-scoped API keys used for accessing the billing
+// platform. Customers never receive API keys.
 service ApiKeyService {
-  // Creates a key, enforces tenant ownership, and returns the new plaintext secret.
+  // Create a new API key for the tenant, returning the plaintext once.
   rpc CreateApiKey(CreateApiKeyRequest) returns (CreateApiKeyResponse);
-  // Lists the recipient tenant's keys with their metadata.
+
+  // List all API keys for a tenant.
   rpc ListApiKeys(ListApiKeysRequest) returns (ListApiKeysResponse);
-  // Revokes a key, leaving it unusable without deleting metadata.
+
+  // Revoke an existing API key so it can no longer be used.
   rpc RevokeApiKey(RevokeApiKeyRequest) returns (RevokeApiKeyResponse);
-  // Generates a replacement key while keeping the old key valid until revoked.
+
+  // Rotate an API key by issuing a new secret and revoking the old one.
   rpc RotateApiKey(RotateApiKeyRequest) returns (RotateApiKeyResponse);
 }

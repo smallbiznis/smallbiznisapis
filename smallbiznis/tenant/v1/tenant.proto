@@ -4,270 +4,140 @@ package smallbiznis.tenant.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/tenant/v1;tenantv1";
 
-import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 
-// ======================================================
-// ENUMS
-// ======================================================
-
-enum TenantStatus {
-  TENANT_STATUS_UNSPECIFIED = 0;
-  ACTIVE = 1;
-  SUSPENDED = 2;
-  DISABLED = 3;
-  DELETED = 4;
-}
-
-enum TenantUserRole {
-  TENANT_USER_ROLE_UNSPECIFIED = 0;
-  OWNER = 1;
-  ADMIN = 2;
-  STAFF = 3;
-  VIEWER = 4;
-}
-
-enum TenantUserStatus {
-  TENANT_USER_STATUS_UNSPECIFIED = 0;
-  INVITED = 1;
-  ACTIVE_USER = 2;
-  SUSPENDED_USER = 3;
-  REMOVED = 4;
-}
-
-// ======================================================
-// MODELS
-// ======================================================
-
+// Tenant represents a company account within SmallBiznis Cloud. Tenants can be
+// organized hierarchically to mirror Stripe Connect style parent/child
+// accounts. All billing entities such as customers, subscriptions, usage, and
+// invoices are scoped to a specific tenant.
 message Tenant {
-  // Snowflake ID as string (JS-safe)
+  // Globally unique tenant identifier (Snowflake/ULID as string).
   string id = 1;
 
-  string name = 2;
-  string slug = 3;
+  // Optional parent tenant. Empty for the SmallBiznis platform root or top
+  // level accounts. Enables connected account hierarchies.
+  string parent_id = 2;
 
-  TenantStatus status = 4;
+  // Type of tenant: platform root or connected account.
+  TenantType type = 3;
 
-  // pointer to subscription service (no FK on DB)
-  string current_plan_code = 5;
-  string current_subscription_id = 6;
+  // Human readable display name for the tenant.
+  string name = 4;
 
-  // platform-wide user id (from auth service)
-  string owner_user_id = 7;
+  // URL-safe unique slug used for dashboards or API routing (per tenant unique).
+  string slug = 5;
 
-  google.protobuf.Struct metadata = 8;
+  // Current lifecycle status controlling access to billing APIs.
+  TenantStatus status = 6;
 
+  // Default currency used for pricing and invoicing when no customer override
+  // is provided. Examples: "IDR", "USD".
+  string default_currency = 7;
+
+  // ISO-3166 country code representing the tenant's primary legal entity.
+  string country_code = 8;
+
+  // Timestamps for auditing and data lineage.
   google.protobuf.Timestamp created_at = 9;
   google.protobuf.Timestamp updated_at = 10;
+
+  // Arbitrary key/value metadata persisted with the tenant record.
+  google.protobuf.Struct metadata = 11;
 }
 
-message TenantUser {
-  string id = 1;
-  string tenant_id = 2;
-  string user_id = 3;
-
-  TenantUserRole role = 4;
-  TenantUserStatus status = 5;
-
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+// TenantType distinguishes the SmallBiznis platform root from connected
+// accounts created by customers.
+enum TenantType {
+  // Default unspecified value.
+  TENANT_TYPE_PLATFORM = 0;
+  // Connected account belonging to a platform tenant.
+  TENANT_TYPE_CONNECTED_ACCOUNT = 1;
 }
 
-message APIKey {
-  string id = 1;
-  string name = 2;
-  string prefix = 3;
-  string masked_key = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp revoked_at = 6;
-}
- 
-// ======================================================
-// EVENTS (for NATS / EventBus)
-// ======================================================
-
-message TenantCreatedEvent {
-  string tenant_id = 1;
-  string slug = 2;
-  string owner_user_id = 3;
-  google.protobuf.Timestamp occurred_at = 4;
+// TenantStatus indicates whether a tenant can access billing APIs.
+enum TenantStatus {
+  // Default unspecified value.
+  TENANT_STATUS_UNSPECIFIED = 0;
+  // Active tenants may create customers, subscriptions, and usage.
+  TENANT_STATUS_ACTIVE = 1;
+  // Suspended tenants are temporarily blocked from API actions.
+  TENANT_STATUS_SUSPENDED = 2;
+  // Closed tenants are permanently disabled and cannot be reactivated.
+  TENANT_STATUS_CLOSED = 3;
 }
 
-message TenantUserAddedEvent {
-  string tenant_user_id = 1;
-  string tenant_id = 2;
-  string user_id = 3;
-  TenantUserRole role = 4;
-  google.protobuf.Timestamp occurred_at = 5;
-}
-
-// ======================================================
-// REQUESTS / RESPONSES
-// ======================================================
-
+// CreateTenantRequest registers a new tenant. Parent/child relationships are
+// optional and allow platform accounts to manage connected accounts.
 message CreateTenantRequest {
-  string name = 1;
-  string slug = 2;
+  // Optional parent tenant ID for connected account creation.
+  string parent_id = 1;
+  // Display name of the tenant.
+  string name = 2;
+  // Unique slug within the parent scope.
+  string slug = 3;
+  // Default currency applied to pricing and invoices.
+  string default_currency = 4;
+  // ISO-3166 country code for regulatory context.
+  string country_code = 5;
+  // Arbitrary metadata stored alongside the tenant.
+  google.protobuf.Struct metadata = 6;
 }
 
-message CreateTenantResponse {
-  Tenant tenant = 1;
-}
-
+// Request to retrieve a single tenant by identifier.
 message GetTenantRequest {
+  // Tenant identifier to fetch.
   string id = 1;
 }
 
-message GetTenantResponse {
-  Tenant tenant = 1;
-}
-
+// ListTenantsRequest filters tenants by parent and supports pagination.
 message ListTenantsRequest {
-  int32 page_size = 1;
-  string page_token = 2;
+  // Optional parent tenant ID to list children. Empty lists all tenants
+  // accessible to the caller.
+  string parent_id = 1;
+  // Maximum number of tenants to return.
+  int32 page_size = 2;
+  // Pagination token from a previous ListTenantsResponse.
+  string page_token = 3;
 }
 
+// Paginated tenant list response.
 message ListTenantsResponse {
+  // Tenants matching the filter.
   repeated Tenant tenants = 1;
+  // Token to request the next page of results.
   string next_page_token = 2;
 }
 
-message AddTenantUserRequest {
-  string tenant_id = 1;
-  string user_id = 2;
-  TenantUserRole role = 3;
-}
-
-message AddTenantUserResponse {
-  TenantUser tenant_user = 1;
-}
-
-message ListTenantUsersRequest {
-  string tenant_id = 1;
-}
-
-message ListTenantUsersResponse {
-  repeated TenantUser tenant_users = 1;
-}
-
-message ChangeTenantUserRoleRequest {
-  string id = 1;
-  TenantUserRole new_role = 2;
-}
-
-message ChangeTenantUserRoleResponse {
-  TenantUser tenant_user = 1;
-}
-
-// (opsional tapi berguna) update basic info tenant
+// UpdateTenantRequest updates mutable tenant fields.
 message UpdateTenantRequest {
+  // Tenant identifier to update.
   string id = 1;
+  // Updated display name.
   string name = 2;
+  // Updated slug (must remain unique within parent scope).
   string slug = 3;
+  // Updated status (e.g., suspend or close tenant access).
   TenantStatus status = 4;
-  google.protobuf.Struct metadata = 5;
+  // Updated default currency.
+  string default_currency = 5;
+  // Updated country code if the legal entity moves.
+  string country_code = 6;
+  // Metadata merge/replace based on server behavior.
+  google.protobuf.Struct metadata = 7;
 }
 
-message UpdateTenantResponse {
-  Tenant tenant = 1;
-}
-
-message CreateAPIKeyRequest {
-  string tenant_id = 1;
-  string name = 2;
-}
-
-message CreateAPIKeyResponse {
-  APIKey key = 1;
-  string plaintext = 2;   // ditampilkan sekali
-}
-
-message RevokeAPIKeyRequest {
-  string id = 1;
-}
-
-message RevokeAPIKeyResponse {}
-
-message ListAPIKeysRequest {
-  string tenant_id = 1;
-}
-
-message ListAPIKeysResponse {
-  repeated APIKey keys = 1;
-}
-
-message ValidateAPIKeyRequest {
-  string api_key = 1;
-}
-
-message ValidateAPIKeyResponse {
-  string tenant_id = 1;
-  string key_id = 2;
-  bool valid = 3;
-}
-
-// ======================================================
-// TENANT SERVICE
-// ======================================================
-
+// TenantService manages hierarchical tenant accounts and their lifecycle.
 service TenantService {
+  // Create a new tenant (platform root or connected account).
+  rpc CreateTenant(CreateTenantRequest) returns (Tenant);
 
-  rpc CreateTenant(CreateTenantRequest)
-      returns (CreateTenantResponse) {
-    option (google.api.http) = {
-      post: "/v1/tenants"
-      body: "*"
-    };
-  }
+  // Retrieve a tenant by ID.
+  rpc GetTenant(GetTenantRequest) returns (Tenant);
 
-  rpc GetTenant(GetTenantRequest)
-      returns (GetTenantResponse) {
-    option (google.api.http) = {
-      get: "/v1/tenants/{id}"
-    };
-  }
+  // List tenants optionally filtered by parent account.
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
 
-  rpc ListTenants(ListTenantsRequest)
-      returns (ListTenantsResponse) {
-    option (google.api.http) = {
-      get: "/v1/tenants"
-    };
-  }
-
-  rpc UpdateTenant(UpdateTenantRequest)
-      returns (UpdateTenantResponse) {
-    option (google.api.http) = {
-      patch: "/v1/tenants/{id}"
-      body: "*"
-    };
-  }
-
-  rpc AddTenantUser(AddTenantUserRequest)
-      returns (AddTenantUserResponse) {
-    option (google.api.http) = {
-      post: "/v1/tenants/{tenant_id}/users"
-      body: "*"
-    };
-  }
-
-  rpc ListTenantUsers(ListTenantUsersRequest)
-      returns (ListTenantUsersResponse) {
-    option (google.api.http) = {
-      get: "/v1/tenants/{tenant_id}/users"
-    };
-  }
-
-  rpc ChangeTenantUserRole(ChangeTenantUserRoleRequest)
-      returns (ChangeTenantUserRoleResponse) {
-    option (google.api.http) = {
-      post: "/v1/tenant-users/{id}:change-role"
-      body: "*"
-    };
-  }
-
-  rpc CreateAPIKey(CreateAPIKeyRequest) returns (CreateAPIKeyResponse);
-  rpc RevokeAPIKey(RevokeAPIKeyRequest) returns (RevokeAPIKeyResponse);
-  rpc ListAPIKeys(ListAPIKeysRequest) returns (ListAPIKeysResponse);
-  rpc ValidateAPIKey(ValidateAPIKeyRequest) returns (ValidateAPIKeyResponse);
+  // Update mutable tenant attributes such as status or metadata.
+  rpc UpdateTenant(UpdateTenantRequest) returns (Tenant);
 }

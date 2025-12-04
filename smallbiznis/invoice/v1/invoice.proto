@@ -4,187 +4,100 @@ package smallbiznis.invoice.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/invoice/v1;invoicev1";
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
-import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
-import "smallbiznis/common/money.proto";
+// Invoice is the final bill for a tenant's customer over a billing period.
+message Invoice {
+  // Unique invoice identifier.
+  string id = 1;
+  // Tenant issuing the invoice.
+  string tenant_id = 2;
+  // Customer being billed.
+  string customer_id = 3;
+  // Subscription that produced the charges.
+  string subscription_id = 4;
+  // Lifecycle status of the invoice.
+  InvoiceStatus status = 5;
+  // Currency for all amounts on the invoice.
+  string currency_code = 6;
+  // Total payable amount in cents.
+  int64 total_cents = 7;
+  // Subtotal before discounts and taxes in cents.
+  int64 subtotal_cents = 8;
+  // Total tax amount in cents.
+  int64 tax_cents = 9;
+  // Unique invoice number per tenant (for reconciliation).
+  string invoice_number = 10;
+  // Timestamp when the invoice was issued.
+  google.protobuf.Timestamp issued_at = 11;
+  // Timestamp when the invoice is due.
+  google.protobuf.Timestamp due_at = 12;
+  // Timestamp when the invoice was fully paid.
+  google.protobuf.Timestamp paid_at = 13;
+  // Arbitrary metadata for bookkeeping.
+  google.protobuf.Struct metadata = 14;
+}
 
-// ============================================
-// Enums & Common
-// ============================================
-
+// InvoiceStatus enumerates lifecycle states for invoices.
 enum InvoiceStatus {
   INVOICE_STATUS_UNSPECIFIED = 0;
-  INVOICE_STATUS_DRAFT       = 1;
-  INVOICE_STATUS_PENDING     = 2;
-  INVOICE_STATUS_PAID        = 3;
-  INVOICE_STATUS_OVERDUE     = 4;
-  INVOICE_STATUS_VOID        = 5;
-  INVOICE_STATUS_REFUNDED    = 6;
+  INVOICE_STATUS_DRAFT = 1;
+  INVOICE_STATUS_OPEN = 2;
+  INVOICE_STATUS_PAID = 3;
+  INVOICE_STATUS_VOID = 4;
+  INVOICE_STATUS_UNCOLLECTIBLE = 5;
 }
 
-enum InvoiceLineItemType {
-  LINE_ITEM_TYPE_UNSPECIFIED = 0;
-  LINE_ITEM_TYPE_RECURRING   = 1;
-  LINE_ITEM_TYPE_USAGE       = 2;
-  LINE_ITEM_TYPE_OVERAGE     = 3;
-  LINE_ITEM_TYPE_DISCOUNT    = 4;
-  LINE_ITEM_TYPE_TAX         = 5;
-  LINE_ITEM_TYPE_ADJUSTMENT  = 6;
-}
-
-// ============================================
-// Models
-// ============================================
-
+// InvoiceLineItem represents a rated charge included on an invoice.
 message InvoiceLineItem {
-  string                id            = 1;
-  string                invoice_id    = 2;
-  InvoiceLineItemType   type          = 3;
-  string                description   = 4;
-  double                quantity      = 5;
-  smallbiznis.common.Money unit_price = 6;
-  smallbiznis.common.Money amount     = 7;
-  string                metric_code   = 8;  // e.g. "api_calls"
-  google.protobuf.Struct metadata     = 9;
+  // Unique line item identifier.
+  string id = 1;
+  // Associated invoice ID.
+  string invoice_id = 2;
+  // Meter code used to derive the charge.
+  string meter_code = 3;
+  // Price that produced the charge.
+  string price_id = 4;
+  // Human readable description of the charge.
+  string description = 5;
+  // Quantity billed.
+  double quantity = 6;
+  // Unit amount in cents before tax/discount.
+  int64 unit_amount_cents = 7;
+  // Total amount for the line in cents.
+  int64 amount_cents = 8;
+  // Arbitrary metadata for reconciliation.
+  google.protobuf.Struct metadata = 9;
 }
 
-message TaxBreakdown {
-  string id            = 1;
-  string invoice_id    = 2;
-  string name          = 3;   // e.g. "PPN"
-  double rate_percent  = 4;   // e.g. 11.0
-  smallbiznis.common.Money amount = 5;
-}
-
-message Invoice {
-  string                    id              = 1;
-  // Tenant namespace that owns this invoice (SmallBiznis Cloud or a tenant such as Company A).
-  string                    tenant_id       = 2;
-  string                    subscription_id = 3;
-  string                    invoice_number  = 4;
-  InvoiceStatus             status          = 5;
-  // Customer being billed (Company A or Company A's downstream customer).
-  string                    customer_id     = 6;
-
-  google.protobuf.Timestamp billing_period_start = 10;
-  google.protobuf.Timestamp billing_period_end   = 11;
-  google.protobuf.Timestamp issued_at            = 12;
-  google.protobuf.Timestamp due_at               = 13;
-  google.protobuf.Timestamp paid_at              = 14;
-  google.protobuf.Timestamp void_at              = 15;
-
-  repeated InvoiceLineItem  line_items      = 20;
-  smallbiznis.common.Money  subtotal        = 21;
-  smallbiznis.common.Money  discount_total  = 22;
-  smallbiznis.common.Money  tax_total       = 23;
-  smallbiznis.common.Money  total           = 24;
-  smallbiznis.common.Money  amount_paid     = 25;
-  smallbiznis.common.Money  amount_due      = 26;
-
-  repeated TaxBreakdown     taxes           = 30;
-
-  string                    currency_code   = 40;
-  string                    customer_reference = 41;
-
-  google.protobuf.Struct    metadata        = 90;
-
-  google.protobuf.Timestamp created_at      = 100;
-  google.protobuf.Timestamp updated_at      = 101;
-}
-
-// InvoiceCreatedV2 is emitted for invoice.created.v2 events and always carries the customer context.
-message InvoiceCreatedV2 {
-  // Tenant namespace that owns this invoice (SmallBiznis Cloud or a tenant such as Company A).
-  string                    tenant_id        = 1;
-  // Customer being billed (Company A or Company A's downstream customer).
-  string                    customer_id      = 2;
-  string                    invoice_id       = 3;
-  int64                     total_amount_cents = 4;
-  string                    currency_code    = 5;
-  google.protobuf.Timestamp created_at       = 6;
-  google.protobuf.Struct    metadata         = 7;
-}
-
-// ============================================
-// Requests / Responses
-// ============================================
-
+// Request to retrieve a single invoice.
 message GetInvoiceRequest {
   string id = 1;
-  // Optional customer guard that owns this invoice (Company A or their downstream customer).
-  string customer_id = 2;
+  string tenant_id = 2;
 }
 
+// Request to list invoices for a tenant/customer.
 message ListInvoicesRequest {
-  // Tenant namespace that owns the invoices (SmallBiznis Cloud or a tenant such as Company A).
-  string        tenant_id       = 1;
-  string        subscription_id = 2;
-  int32         page_size       = 10;
-  string        page_token      = 11;
-  InvoiceStatus status          = 12;
-  // Optional filter to scope invoices by the billed customer (Company A or its downstream customer).
-  string        customer_id     = 13;
+  string tenant_id = 1;
+  string customer_id = 2;
+  string subscription_id = 3;
+  InvoiceStatus status = 4;
+  int32 page_size = 5;
+  string page_token = 6;
 }
 
+// Response containing invoices and pagination token.
 message ListInvoicesResponse {
-  repeated Invoice invoices        = 1;
-  string          next_page_token  = 2;
+  repeated Invoice invoices = 1;
+  string next_page_token = 2;
 }
 
-// Dipanggil scheduler / subscription renewal
-message GenerateInvoiceForSubscriptionRequest {
-  string subscription_id = 1;
-  // optional override billing period
-  google.protobuf.Timestamp billing_period_start = 2;
-  google.protobuf.Timestamp billing_period_end   = 3;
-  bool   dry_run = 4; // if true, preview only, do not persist
-}
-
-message GenerateInvoiceForSubscriptionResponse {
-  Invoice invoice = 1;
-}
-
-message GetInvoicePdfRequest {
-  string id = 1;
-}
-
-message GetInvoicePdfResponse {
-  // e.g. signed URL or internal path
-  string pdf_url = 1;
-}
-
-// ============================================
-// Service
-// ============================================
-
+// InvoiceService provides read APIs for invoices created by the invoice engine.
 service InvoiceService {
+  // Retrieve a single invoice by ID within a tenant.
+  rpc GetInvoice(GetInvoiceRequest) returns (Invoice);
 
-  rpc GetInvoice(GetInvoiceRequest) returns (Invoice) {
-    option (google.api.http) = {
-      get: "/v1/billing/invoices/{id}"
-    };
-  }
-
-  rpc ListInvoices(ListInvoicesRequest) returns (ListInvoicesResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/invoices"
-    };
-  }
-
-  // Dipanggil oleh scheduler / subscription renewal
-  rpc GenerateInvoiceForSubscription(GenerateInvoiceForSubscriptionRequest)
-      returns (GenerateInvoiceForSubscriptionResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/subscriptions/{subscription_id}/generate-invoice"
-      body: "*"
-    };
-  }
-
-  rpc GetInvoicePdf(GetInvoicePdfRequest) returns (GetInvoicePdfResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/invoices/{id}/pdf"
-    };
-  }
+  // List invoices for a tenant with optional customer or subscription filters.
+  rpc ListInvoices(ListInvoicesRequest) returns (ListInvoicesResponse);
 }

@@ -1,208 +1,70 @@
-// IMPORTANT: LOCKED SPEC. Only change with explicit migration.
 syntax = "proto3";
 
 package smallbiznis.usage.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/usage/v1;usagev1";
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
-import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
-// UsageMetricType mirrors Stripe's aggregate_usage semantics so rating logic maps usage correctly.
-enum UsageMetricType {
-  // Default unspecified value; metrics must declare their type explicitly.
-  USAGE_METRIC_TYPE_UNSPECIFIED = 0;
-  // COUNTER tracks totals (e.g., API calls) with sum aggregation semantics.
-  COUNTER     = 1;
-  // GAUGE samples concurrent values (e.g., connections) and uses last_during_period semantics.
-  GAUGE       = 2;
-  // SUM represents pre-aggregated totals for the billing window (e.g., max or sum).
-  SUM         = 3;
-}
-
-// UsageMetricDefinition describes how usage meters are interpreted by rating.
-message UsageMetricDefinition {
-  // Unique metric code such as "api_calls" referenced by usage records and invoices.
-  string           code        = 1;
-  // Human friendly name for observability in dashboards.
-  string           name        = 2;
-  // Description of what the metric tracks for documentation.
-  string           description = 3;
-  // How the metric is aggregated during rating (COUNTER, GAUGE, SUM).
-  UsageMetricType  type        = 4;
-  // Measurement unit such as "calls", "GB", or "minutes".
-  string           unit        = 5;
-}
-
-// UsageRecord represents a single raw usage event submitted by tenants.
+// UsageRecord represents raw usage submitted by a tenant for a specific
+// customer and subscription. Tenant identity must be validated via API key, but
+// tenant_id remains on the record for internal flows and event fanout.
 message UsageRecord {
-  // Unique importable identifier for idempotent ingestion.
-  string                     id          = 1;
-  // Tenant namespace that owns this usage (SmallBiznis Cloud or a tenant such as Company A).
-  string                     tenant_id   = 2;
-  // Subscription that generated this usage event.
-  string                     subscription_id = 3;
-  // Deprecated code field retained for backward compatibility with older messaging.
-  string                     metric_code = 4 [deprecated = true];
-  // Measured usage quantity (calls, bytes, etc.) as a floating point value.
-  double                     value       = 5;
-  // RFC3339 timestamp describing when the usage occurred (event time, not ingest time).
-  google.protobuf.Timestamp  event_time  = 6;
-  // Idempotency key provided by callers to dedupe retries.
-  string                     idempotency_key = 7;
-  // Tenant supplied metadata for routing, tagging, or enrichment.
-  google.protobuf.Struct     metadata    = 8;
-  // Reference to Meter v2 definition that owns this usage.
-  string                     meter_id    = 9;
-  // Customer that generated this usage record (Company A or its downstream tenant customer).
-  string                     customer_id = 10;
+  // Unique identifier for idempotent ingestion (Snowflake/ULID).
+  string id = 1;
+  // Tenant that owns the subscription and will be billed.
+  string tenant_id = 2;
+  // Customer that generated the usage and will be invoiced.
+  string customer_id = 3;
+  // Subscription under which this usage will be billed.
+  string subscription_id = 4;
+  // Meter code defined by the tenant (per-tenant unique, e.g., "api_calls").
+  string meter_code = 5;
+  // Measured quantity for the meter (floating point to support fractional units).
+  double value = 6;
+  // Event time of the usage measurement.
+  google.protobuf.Timestamp recorded_at = 7;
+  // Idempotency key provided by the caller to deduplicate retries.
+  string idempotency_key = 8;
+  // Arbitrary metadata forwarded through rating and invoicing.
+  google.protobuf.Struct metadata = 9;
 }
 
-// UsageRecordedV2 is emitted for usage.recorded.v2 events and includes tenant/customer context.
-message UsageRecordedV2 {
-  // Unique id to deduplicate events.
-  string                     id          = 1;
-  // Tenant namespace that owns this usage event.
-  string                     tenant_id   = 2;
-  // Customer being billed for the usage.
-  string                     customer_id = 3;
-  // Subscription generating the usage.
-  string                     subscription_id = 4;
-  // Meter v2 identifier for the recorded usage.
-  string                     meter_id    = 5;
-  // Quantity used in the recorded unit.
-  double                     value       = 6;
-  // RFC3339 timestamp when the usage was registered.
-  google.protobuf.Timestamp  recorded_at = 7;
-  // Idempotency key supplied by the origin caller.
-  string                     idempotency_key = 8;
-  // Additional metadata forwarded with the event.
-  google.protobuf.Struct     metadata    = 9;
-}
-
-// UsageAggregation summarizes usage totals within a billing window.
-message UsageAggregation {
-  // Tenant namespace owning these aggregates.
-  string                     tenant_id        = 1;
-  // Subscription the aggregates belong to.
-  string                     subscription_id  = 2;
-  // Deprecated metric code kept for compatibility.
-  string                     metric_code      = 3 [deprecated = true];
-  // Total value over the window (hours/days/months).
-  double                     total_value      = 4;
-  // RFC3339 window start inclusive timestamp.
-  google.protobuf.Timestamp  window_start     = 5;
-  // RFC3339 window end exclusive timestamp.
-  google.protobuf.Timestamp  window_end       = 6;
-  // Granularity string such as "hour", "day", or "month".
-  string                     window_granularity = 7;
-  // Meter id used for aggregating and mapping to pricing.
-  string                     meter_id         = 8;
-}
-
-// IngestUsageRequest carries a single usage record for ingestion.
+// IngestUsageRequest accepts a single usage record for persistence.
 message IngestUsageRequest {
-  // Usage record submitted by the tenant; must include tenant_id and subscription_id.
   UsageRecord record = 1;
 }
 
-// IngestUsageResponse confirms ingestion and returns the canonical idempotent id.
+// IngestUsageResponse returns the canonical usage identifier after storage.
 message IngestUsageResponse {
-  // Identifier assigned to the stored usage record (same as record.id when present).
   string id = 1;
 }
 
-// ListUsageRequest filters usage records by tenant, subscription, meter, and customer.
+// ListUsageRequest filters usage records for querying and reconciliation.
 message ListUsageRequest {
-  // Tenant namespace owning the requested records.
-  string tenant_id       = 1;
-  // Subscription identifier to scope the query.
+  string tenant_id = 1;
   string subscription_id = 2;
-  // Deprecated metric code filter maintained for legacy clients.
-  string metric_code     = 3 [deprecated = true];
-  // RFC3339 lower bound for usage event_time.
-  google.protobuf.Timestamp from = 4;
-  // RFC3339 upper bound for usage event_time.
-  google.protobuf.Timestamp to   = 5;
-  // Meter v2 identifier to scope the listing.
-  string meter_id        = 6;
-  // Maximum items per page; defaults apply server side when unset.
-  int32  page_size       = 10;
-  // Pagination token from the previous page.
-  string page_token      = 11;
-  // Optional customer filter (Company A or downstream customer) for tenant-scoped queries.
-  string customer_id     = 12;
+  string customer_id = 3;
+  string meter_code = 4;
+  google.protobuf.Timestamp from = 5;
+  google.protobuf.Timestamp to = 6;
+  int32 page_size = 7;
+  string page_token = 8;
 }
 
-// ListUsageResponse pages through usage records that match the filters.
+// ListUsageResponse contains a page of usage records matching the filters.
 message ListUsageResponse {
-  // Returned usage records sorted by event_time desc.
-  repeated UsageRecord records        = 1;
-  // Token clients use to request the next page.
-  string               next_page_token = 2;
+  repeated UsageRecord records = 1;
+  string next_page_token = 2;
 }
 
-// GetUsageSummaryRequest narrows aggregated usage totals for a subscription/meter window.
-message GetUsageSummaryRequest {
-  // Tenant namespace owning the requested aggregates.
-  string tenant_id       = 1;
-  // Subscription identifier the summary is for.
-  string subscription_id = 2;
-  // Deprecated metric filter for backwards compatibility.
-  string metric_code     = 3 [deprecated = true];
-  // RFC3339 window start inclusive.
-  google.protobuf.Timestamp from = 4;
-  // RFC3339 window end exclusive.
-  google.protobuf.Timestamp to   = 5;
-  // Meter v2 id that produced these totals.
-  string meter_id        = 6;
-}
-
-// GetUsageSummaryResponse returns aggregate usage buckets used for rating.
-message GetUsageSummaryResponse {
-  // Aggregated usage entries for the requested window.
-  repeated UsageAggregation aggregations = 1;
-}
-
-// ListUsageMetricsRequest returns metadata about all usage meters.
-message ListUsageMetricsRequest {}
-
-// ListUsageMetricsResponse enumerates available usage meters.
-message ListUsageMetricsResponse {
-  // Metrics definitions tenants can report against.
-  repeated UsageMetricDefinition metrics = 1;
-}
-
-// UsageService handles ingestion, querying, and summary retrieval for tenant usage.
+// UsageService ingests tenant usage and exposes basic query capabilities for
+// rating and reconciliation pipelines.
 service UsageService {
+  // Ingest a usage record provided by a tenant.
+  rpc IngestUsage(IngestUsageRequest) returns (IngestUsageResponse);
 
-  // IngestUsage appends a new usage record. Requires tenant-scoped API key and is idempotent on record.id.
-  rpc IngestUsage(IngestUsageRequest) returns (IngestUsageResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/usage"
-      body: "*"
-    };
-  }
-
-  // ListUsage queries usage records; supports pagination, meter filtering, and optional customer scoping.
-  rpc ListUsage(ListUsageRequest) returns (ListUsageResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/usage"
-    };
-  }
-
-  // GetUsageSummary returns aggregated totals for a subscription/meter window; tenants must own the subscription.
-  rpc GetUsageSummary(GetUsageSummaryRequest) returns (GetUsageSummaryResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/usage/summary"
-    };
-  }
-
-  // ListUsageMetrics enumerates the meters that tenants can record usage against.
-  rpc ListUsageMetrics(ListUsageMetricsRequest) returns (ListUsageMetricsResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/usage/metrics"
-    };
-  }
+  // List usage records for analytics or rerating operations.
+  rpc ListUsage(ListUsageRequest) returns (ListUsageResponse);
 }

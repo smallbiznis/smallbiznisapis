@@ -1,169 +1,171 @@
-// IMPORTANT: LOCKED SPEC. Only change with explicit migration.
 syntax = "proto3";
 
 package smallbiznis.pricing.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/pricing/v1;pricingv1";
 
-import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 
-// ======================================
-// ENUMS
-// ======================================
-
-enum PricingModel {
-  PRICING_MODEL_UNSPECIFIED = 0;
-
-  // 1 price per month / per billing cycle
-  FLAT        = 1;
-
-  // Usage × unit_price_cents
-  METERED     = 2;
-
-  // Volume / Tiered pricing
-  TIERED      = 3;
-
-  // Bundled plan: included units + overage
-  PACKAGE     = 4;
-}
-
-enum TieringPolicy {
-  TIERING_POLICY_UNSPECIFIED = 0;
-  GRADUATED = 1;
-  VOLUME = 2;
-}
-
-enum TransformPolicy {
-  TRANSFORM_POLICY_UNSPECIFIED = 0;
-  NONE = 1;
-  DIVIDE_1000 = 2;
-  ROUND_UP = 3;
-}
-
-// ======================================
-// MODELS
-// ======================================
-
-// A Plan MAY have multiple meters for different metrics.
-// Example:
-//  - workflow.executed (metered)
-//  - sms.sent (package)
-//  - voucher.issued (tiered)
-message Plan {
+// Product is a sellable item defined by a tenant. Products group multiple
+// prices and can be attached to subscriptions.
+message Product {
+  // Unique product identifier.
   string id = 1;
-  string code = 2;
+  // Tenant that owns the product catalog entry.
+  string tenant_id = 2;
+  // Human readable product name.
   string name = 3;
-  string description = 4;
-
-  PricingModel pricing_model = 5;
-
-  string currency_code = 10;  // e.g. IDR, USD
-  int64 base_price_cents = 11; // used for flat plans
-
-  int64 default_trial_days = 12; // e.g 14
-
-  // Plans can have multiple meters (multi-metric pricing)
-  repeated PlanMeter meters = 20;
-
-  google.protobuf.Struct metadata = 90;
-
-  bool   active = 100;
-  google.protobuf.Timestamp created_at = 101;
-  google.protobuf.Timestamp updated_at = 102;
+  // Per-tenant unique code for referencing the product via API.
+  string code = 4;
+  // Optional marketing description.
+  string description = 5;
+  // Whether the product is available for purchase.
+  bool active = 6;
+  // Arbitrary product metadata for categorization or integration mappings.
+  google.protobuf.Struct metadata = 7;
+  // Audit timestamps.
+  google.protobuf.Timestamp created_at = 20;
+  google.protobuf.Timestamp updated_at = 21;
 }
 
-
-// A per-metric pricing definition
-message PlanMeter {
-  string metric_code = 1; // "workflow.executed", "sms.sent"
-
-  PricingModel pricing_model = 2;
-
-  // Applies ONLY for PRICING_MODEL_METERED
-  int64 unit_price_cents = 3;
-
-  // Applies ONLY for PRICING_MODEL_PACKAGE
-  int64 included_units = 4;
-  int64 overage_unit_price_cents = 5;
-
-  // Applies ONLY for PRICING_MODEL_TIERED
-  repeated PlanTier tiers = 6;
-
-  // Optional link to the Price object defining this meter
-  string price_id = 7;
-
-  // Reference to a shared meter definition when pricing_model = METERED
-  string meter_id = 8;
-
-  // How to interpret tiers (volume vs graduated)
-  TieringPolicy tiering_policy = 9;
-
-  // How to normalize usage before applying tiers
-  TransformPolicy transform_policy = 10;
-
-  google.protobuf.Struct metadata = 90;
+// PricingModel defines how a price charges for usage.
+enum PricingModel {
+  // Default unspecified value.
+  PRICING_MODEL_UNSPECIFIED = 0;
+  // Fixed amount per billing interval.
+  PRICING_MODEL_FLAT = 1;
+  // Per-unit charge multiplied by quantity.
+  PRICING_MODEL_PER_UNIT = 2;
+  // Volume pricing where unit price depends on total quantity tier.
+  PRICING_MODEL_TIERED_VOLUME = 3;
+  // Graduated pricing where each tier has its own unit price.
+  PRICING_MODEL_TIERED_GRADUATED = 4;
 }
 
-
-// Single tier for tiered pricing model
-message PlanTier {
-  int64 up_to = 1;              // up to X units
-  int64 unit_price_cents = 2;   // price per unit
+// BillingInterval configures how often a recurring price is charged.
+enum BillingInterval {
+  BILLING_INTERVAL_UNSPECIFIED = 0;
+  BILLING_INTERVAL_DAY = 1;
+  BILLING_INTERVAL_WEEK = 2;
+  BILLING_INTERVAL_MONTH = 3;
+  BILLING_INTERVAL_YEAR = 4;
 }
 
-
-// ======================================
-// REQUESTS / RESPONSES
-// ======================================
-
-message GetPlanRequest {
+// Price represents how a product is billed for a tenant. Prices can be flat,
+// per unit, or tiered and are referenced by subscriptions and rating.
+message Price {
+  // Unique price identifier.
   string id = 1;
+  // Owning tenant for scoping and security.
+  string tenant_id = 2;
+  // Product this price belongs to.
+  string product_id = 3;
+  // Per-tenant unique code for easy lookup.
+  string code = 4;
+  // Optional lookup key to maintain stable identifiers across deployments.
+  string lookup_key = 5;
+  // Pricing strategy for this price.
+  PricingModel pricing_model = 6;
+  // Currency for billing amounts (e.g., "IDR", "USD").
+  string currency = 7;
+  // Unit amount in cents for flat or per-unit models.
+  int64 unit_amount_cents = 8;
+  // Billing cadence (monthly, yearly, etc.).
+  BillingInterval billing_interval = 9;
+  // Number of intervals between billings (e.g., 3 for every 3 months).
+  int32 billing_interval_count = 10;
+  // Whether the price can be purchased or attached to subscriptions.
+  bool active = 11;
+  // Arbitrary metadata such as ERP codes.
+  google.protobuf.Struct metadata = 12;
+  // Audit timestamps.
+  google.protobuf.Timestamp created_at = 20;
+  google.protobuf.Timestamp updated_at = 21;
 }
 
-message GetPlanByCodeRequest {
-  string code = 1;
+// PriceTier defines per-quantity pricing for tiered models.
+message PriceTier {
+  // Unique identifier for this tier.
+  string id = 1;
+  // Price the tier belongs to.
+  string price_id = 2;
+  // Inclusive starting quantity for the tier.
+  double start_quantity = 3;
+  // Inclusive ending quantity. Use zero/negative for infinity.
+  double end_quantity = 4;
+  // Unit amount in cents applied within this tier.
+  int64 unit_amount_cents = 5;
+  // Unit label for display (e.g., "api_call").
+  string unit = 6;
+  // Arbitrary metadata for documentation or analytics.
+  google.protobuf.Struct metadata = 7;
 }
 
-message ListPlansRequest {
-  bool active_only = 1;
+// Requests and responses for basic CRUD operations.
+message CreateProductRequest {
+  Product product = 1;
 }
 
-message ListPlansResponse {
-  repeated Plan plans = 1;
+message GetProductRequest {
+  string id = 1;
+  string tenant_id = 2;
 }
 
-message CreatePlanRequest {
-  Plan plan = 1;
+message ListProductsRequest {
+  string tenant_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
 }
 
-message CreatePlanResponse {
-  Plan plan = 1;
+message ListProductsResponse {
+  repeated Product products = 1;
+  string next_page_token = 2;
 }
 
-// ======================================
-// SERVICE
-// ======================================
+message CreatePriceRequest {
+  Price price = 1;
+  repeated PriceTier tiers = 2;
+}
 
+message GetPriceRequest {
+  string id = 1;
+  string tenant_id = 2;
+}
+
+message ListPricesRequest {
+  string tenant_id = 1;
+  string product_id = 2;
+  string code = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+}
+
+message ListPricesResponse {
+  repeated Price prices = 1;
+  repeated PriceTier tiers = 2;
+  string next_page_token = 3;
+}
+
+// PricingService lets tenants manage products, prices, and tiers used by
+// subscriptions and rating.
 service PricingService {
+  // Create a new product definition for a tenant.
+  rpc CreateProduct(CreateProductRequest) returns (Product);
 
-  rpc GetPlan(GetPlanRequest) returns (Plan) {
-    option (google.api.http) = { get: "/v1/pricing/plans/{id}" };
-  }
+  // Retrieve a product by ID within a tenant.
+  rpc GetProduct(GetProductRequest) returns (Product);
 
-  rpc GetPlanByCode(GetPlanByCodeRequest) returns (Plan) {
-    option (google.api.http) = { get: "/v1/pricing/plans/code/{code}" };
-  }
+  // List products for a tenant with pagination.
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
 
-  rpc ListPlans(ListPlansRequest) returns (ListPlansResponse) {
-    option (google.api.http) = { get: "/v1/pricing/plans" };
-  }
+  // Create a price (and optional tiers) for a product.
+  rpc CreatePrice(CreatePriceRequest) returns (Price);
 
-  rpc CreatePlan(CreatePlanRequest) returns (CreatePlanResponse) {
-    option (google.api.http) = {
-      post: "/v1/pricing/plans"
-      body: "*"
-    };
-  }
+  // Retrieve a price by ID within a tenant.
+  rpc GetPrice(GetPriceRequest) returns (Price);
+
+  // List prices filtered by tenant/product/code with pagination. Tiers are
+  // returned alongside their parent prices.
+  rpc ListPrices(ListPricesRequest) returns (ListPricesResponse);
 }

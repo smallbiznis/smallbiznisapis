@@ -29,6 +29,19 @@ enum PricingModel {
   PACKAGE     = 4;
 }
 
+enum TieringPolicy {
+  TIERING_POLICY_UNSPECIFIED = 0;
+  GRADUATED = 1;
+  VOLUME = 2;
+}
+
+enum TransformPolicy {
+  TRANSFORM_POLICY_UNSPECIFIED = 0;
+  NONE = 1;
+  DIVIDE_1000 = 2;
+  ROUND_UP = 3;
+}
+
 // ======================================
 // MODELS
 // ======================================
@@ -77,6 +90,18 @@ message PlanMeter {
 
   // Applies ONLY for PRICING_MODEL_TIERED
   repeated PlanTier tiers = 6;
+
+  // Optional link to the Price object defining this meter
+  string price_id = 7;
+
+  // Reference to a shared meter definition when pricing_model = METERED
+  string meter_id = 8;
+
+  // How to interpret tiers (volume vs graduated)
+  TieringPolicy tiering_policy = 9;
+
+  // How to normalize usage before applying tiers
+  TransformPolicy transform_policy = 10;
 
   google.protobuf.Struct metadata = 90;
 }

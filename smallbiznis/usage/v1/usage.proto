@@ -30,24 +30,44 @@ message UsageMetricDefinition {
 // Raw usage event
 message UsageRecord {
   string                     id          = 1;
+  // Tenant namespace that owns this usage (SmallBiznis Cloud or a tenant such as Company A).
   string                     tenant_id   = 2;
   string                     subscription_id = 3;
-  string                     metric_code = 4;
+  string                     metric_code = 4 [deprecated = true]; // replaced by meter_id
   double                     value       = 5;
-  google.protobuf.Timestamp  recorded_at = 6;
+  google.protobuf.Timestamp  event_time  = 6;
   string                     idempotency_key = 7;
   google.protobuf.Struct     metadata    = 8;
+  string                     meter_id    = 9;  // reference to Meter v2
+  // Customer that generated this usage (Company A or its tenant-scoped customer).
+  string                     customer_id = 10;
+}
+
+// UsageRecordedV2 is the payload emitted for usage.recorded.v2 events with customer context.
+message UsageRecordedV2 {
+  string                     id          = 1;
+  // Tenant namespace that owns this usage (SmallBiznis Cloud or a tenant such as Company A).
+  string                     tenant_id   = 2;
+  // Customer that generated this usage (Company A or its downstream customer).
+  string                     customer_id = 3;
+  string                     subscription_id = 4;
+  string                     meter_id    = 5;  // reference to Meter v2
+  double                     value       = 6;
+  google.protobuf.Timestamp  recorded_at = 7;
+  string                     idempotency_key = 8;
+  google.protobuf.Struct     metadata    = 9;
 }
 
 // Aggregated usage per window (hour/day/month)
 message UsageAggregation {
   string                     tenant_id        = 1;
   string                     subscription_id  = 2;
-  string                     metric_code      = 3;
+  string                     metric_code      = 3 [deprecated = true];
   double                     total_value      = 4;
   google.protobuf.Timestamp  window_start     = 5;
   google.protobuf.Timestamp  window_end       = 6;
   string                     window_granularity = 7; // "hour", "day", "month"
+  string                     meter_id         = 8;
 }
 
 message IngestUsageRequest {
@@ -59,13 +79,17 @@ message IngestUsageResponse {
 }
 
 message ListUsageRequest {
+  // Tenant namespace that owns the usage records (SmallBiznis Cloud or a tenant namespace).
   string tenant_id       = 1;
   string subscription_id = 2;
-  string metric_code     = 3;
+  string metric_code     = 3 [deprecated = true];
   google.protobuf.Timestamp from = 4;
   google.protobuf.Timestamp to   = 5;
+  string meter_id        = 6;
   int32  page_size       = 10;
   string page_token      = 11;
+  // Optional filter to list usage by the billed customer (Company A or its downstream customer).
+  string customer_id     = 12;
 }
 
 message ListUsageResponse {
@@ -76,9 +100,10 @@ message ListUsageResponse {
 message GetUsageSummaryRequest {
   string tenant_id       = 1;
   string subscription_id = 2;
-  string metric_code     = 3;
+  string metric_code     = 3 [deprecated = true];
   google.protobuf.Timestamp from = 4;
   google.protobuf.Timestamp to   = 5;
+  string meter_id        = 6;
 }
 
 message GetUsageSummaryResponse {

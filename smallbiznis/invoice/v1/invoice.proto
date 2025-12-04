@@ -60,10 +60,13 @@ message TaxBreakdown {
 
 message Invoice {
   string                    id              = 1;
+  // Tenant namespace that owns this invoice (SmallBiznis Cloud or a tenant such as Company A).
   string                    tenant_id       = 2;
   string                    subscription_id = 3;
   string                    invoice_number  = 4;
   InvoiceStatus             status          = 5;
+  // Customer being billed (Company A or Company A's downstream customer).
+  string                    customer_id     = 6;
 
   google.protobuf.Timestamp billing_period_start = 10;
   google.protobuf.Timestamp billing_period_end   = 11;
@@ -91,20 +94,38 @@ message Invoice {
   google.protobuf.Timestamp updated_at      = 101;
 }
 
+// InvoiceCreatedV2 is emitted for invoice.created.v2 events and always carries the customer context.
+message InvoiceCreatedV2 {
+  // Tenant namespace that owns this invoice (SmallBiznis Cloud or a tenant such as Company A).
+  string                    tenant_id        = 1;
+  // Customer being billed (Company A or Company A's downstream customer).
+  string                    customer_id      = 2;
+  string                    invoice_id       = 3;
+  int64                     total_amount_cents = 4;
+  string                    currency_code    = 5;
+  google.protobuf.Timestamp created_at       = 6;
+  google.protobuf.Struct    metadata         = 7;
+}
+
 // ============================================
 // Requests / Responses
 // ============================================
 
 message GetInvoiceRequest {
   string id = 1;
+  // Optional customer guard that owns this invoice (Company A or their downstream customer).
+  string customer_id = 2;
 }
 
 message ListInvoicesRequest {
+  // Tenant namespace that owns the invoices (SmallBiznis Cloud or a tenant such as Company A).
   string        tenant_id       = 1;
   string        subscription_id = 2;
   int32         page_size       = 10;
   string        page_token      = 11;
   InvoiceStatus status          = 12;
+  // Optional filter to scope invoices by the billed customer (Company A or its downstream customer).
+  string        customer_id     = 13;
 }
 
 message ListInvoicesResponse {

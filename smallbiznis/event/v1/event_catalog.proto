@@ -36,8 +36,11 @@ enum EventSubject {
   TRANSACTION_ORDER_CREATED = 10;  // "transaction.order_created"
 
   // Billing events
-  BILLING_USAGE_RECORDED  = 20;  // "billing.usage_recorded"
+  BILLING_USAGE_RECORDED  = 20;  // "billing.usage_recorded" (legacy v1 event without customer_id)
   BILLING_TRIAL_EXPIRED   = 21; // "billing.trial_expired"
+  BILLING_USAGE_RECORDED_V2 = 22; // "billing.usage_recorded.v2" (customer-aware event with mandatory customer_id)
+  BILLING_RATING_COMPLETED_V2 = 23; // "billing.rating_completed.v2" (customer-aware event with mandatory customer_id)
+  BILLING_INVOICE_CREATED_V2 = 24; // "billing.invoice_created.v2" (customer-aware event with mandatory customer_id)
 
   // Tenant events
   TENANT_CREATED          = 30;  // "tenant.created"

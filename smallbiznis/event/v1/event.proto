@@ -7,11 +7,17 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/event/v1;eve
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 
+// Event is a tenant scoped message broadcast on the billing event bus.
 message Event {
+  // Global idempotent identifier for deduplication and tracing across services.
   string id = 1;
+  // Subject string (e.g., billing.usage_recorded) representing the event topic.
   string subject = 2;
+  // Tenant namespace that owns the event payload.
   string tenant_id = 3;
 
+  // Structured payload containing event specific data.
   google.protobuf.Struct data = 4;
+  // RFC3339 timestamp when the event occurred or was emitted.
   google.protobuf.Timestamp occurred_at = 5;
 }

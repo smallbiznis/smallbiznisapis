@@ -12,26 +12,37 @@ import "google/protobuf/struct.proto";
 // ENUMS
 // ======================================================
 
+// ActorType enumerates the originator of an auditable change.
 enum ActorType {
+  // Defaults to unspecified; callers must provide a concrete actor.
   ACTOR_TYPE_UNSPECIFIED = 0;
+  // Action performed by an interactive end-user.
   USER = 1;
+  // Action performed by a service account or machine.
   SERVICE_ACCOUNT = 2;
+  // Internal system generated or scheduled action.
   SYSTEM = 3;
 }
 
+// ActionType categorizes the kind of change recorded in the audit trail.
 enum ActionType {
+  // Default unspecified value; clients must select a specific action type.
   ACTION_TYPE_UNSPECIFIED = 0;
 
+  // CRUD actions.
   CREATED = 1;
   UPDATED = 2;
   DELETED = 3;
 
+  // Authentication lifecycle events.
   LOGIN = 10;
   LOGOUT = 11;
 
+  // Authorization and state transitions.
   STATUS_CHANGED = 20;
   PERMISSION_CHANGED = 21;
 
+  // Custom or domain-specific events not captured above.
   CUSTOM = 99;
 }
 
@@ -39,27 +50,42 @@ enum ActionType {
 // MODELS
 // ======================================================
 
+// AuditEvent represents a tenant-facing log record stored for compliance and observability.
 message AuditEvent {
+  // Unique identifier for this audit entry.
   string id = 1;
+  // Tenant namespace owning the audited resource.
   string tenant_id = 2;
 
+  // Classification of who performed the action.
   ActorType actor_type = 3;
-  string actor_id = 4; // user_id / service_id / system constant
+  // Identifier of the actor (user_id, service account id, or system tag).
+  string actor_id = 4;
 
-  string action = 5;        // e.g. "created_user", "update_product"
+  // Domain specific action name, e.g. "created_user" or "update_product".
+  string action = 5;
+  // ActionType for filtering and analytics.
   ActionType action_type = 6;
 
-  string resource_type = 7; // "product", "order", "voucher", "tenant"
+  // Hints for the audited resource.
+  string resource_type = 7;
+  // Identifier of the resource that changed.
   string resource_id = 8;
 
-  google.protobuf.Struct old_values = 9; // minimal diff
+  // Minimal prior state captured for diffing.
+  google.protobuf.Struct old_values = 9;
+  // Minimal new state captured for diffing.
   google.protobuf.Struct new_values = 10;
 
+  // Source IP address reported by the client.
   string ip_address = 11;
+  // User agent string describing the client.
   string user_agent = 12;
 
+  // Tenant-specified metadata for downstream systems.
   google.protobuf.Struct metadata = 13;
 
+  // RFC3339 timestamp when the audit entry was generated.
   google.protobuf.Timestamp created_at = 14;
 }
 
@@ -67,51 +93,78 @@ message AuditEvent {
 // REQUESTS / RESPONSES
 // ======================================================
 
+// CreateAuditEventRequest stores a new audit entry tied to a tenant.
 message CreateAuditEventRequest {
+  // Tenant namespace responsible for the audited resource.
   string tenant_id = 1;
 
+  // Actor metadata.
   ActorType actor_type = 2;
+  // Actor identifier (user, service account, or system constant).
   string actor_id = 3;
 
+  // Domain action details.
   string action = 4;
   ActionType action_type = 5;
 
+  // Target resource context.
   string resource_type = 6;
   string resource_id = 7;
 
+  // Optional snapshot of prior state for comparator.
   google.protobuf.Struct old_values = 8;
+  // Optional snapshot of new state for comparator.
   google.protobuf.Struct new_values = 9;
 
+  // Optional network context reported by the client.
   string ip_address = 10;
   string user_agent = 11;
 
+  // Tenant supplied metadata for connectors or enrichment.
   google.protobuf.Struct metadata = 12;
 }
 
+// CreateAuditEventResponse returns the persisted audit event with metadata.
 message CreateAuditEventResponse {
+  // Stored audit entry with server generated timestamps.
   AuditEvent event = 1;
 }
 
+// ListAuditEventsRequest scopes audit history retrieval.
 message ListAuditEventsRequest {
+  // Tenant namespace scope for the query.
   string tenant_id = 1;
+  // Optional resource_type filter.
   string resource_type = 2;
+  // Optional resource_id filter.
   string resource_id = 3;
+  // Optional actor_id filter per tenant owner.
   string actor_id = 4;
+  // Optional action_type filter for severity or category.
   ActionType action_type = 5;
+  // Maximum records to return; may be capped by the service.
   int32 page_size = 6;
+  // Token returned by a previous ListAuditEventsResponse.
   string page_token = 7;
 }
 
+// ListAuditEventsResponse pages through audit entries.
 message ListAuditEventsResponse {
+  // Matching audit entries sorted by created_at descending.
   repeated AuditEvent events = 1;
+  // Token clients use to fetch the next page.
   string next_page_token = 2;
 }
 
+// GetAuditEventRequest retrieves a single audit entry by id.
 message GetAuditEventRequest {
+  // Identifier of the audit entry to fetch.
   string id = 1;
 }
 
+// GetAuditEventResponse returns the requested audit entry.
 message GetAuditEventResponse {
+  // The audit entry requested by id.
   AuditEvent event = 1;
 }
 
@@ -119,8 +172,10 @@ message GetAuditEventResponse {
 // SERVICE
 // ======================================================
 
+// AuditService records tenant audit trails and exposes retrieval APIs for compliance.
 service AuditService {
 
+  // CreateAuditEvent stores an audit log entry; requires tenant-scoped API key and is idempotent for duplicate requests.
   rpc CreateAuditEvent(CreateAuditEventRequest)
       returns (CreateAuditEventResponse) {
     option (google.api.http) = {
@@ -129,6 +184,7 @@ service AuditService {
     };
   }
 
+  // ListAuditEvents returns tenant events filtered by resource or actor; tenant_id must match caller context.
   rpc ListAuditEvents(ListAuditEventsRequest)
       returns (ListAuditEventsResponse) {
     option (google.api.http) = {
@@ -136,6 +192,7 @@ service AuditService {
     };
   }
 
+  // GetAuditEvent fetches a single entry by id; idempotent and tenant-scoped.
   rpc GetAuditEvent(GetAuditEventRequest)
       returns (GetAuditEventResponse) {
     option (google.api.http) = {

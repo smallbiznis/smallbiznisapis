@@ -17,16 +17,16 @@ enum PricingModel {
   PRICING_MODEL_UNSPECIFIED = 0;
 
   // 1 price per month / per billing cycle
-  PRICING_MODEL_FLAT        = 1;
+  FLAT        = 1;
 
   // Usage × unit_price_cents
-  PRICING_MODEL_METERED     = 2;
+  METERED     = 2;
 
   // Volume / Tiered pricing
-  PRICING_MODEL_TIERED      = 3;
+  TIERED      = 3;
 
   // Bundled plan: included units + overage
-  PRICING_MODEL_PACKAGE     = 4;
+  PACKAGE     = 4;
 }
 
 // ======================================

@@ -9,10 +9,10 @@ import "google/protobuf/timestamp.proto";
 
 enum ScheduleTaskType {
   SCHEDULE_TASK_UNSPECIFIED = 0;
-  SCHEDULE_TASK_RENEWAL      = 1;
-  SCHEDULE_TASK_TRIAL_EXPIRY = 2;
-  SCHEDULE_TASK_DUNNING      = 3;
-  SCHEDULE_TASK_RATING_CLOSE = 4;
+  RENEWAL      = 1;
+  TRIAL_EXPIRY = 2;
+  DUNNING      = 3;
+  RATING_CLOSE = 4;
 }
 
 message RenewalTask {

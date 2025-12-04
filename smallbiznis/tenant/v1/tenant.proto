@@ -74,6 +74,15 @@ message TenantUser {
   google.protobuf.Timestamp updated_at = 7;
 }
 
+message APIKey {
+  string id = 1;
+  string name = 2;
+  string prefix = 3;
+  string masked_key = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp revoked_at = 6;
+}
+ 
 // ======================================================
 // EVENTS (for NATS / EventBus)
 // ======================================================
@@ -164,6 +173,40 @@ message UpdateTenantResponse {
   Tenant tenant = 1;
 }
 
+message CreateAPIKeyRequest {
+  string tenant_id = 1;
+  string name = 2;
+}
+
+message CreateAPIKeyResponse {
+  APIKey key = 1;
+  string plaintext = 2;   // ditampilkan sekali
+}
+
+message RevokeAPIKeyRequest {
+  string id = 1;
+}
+
+message RevokeAPIKeyResponse {}
+
+message ListAPIKeysRequest {
+  string tenant_id = 1;
+}
+
+message ListAPIKeysResponse {
+  repeated APIKey keys = 1;
+}
+
+message ValidateAPIKeyRequest {
+  string api_key = 1;
+}
+
+message ValidateAPIKeyResponse {
+  string tenant_id = 1;
+  string key_id = 2;
+  bool valid = 3;
+}
+
 // ======================================================
 // TENANT SERVICE
 // ======================================================
@@ -222,4 +265,9 @@ service TenantService {
       body: "*"
     };
   }
+
+  rpc CreateAPIKey(CreateAPIKeyRequest) returns (CreateAPIKeyResponse);
+  rpc RevokeAPIKey(RevokeAPIKeyRequest) returns (RevokeAPIKeyResponse);
+  rpc ListAPIKeys(ListAPIKeysRequest) returns (ListAPIKeysResponse);
+  rpc ValidateAPIKey(ValidateAPIKeyRequest) returns (ValidateAPIKeyResponse);
 }

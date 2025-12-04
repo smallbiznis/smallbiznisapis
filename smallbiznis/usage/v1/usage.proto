@@ -9,16 +9,20 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 
+// UsageMetricType mirrors Stripe's aggregate_usage semantics so billing logic
+// interprets COUNTER, GAUGE, and SUM in the same way Stripe would aggregate
+// usage records.
 enum UsageMetricType {
   USAGE_METRIC_TYPE_UNSPECIFIED = 0;
-  USAGE_METRIC_TYPE_COUNTER     = 1; // e.g. API calls
-  USAGE_METRIC_TYPE_GAUGE       = 2; // e.g. concurrent connections
+  COUNTER     = 1; // e.g. API calls (Stripe equivalent: sum)
+  GAUGE       = 2; // e.g. concurrent connections (Stripe equivalent: last_during_period)
+  SUM         = 3; // aggregated total for the window (Stripe equivalent: max/sum)
 }
 
 message UsageMetricDefinition {
   string           code        = 1; // e.g. "api_calls"
   string           name        = 2;
-  string           description = 3;
+  string           description = 3; // human-readable detail for the metric
   UsageMetricType  type        = 4;
   string           unit        = 5; // "calls", "GB", etc
 }

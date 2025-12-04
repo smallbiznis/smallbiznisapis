@@ -1,0 +1,32 @@
+// IMPORTANT: LOCKED SPEC. Only change with explicit migration.
+syntax = "proto3";
+
+package smallbiznis.customer.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/customer/v1;customerv1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "google/api/annotations.proto";
+
+// ENUMS
+
+// MODEL
+
+message Customer {
+
+  string id = 1;
+
+  string tenant_id = 2;
+
+  string name = 3;
+
+  string email = 4;
+
+  string phone = 5;
+
+}
+
+// REQUEST
+
+// SERVICE

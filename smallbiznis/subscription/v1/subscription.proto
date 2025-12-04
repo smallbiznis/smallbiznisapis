@@ -49,27 +49,28 @@ message Subscription {
   string id = 1;
 
   string tenant_id = 2;
+  string customer_id = 3;
 
   // reference to pricing module
-  string plan_code = 3;
-  string plan_id = 4;
+  string plan_code = 4;
+  string plan_id = 5;
 
-  SubscriptionStatus status = 5;
+  SubscriptionStatus status = 6;
 
-  bool auto_renew = 6;
-  bool allow_overage_billing = 7;
+  bool auto_renew = 7;
+  bool allow_overage_billing = 8;
 
-  google.protobuf.Timestamp start_at = 8;
-  google.protobuf.Timestamp current_period_start = 9;
-  google.protobuf.Timestamp current_period_end = 10;
+  google.protobuf.Timestamp start_at = 9;
+  google.protobuf.Timestamp current_period_start = 10;
+  google.protobuf.Timestamp current_period_end = 11;
 
-  google.protobuf.Timestamp trial_start_at = 11;
-  google.protobuf.Timestamp trial_end_at = 12;
+  google.protobuf.Timestamp trial_start_at = 12;
+  google.protobuf.Timestamp trial_end_at = 13;
 
-  google.protobuf.Timestamp cancel_at = 13;
-  google.protobuf.Timestamp canceled_at = 14;
+  google.protobuf.Timestamp cancel_at = 14;
+  google.protobuf.Timestamp canceled_at = 15;
 
-  google.protobuf.Struct metadata = 15;
+  google.protobuf.Struct metadata = 16;
 }
 
 // ===============================================================
@@ -90,14 +91,15 @@ message SubscriptionCreatedEvent {
 
 message CreateSubscriptionRequest {
   string tenant_id = 1;
+  string customer_id = 2;
 
   // must match pricing plan
-  string plan_code = 2;
-  string plan_id = 3;
+  string plan_code = 3;
+  string plan_id = 4;
 
-  int32 trial_days_override = 4;
+  int32 trial_days_override = 5;
 
-  bool start_immediately = 5;
+  bool start_immediately = 6;
 }
 
 message CreateSubscriptionResponse {

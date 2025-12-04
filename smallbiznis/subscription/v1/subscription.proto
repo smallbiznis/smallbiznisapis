@@ -48,7 +48,9 @@ enum ProrationBehavior {
 message Subscription {
   string id = 1;
 
+  // Tenant namespace that owns this record (SmallBiznis Cloud or a tenant such as Company A).
   string tenant_id = 2;
+  // Customer entity that is being billed (Company A or its downstream customer).
   string customer_id = 3;
 
   // reference to pricing module
@@ -91,7 +93,9 @@ message SubscriptionCreatedEvent {
 // ===============================================================
 
 message CreateSubscriptionRequest {
+  // Tenant namespace that owns the subscription (SmallBiznis Cloud or a tenant such as Company A).
   string tenant_id = 1;
+  // Customer entity that is being billed (Company A or one of its downstream customers).
   string customer_id = 2;
 
   // must match pricing plan
@@ -110,6 +114,7 @@ message CreateSubscriptionResponse {
 
 message GetSubscriptionRequest {
   string id = 1;
+  // Tenant namespace that is requesting the subscription (SmallBiznis Cloud or a tenant namespace).
   string tenant_id = 2;
 }
 
@@ -118,9 +123,12 @@ message GetSubscriptionResponse {
 }
 
 message ListSubscriptionsRequest {
+  // Tenant namespace that owns the subscriptions being listed (SmallBiznis Cloud or a tenant namespace).
   string tenant_id = 1;
   int32 page_size = 2;
   string page_token = 3;
+  // Optional filter to scope subscriptions by the billed customer (Company A or its downstream customer).
+  string customer_id = 4;
 }
 
 message ListSubscriptionsResponse {

@@ -1,0 +1,43 @@
+name: Auto Alpha Tag
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 18 * * *"  # contoh: tiap hari jam 01:00 WIB
+
+jobs:
+  bump-alpha:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git identity
+        run: |
+          git config user.email "autobot@smallbiznis.io"
+          git config user.name "SmallBiznis AutoTag Bot"
+
+      - name: Determine next alpha tag
+        id: bump
+        run: |
+          BASE_VERSION="v2.0.0"
+
+          latest=$(git tag | grep -E "^${BASE_VERSION}-alpha\." | sort -V | tail -n 1 | sed "s/${BASE_VERSION}-alpha.//")
+
+          if [ -z "$latest" ]; then
+            next=1
+          else
+            next=$((latest + 1))
+          fi
+
+          tag="${BASE_VERSION}-alpha.${next}"
+          echo "tag=${tag}" >> $GITHUB_OUTPUT
+          echo "Next alpha tag: ${tag}"
+
+      - name: Create tag
+        run: |
+          git tag ${{ steps.bump.outputs.tag }}
+          git push origin ${{ steps.bump.outputs.tag }}

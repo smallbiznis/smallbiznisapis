@@ -1,32 +1,125 @@
-// IMPORTANT: LOCKED SPEC. Only change with explicit migration.
 syntax = "proto3";
 
 package smallbiznis.customer.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/customer/v1;customerv1";
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
-import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
-// ENUMS
-
-// MODEL
-
+// Customer models any billable entity within the SmallBiznis BaaS hierarchy.
 message Customer {
-
+  // System generated unique customer identifier.
   string id = 1;
-
+  // Tenant defines the namespace (owner) responsible for this customer record.
   string tenant_id = 2;
-
-  string name = 3;
-
-  string email = 4;
-
-  string phone = 5;
-
+  // Only populated when a tenant customer bills its own downstream customers.
+  string parent_customer_id = 3;
+  // External reference provided by the tenant (e.g., Company A) for reconciliation.
+  string external_id = 4;
+  // Display name for the billable customer or account.
+  string name = 5;
+  // Contact email for billing notifications.
+  string email = 6;
+  // Tenant controlled metadata for flexible tagging or lookup.
+  google.protobuf.Struct metadata = 7;
+  // Timestamp when the customer record was created.
+  google.protobuf.Timestamp created_at = 8;
+  // Timestamp when the customer record was last updated.
+  google.protobuf.Timestamp updated_at = 9;
+  // Timestamp when the customer record was soft deleted.
+  google.protobuf.Timestamp deleted_at = 10;
 }
 
-// REQUEST
+// CreateCustomerRequest carries the data required to create a new customer.
+message CreateCustomerRequest {
+  // Required tenant namespace for the new customer.
+  string tenant_id = 1;
+  // Optional parent customer when a tenant owns downstream customers.
+  string parent_customer_id = 2;
+  // Optional external reference from the tenant.
+  string external_id = 3;
+  // Display name for the new customer account.
+  string name = 4;
+  // Contact email for the new customer.
+  string email = 5;
+  // Additional tenant supplied metadata.
+  google.protobuf.Struct metadata = 6;
+}
 
-// SERVICE
+// CreateCustomerResponse returns the newly created customer representation.
+message CreateCustomerResponse {
+  Customer customer = 1;
+}
+
+// GetCustomerRequest identifies a customer to retrieve and enforces the tenant namespace.
+message GetCustomerRequest {
+  // Tenant namespace which owns the requested customer.
+  string tenant_id = 1;
+  // Unique identifier of the customer to fetch.
+  string customer_id = 2;
+}
+
+// GetCustomerResponse returns the requested customer.
+message GetCustomerResponse {
+  Customer customer = 1;
+}
+
+// ListCustomersRequest filters the customer list within a tenant and supports pagination.
+message ListCustomersRequest {
+  // Tenant namespace that owns the customer records.
+  string tenant_id = 1;
+  // Optional parent customer to filter hierarchical children.
+  string parent_customer_id = 2;
+  // Maximum number of customers to return.
+  int32 page_size = 3;
+  // Token to continue pagination from a previous response.
+  string page_token = 4;
+}
+
+// ListCustomersResponse returns a page of customers owned by a tenant.
+message ListCustomersResponse {
+  repeated Customer customers = 1;
+  string next_page_token = 2;
+}
+
+// UpdateCustomerRequest modifies fields of an existing customer.
+message UpdateCustomerRequest {
+  // Tenant namespace which owns this customer.
+  string tenant_id = 1;
+  // Identifier of the customer to update.
+  string customer_id = 2;
+  // Optionally update the external reference for reconciliation.
+  string external_id = 3;
+  // Optional new display name for the customer.
+  string name = 4;
+  // Optional new email address for the customer.
+  string email = 5;
+  // Optional metadata patches for the customer.
+  google.protobuf.Struct metadata = 6;
+}
+
+// UpdateCustomerResponse returns the updated customer representation.
+message UpdateCustomerResponse {
+  Customer customer = 1;
+}
+
+// DeleteCustomerRequest removes a customer within the tenant namespace.
+message DeleteCustomerRequest {
+  // Tenant namespace which owns the targeted customer.
+  string tenant_id = 1;
+  // Identifier of the customer to delete.
+  string customer_id = 2;
+}
+
+// DeleteCustomerResponse acknowledges the deletion request.
+message DeleteCustomerResponse {}
+
+// CustomerService exposes CRUD operations for tenant scoped customers.
+service CustomerService {
+  rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
+  rpc GetCustomer(GetCustomerRequest) returns (GetCustomerResponse);
+  rpc ListCustomers(ListCustomersRequest) returns (ListCustomersResponse);
+  rpc UpdateCustomer(UpdateCustomerRequest) returns (UpdateCustomerResponse);
+  rpc DeleteCustomer(DeleteCustomerRequest) returns (DeleteCustomerResponse);
+}

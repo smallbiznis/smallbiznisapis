@@ -1,4 +1,3 @@
-// IMPORTANT: LOCKED SPEC. Only change with explicit migration.
 syntax = "proto3";
 
 package smallbiznis.billing.v1;
@@ -6,189 +5,29 @@ package smallbiznis.billing.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing/v1;billingv1";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/struct.proto";
-import "google/api/annotations.proto";
 
-// ============================================================
-// ENUMS & ERRORS
-// ============================================================
-
-enum BillingErrorCode {
-  BILLING_ERROR_CODE_UNSPECIFIED = 0;
-
-  BILLING_ERROR_TRIAL_NOT_INITIALIZED = 1;
-  BILLING_ERROR_TRIAL_EXPIRED         = 2;
-  BILLING_ERROR_NO_ACTIVE_PERIOD      = 4;
-
-  BILLING_ERROR_INTERNAL              = 100;
-}
-
-message BillingError {
-  BillingErrorCode code = 1;
-  string message = 2;
-}
-
-// ============================================================
-// DOMAIN MODELS (VALID & POWERFUL)
-// ============================================================
-
-// Trial status per subscription / tenant
-message TrialStatus {
-  bool enabled = 1;
-  bool expired = 2;
-
-  int64 trial_balance_cents = 3;
-
-  google.protobuf.Timestamp trial_start_at = 4;
-  google.protobuf.Timestamp trial_end_at   = 5;
-}
-
-// Optional fast-path balance
-message Balance {
-  string subscription_id = 1;
-  int64 trial_balance_cents = 2;
-  google.protobuf.Timestamp updated_at = 3;
-}
-
-// Billing period (per subscription)
-message BillingPeriod {
-  string id = 1;
-
+// TriggerBillingRequest asks the platform to evaluate a subscription for a
+// billing period. Downstream services emit events such as
+// billing.rating.completed.v1 and billing.invoice.created.v1.
+message TriggerBillingRequest {
+  // Tenant that owns the subscription.
+  string tenant_id = 1;
+  // Subscription to rate and invoice.
   string subscription_id = 2;
+  // Billing window start timestamp.
   google.protobuf.Timestamp period_start = 3;
-  google.protobuf.Timestamp period_end   = 4;
-
-  string status = 5; // OPEN / CLOSED / INVOICED
-
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  // Billing window end timestamp.
+  google.protobuf.Timestamp period_end = 4;
 }
 
-// UsageRecord (trial or billable)
-message UsageRecord {
-  string id = 1;
-
-  string subscription_id = 2;
-  string metric_code = 3; // MUST MATCH PlanMeter.metric_code
-
-  string period_id = 4; // empty if still trial
-  double amount     = 5;
-
-  int64 cost_cents = 6;           // cost after rating
-  int64 trial_balance_left = 7;   // updated if within trial
-
-  google.protobuf.Struct metadata      = 8;
-  google.protobuf.Timestamp created_at = 9;
+// TriggerBillingResponse confirms that a billing run was accepted.
+message TriggerBillingResponse {
+  bool accepted = 1;
 }
 
-// ============================================================
-// CORE BILLING SERVICE RPC
-// ============================================================
-
-// Called when SubscriptionService creates a subscription
-message OnSubscriptionCreatedRequest {
-  string subscription_id = 1;
-  int32 trial_days = 2; // optional override
-}
-
-message OnSubscriptionCreatedResponse {
-  TrialStatus trial = 1;
-  BillingError error = 2;
-}
-
-// Internal usage event → BillingService
-message RecordUsageRequest {
-  string subscription_id = 1;
-  string metric_code = 2; // IMPORTANT
-  double amount = 3;
-  google.protobuf.Struct metadata = 4;
-}
-
-message RecordUsageResponse {
-  bool success = 1;
-  int64 cost_cents = 2;
-  int64 trial_balance_left = 3;
-  BillingError error = 4;
-}
-
-// Query trial/balance
-message GetTrialStatusRequest {
-  string subscription_id = 1;
-}
-message GetTrialStatusResponse {
-  TrialStatus status = 1;
-  BillingError error = 2;
-}
-
-message GetBalanceRequest {
-  string subscription_id = 1;
-}
-message GetBalanceResponse {
-  Balance balance = 1;
-  BillingError error = 2;
-}
-
-// Billing period query API
-message GetCurrentBillingPeriodRequest {
-  string subscription_id = 1;
-}
-message GetCurrentBillingPeriodResponse {
-  BillingPeriod period = 1;
-  BillingError error = 2;
-}
-
-message ListBillingPeriodsRequest {
-  string subscription_id = 1;
-  int32 page_size = 2;
-  string page_token = 3;
-}
-message ListBillingPeriodsResponse {
-  repeated BillingPeriod periods = 1;
-  string next_page_token = 2;
-}
-
-// ============================================================
-// SERVICES
-// ============================================================
-
+// BillingService coordinates the billing pipeline (usage → rating → invoice).
 service BillingService {
-
-  rpc OnSubscriptionCreated(OnSubscriptionCreatedRequest)
-      returns (OnSubscriptionCreatedResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/subscription-created"
-      body: "*"
-    };
-  }
-
-  rpc RecordUsage(RecordUsageRequest)
-      returns (RecordUsageResponse);
-
-  rpc GetTrialStatus(GetTrialStatusRequest)
-      returns (GetTrialStatusResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/trial-status/{subscription_id}"
-    };
-  }
-
-  rpc GetBalance(GetBalanceRequest)
-      returns (GetBalanceResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/balance/{subscription_id}"
-    };
-  }
-
-  rpc GetCurrentBillingPeriod(GetCurrentBillingPeriodRequest)
-      returns (GetCurrentBillingPeriodResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/current-period/{subscription_id}"
-    };
-  }
-
-  rpc ListBillingPeriods(ListBillingPeriodsRequest)
-      returns (ListBillingPeriodsResponse) {
-    option (google.api.http) = {
-      get: "/v1/billing/periods/{subscription_id}"
-    };
-  }
+  // Trigger a billing cycle for a subscription. Typically invoked by schedulers
+  // or event handlers after a period closes.
+  rpc TriggerBilling(TriggerBillingRequest) returns (TriggerBillingResponse);
 }

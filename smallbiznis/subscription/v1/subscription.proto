@@ -1,203 +1,108 @@
-// IMPORTANT: LOCKED SPEC. Only change with explicit migration.
 syntax = "proto3";
 
 package smallbiznis.subscription.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subscription/v1;subscriptionv1";
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
-import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
-// ===============================================================
-// ENUMS
-// ===============================================================
-
-enum BillingInterval {
-  BILLING_INTERVAL_UNSPECIFIED = 0;
-  MONTHLY = 1;
-  YEARLY = 2;
-  WEEKLY = 3;
-  DAILY = 4;
+// Subscription ties a tenant's customer to a price. It drives usage collection,
+// rating, and invoicing. Subscriptions are always scoped to a tenant.
+message Subscription {
+  // Unique subscription identifier.
+  string id = 1;
+  // Tenant that owns this subscription.
+  string tenant_id = 2;
+  // Customer that will be billed.
+  string customer_id = 3;
+  // Price that defines billing behavior (recurring/usage/tiered).
+  string price_id = 4;
+  // Current lifecycle status of the subscription.
+  SubscriptionStatus status = 5;
+  // Whether the subscription auto-renews at period end.
+  bool auto_renew = 6;
+  // Subscription start time.
+  google.protobuf.Timestamp start_at = 7;
+  // Start of the current billing period.
+  google.protobuf.Timestamp current_period_start = 8;
+  // End of the current billing period.
+  google.protobuf.Timestamp current_period_end = 9;
+  // Optional trial window start time.
+  google.protobuf.Timestamp trial_start_at = 10;
+  // Optional trial window end time.
+  google.protobuf.Timestamp trial_end_at = 11;
+  // Scheduled cancellation time (cancel at period end).
+  google.protobuf.Timestamp cancel_at = 12;
+  // Timestamp when the subscription was canceled.
+  google.protobuf.Timestamp canceled_at = 13;
+  // Arbitrary metadata for downstream systems.
+  google.protobuf.Struct metadata = 14;
 }
 
+// SubscriptionStatus describes lifecycle states for billing and provisioning.
 enum SubscriptionStatus {
   SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
-  ACTIVE = 1;
-  TRIALING = 2;
-  PAST_DUE = 3;
-  CANCELED = 4;
-  INCOMPLETE = 5;
-  TRIAL_EXPIRED = 6;
+  SUBSCRIPTION_STATUS_ACTIVE = 1;
+  SUBSCRIPTION_STATUS_TRIALING = 2;
+  SUBSCRIPTION_STATUS_CANCELED = 3;
+  SUBSCRIPTION_STATUS_PAST_DUE = 4;
+  SUBSCRIPTION_STATUS_INCOMPLETE = 5;
 }
 
-enum ProrationBehavior {
-  PRORATION_BEHAVIOR_UNSPECIFIED = 0;
-  PRORATE = 1;
-  NO_PRORATE = 2;
-}
-
-// ===============================================================
-// DOMAIN MODEL
-// ===============================================================
-// NOTE:
-// Plan definition TIDAK ADA DI SINI lagi.
-// Plan hanya diambil dari PricingService, dan Subscription hanya referensikan plan_id & plan_code.
-//
-
-message Subscription {
-  string id = 1;
-
-  // Tenant namespace that owns this record (SmallBiznis Cloud or a tenant such as Company A).
-  string tenant_id = 2;
-  // Customer entity that is being billed (Company A or its downstream customer).
-  string customer_id = 3;
-
-  // reference to pricing module
-  string plan_code = 4;
-  string plan_id = 5;
-
-  SubscriptionStatus status = 6;
-
-  bool auto_renew = 7;
-  bool allow_overage_billing = 8;
-
-  google.protobuf.Timestamp start_at = 9;
-  google.protobuf.Timestamp current_period_start = 10;
-  google.protobuf.Timestamp current_period_end = 11;
-
-  google.protobuf.Timestamp trial_start_at = 12;
-  google.protobuf.Timestamp trial_end_at = 13;
-
-  google.protobuf.Timestamp cancel_at = 14;
-  google.protobuf.Timestamp canceled_at = 15;
-
-  google.protobuf.Struct metadata = 16;
-  string price_id = 17;
-}
-
-// ===============================================================
-// EVENTS
-// ===============================================================
-
-message SubscriptionCreatedEvent {
-  string subscription_id = 1;
-  string tenant_id = 2;
-  string plan_code = 3;
-  int32 trial_days = 4;
-  google.protobuf.Timestamp occurred_at = 5;
-}
-
-// ===============================================================
-// REQUEST / RESPONSE
-// ===============================================================
-
+// Request to create a subscription linking a customer to a price.
 message CreateSubscriptionRequest {
-  // Tenant namespace that owns the subscription (SmallBiznis Cloud or a tenant such as Company A).
   string tenant_id = 1;
-  // Customer entity that is being billed (Company A or one of its downstream customers).
   string customer_id = 2;
-
-  // must match pricing plan
-  string plan_code = 3;
-  string plan_id = 4;
-
-  int32 trial_days_override = 5;
-
-  bool start_immediately = 6;
-  string price_id = 7;
+  string price_id = 3;
+  // Optional trial start/end times if the price includes a trial.
+  google.protobuf.Timestamp trial_start_at = 4;
+  google.protobuf.Timestamp trial_end_at = 5;
+  // Whether to auto-renew at the end of the billing period.
+  bool auto_renew = 6;
+  // Optional metadata to store with the subscription.
+  google.protobuf.Struct metadata = 7;
 }
 
-message CreateSubscriptionResponse {
-  Subscription subscription = 1;
-}
-
+// Request to fetch a subscription by ID.
 message GetSubscriptionRequest {
   string id = 1;
-  // Tenant namespace that is requesting the subscription (SmallBiznis Cloud or a tenant namespace).
   string tenant_id = 2;
 }
 
-message GetSubscriptionResponse {
-  Subscription subscription = 1;
-}
-
+// Request to list subscriptions for a tenant or customer.
 message ListSubscriptionsRequest {
-  // Tenant namespace that owns the subscriptions being listed (SmallBiznis Cloud or a tenant namespace).
   string tenant_id = 1;
-  int32 page_size = 2;
-  string page_token = 3;
-  // Optional filter to scope subscriptions by the billed customer (Company A or its downstream customer).
-  string customer_id = 4;
+  string customer_id = 2;
+  int32 page_size = 3;
+  string page_token = 4;
 }
 
+// Response containing subscriptions and pagination token.
 message ListSubscriptionsResponse {
   repeated Subscription subscriptions = 1;
   string next_page_token = 2;
 }
 
+// Request to cancel a subscription (immediate or at period end).
 message CancelSubscriptionRequest {
   string id = 1;
+  // If true, cancel at current_period_end; otherwise cancel immediately.
   bool cancel_at_period_end = 2;
+  string tenant_id = 3;
 }
 
-message CancelSubscriptionResponse {
-  Subscription subscription = 1;
-}
-
-message ChangeSubscriptionPlanRequest {
-  string id = 1;
-  string new_plan_code = 2;
-  string new_plan_id = 3;
-  ProrationBehavior proration_behavior = 4;
-  string new_price_id = 5;
-}
-
-message ChangeSubscriptionPlanResponse {
-  Subscription subscription = 1;
-}
-
-// ===============================================================
-// SERVICE
-// ===============================================================
-
+// SubscriptionService manages subscription lifecycle for tenant customers.
 service SubscriptionService {
+  // Create a new subscription for a customer and price.
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription);
 
-  rpc CreateSubscription(CreateSubscriptionRequest)
-      returns (CreateSubscriptionResponse) {
-    option (google.api.http) = {
-      post: "/v1/subscriptions"
-      body: "*"
-    };
-  }
+  // Retrieve a subscription by ID.
+  rpc GetSubscription(GetSubscriptionRequest) returns (Subscription);
 
-  rpc GetSubscription(GetSubscriptionRequest)
-      returns (GetSubscriptionResponse) {
-    option (google.api.http) = {
-      get: "/v1/subscriptions:get"
-    };
-  }
+  // List subscriptions for a tenant with optional customer filter.
+  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse);
 
-  rpc ListSubscriptions(ListSubscriptionsRequest)
-      returns (ListSubscriptionsResponse) {
-    option (google.api.http) = {
-      get: "/v1/subscriptions"
-    };
-  }
-
-  rpc CancelSubscription(CancelSubscriptionRequest)
-      returns (CancelSubscriptionResponse) {
-    option (google.api.http) = {
-      post: "/v1/subscriptions/{id}:cancel"
-      body: "*"
-    };
-  }
-
-  rpc ChangeSubscriptionPlan(ChangeSubscriptionPlanRequest)
-      returns (ChangeSubscriptionPlanResponse) {
-    option (google.api.http) = {
-      post: "/v1/subscriptions/{id}:change-plan"
-      body: "*"
-    };
-  }
+  // Cancel a subscription either immediately or at period end.
+  rpc CancelSubscription(CancelSubscriptionRequest) returns (Subscription);
 }

@@ -2,102 +2,38 @@ syntax = "proto3";
 
 package smallbiznis.event.v1;
 
-option go_package = "github.com/smallbiznis/smallbiznis-monorepo/smallbiznis/event/v1;eventv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/event/v1;eventv1";
 
 import "google/protobuf/struct.proto";
-import "google/protobuf/timestamp.proto";
 
-/*
- Event Catalog (SmallBiznis)
- ---------------------------
- Ini adalah daftar lengkap semua event resmi yang dipublikasikan antar microservice.
-
- Setiap event memiliki:
-
- - SUBJECT (string)     → nama topik NATS
- - SOURCE  (string)     → service asal
- - DESCRIPTION          → description singkat
- - SCHEMA               → contoh payload di Data (Struct)
-
- Semua service wajib pakai naming yang ada di enum ini.
-*/
-
-// ============================================================================
-// ENUM: Event Subjects (Topik NATS)
-// ============================================================================
-
+// EventSubject enumerates canonical subject strings used across the billing
+// platform. Subjects follow the pattern "<domain>.<action>.v1".
 enum EventSubject {
   EVENT_SUBJECT_UNSPECIFIED = 0;
-
-  // Voucher events
-  VOUCHER_USED            = 1;  // "voucher.used"
-
-  // Transaction events
-  TRANSACTION_ORDER_CREATED = 10;  // "transaction.order_created"
-
-  // Billing events
-  BILLING_USAGE_RECORDED  = 20;  // "billing.usage_recorded" (legacy v1 event without customer_id)
-  BILLING_TRIAL_EXPIRED   = 21; // "billing.trial_expired"
-  BILLING_USAGE_RECORDED_V2 = 22; // "billing.usage_recorded.v2" (customer-aware event with mandatory customer_id)
-  BILLING_RATING_COMPLETED_V2 = 23; // "billing.rating_completed.v2" (customer-aware event with mandatory customer_id)
-  BILLING_INVOICE_CREATED_V2 = 24; // "billing.invoice_created.v2" (customer-aware event with mandatory customer_id)
-
-  // Tenant events
-  TENANT_CREATED          = 30;  // "tenant.created"
-  TENANT_DELETED          = 31;  // "tenant.deleted"
-
-  // Product events
-  PRODUCT_UPDATED         = 40;  // "product.updated"
-
-  // Inventory events
-  INVENTORY_LOW_STOCK     = 50;  // "inventory.low_stock"
-
-  // Subscription events
-  SUBSCRIPTION_CREATED    = 60;  // "subscription.created"
-  SUBSCRIPTION_CHANGED    = 61;  // "subscription.changed"
-  SUBSCRIPTION_TRIAL_EXPIRED = 62; // "subscription.trial_expired"
-
-  // Domain events
-  DOMAIN_VERIFIED         = 70;  // "domain.verified"
-
-  // Notification events
-  NOTIFICATION_SENT       = 80;  // "notification.sent"
+  EVENT_SUBJECT_TENANT_CREATED_V1 = 1;           // "tenant.created.v1"
+  EVENT_SUBJECT_CUSTOMER_CREATED_V1 = 2;         // "customer.created.v1"
+  EVENT_SUBJECT_SUBSCRIPTION_CREATED_V1 = 3;     // "subscription.created.v1"
+  EVENT_SUBJECT_SUBSCRIPTION_CANCELED_V1 = 4;    // "subscription.canceled.v1"
+  EVENT_SUBJECT_BILLING_USAGE_RECORDED_V1 = 5;   // "billing.usage.recorded.v1"
+  EVENT_SUBJECT_BILLING_RATING_COMPLETED_V1 = 6; // "billing.rating.completed.v1"
+  EVENT_SUBJECT_BILLING_INVOICE_CREATED_V1 = 7;  // "billing.invoice.created.v1"
 }
 
-// ============================================================================
-// Event Catalog entries
-// ============================================================================
-
+// EventCatalogEntry describes a subject and its string representation.
 message EventCatalogEntry {
-  // Subject enum
   EventSubject subject = 1;
-
-  // NATS subject string (mirror)
   string subject_str = 2;
-
-  // Service yang mem-publish event
   string source_service = 3;
-
-  // Deskripsi singkat
   string description = 4;
-
-  // Contoh payload
   google.protobuf.Struct sample_payload = 5;
 }
 
-// ============================================================================
-// Daftar lengkap event
-// ============================================================================
-
+// EventCatalog aggregates all subjects for documentation and validation.
 message EventCatalog {
   repeated EventCatalogEntry events = 1;
 }
 
-// ============================================================================
-// Registry Service (read-only)
-// ============================================================================
-
+// EventCatalogService exposes a read-only registry of supported subjects.
 service EventCatalogService {
-  // List semua event yang tersedia
   rpc ListEvents(google.protobuf.Struct) returns (EventCatalog) {}
 }

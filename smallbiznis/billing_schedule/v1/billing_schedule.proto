@@ -4,75 +4,52 @@ package smallbiznis.billing_schedule.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing_schedule/v1;billingschedulev1";
 
-import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-enum ScheduleTaskType {
-  SCHEDULE_TASK_UNSPECIFIED = 0;
-  RENEWAL      = 1;
-  TRIAL_EXPIRY = 2;
-  DUNNING      = 3;
-  RATING_CLOSE = 4;
+// SubscriptionBillingSchedule represents a recurring billing evaluation for a
+// subscription. Schedulers use this to determine when to trigger rating and
+// invoice generation events.
+message SubscriptionBillingSchedule {
+  // Tenant that owns the subscription.
+  string tenant_id = 1;
+  // Subscription to evaluate.
+  string subscription_id = 2;
+  // Human readable period description (e.g., "monthly").
+  string period = 3;
+  // Timestamp when the next billing run should occur.
+  google.protobuf.Timestamp next_run_at = 4;
+  // Timestamp when the schedule was last executed.
+  google.protobuf.Timestamp last_run_at = 5;
 }
 
-message RenewalTask {
-  string subscription_id = 1;
+// Request to upsert a schedule for a subscription.
+message UpsertScheduleRequest {
+  SubscriptionBillingSchedule schedule = 1;
 }
 
-message TrialExpiryTask {
-  string subscription_id = 1;
+// Response confirming schedule persistence.
+message UpsertScheduleResponse {
+  SubscriptionBillingSchedule schedule = 1;
 }
 
-message DunningRetryTask {
-  string invoice_id = 1;
+// Request to list schedules for a tenant.
+message ListSchedulesRequest {
+  string tenant_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
 }
 
-message RatingWindowCloseTask {
-  string subscription_id = 1;
-  string metric_code     = 2;
+// Response containing schedules and pagination token.
+message ListSchedulesResponse {
+  repeated SubscriptionBillingSchedule schedules = 1;
+  string next_page_token = 2;
 }
 
-message RunScheduleRequest {
-  ScheduleTaskType type = 1;
-  google.protobuf.Timestamp scheduled_at = 2;
-}
-
-message RunScheduleResponse {
-  bool success = 1;
-}
-
-// ======================================
-// SERVICE
-// ======================================
-
+// BillingScheduleService manages when subscriptions should be billed.
 service BillingScheduleService {
+  // Create or update a billing schedule for a subscription.
+  rpc UpsertSchedule(UpsertScheduleRequest) returns (UpsertScheduleResponse);
 
-  rpc RunRenewal(RenewalTask) returns (RunScheduleResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/schedule/renew"
-      body: "*"
-    };
-  }
-
-  rpc RunTrialExpiry(TrialExpiryTask) returns (RunScheduleResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/schedule/trial-expiry"
-      body: "*"
-    };
-  }
-
-  rpc RunDunning(DunningRetryTask) returns (RunScheduleResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/schedule/dunning"
-      body: "*"
-    };
-  }
-
-  rpc RunRatingWindowClose(RatingWindowCloseTask)
-      returns (RunScheduleResponse) {
-    option (google.api.http) = {
-      post: "/v1/billing/schedule/rating-close"
-      body: "*"
-    };
-  }
+  // List billing schedules for a tenant.
+  rpc ListSchedules(ListSchedulesRequest) returns (ListSchedulesResponse);
 }

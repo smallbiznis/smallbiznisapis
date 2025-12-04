@@ -4,56 +4,58 @@ package smallbiznis.rating.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/rating/v1;ratingv1";
 
+import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
-import "google/type/money.proto";
 
-message RatedLineItem {
-  string price_id = 1;
-  string meter_id = 2;
-  double quantity = 3;
-  google.type.Money unit_amount = 4;
-  google.type.Money subtotal = 5;
+// RatingResultItem represents a single rated meter for a subscription.
+message RatingResultItem {
+  // Meter code used to price the usage.
+  string meter_code = 1;
+  // Quantity consumed for the meter during the rating window.
+  double quantity = 2;
+  // Total amount in minor units (cents) for this item.
+  int64 amount_cents = 3;
+  // Currency for the rated amount.
+  string currency_code = 4;
+  // Additional metadata describing rating decisions.
+  google.protobuf.Struct metadata = 10;
 }
 
+// RatingResult aggregates rated items for a subscription period.
 message RatingResult {
-  string subscription_id = 1;
-  repeated RatedLineItem line_items = 2;
-  google.protobuf.Timestamp rated_at = 3;
-  // Customer that this rating result applies to (references smallbiznis.customer.v1.Customer.id).
-  string customer_id = 4;
+  // Tenant that owns the subscription.
+  string tenant_id = 1;
+  // Customer that generated the usage.
+  string customer_id = 2;
+  // Subscription being rated.
+  string subscription_id = 3;
+  // Detailed rated items for each meter/price.
+  repeated RatingResultItem items = 4;
+  // Timestamp when rating completed.
+  google.protobuf.Timestamp rated_at = 5;
+  // Arbitrary rating metadata (e.g., pricing snapshot references).
+  google.protobuf.Struct metadata = 6;
 }
 
+// Request to rate a subscription over a billing period.
 message RateSubscriptionRequest {
-  string subscription_id = 1;
-  google.protobuf.Timestamp period_start = 2;
-  google.protobuf.Timestamp period_end = 3;
+  // Tenant that owns the subscription.
+  string tenant_id = 1;
+  // Subscription identifier to rate.
+  string subscription_id = 2;
+  // Inclusive period start timestamp.
+  google.protobuf.Timestamp period_start = 3;
+  // Exclusive period end timestamp.
+  google.protobuf.Timestamp period_end = 4;
 }
 
+// Response containing the aggregated rating result.
 message RateSubscriptionResponse {
   RatingResult result = 1;
 }
 
-// RatingCompletedV2 is emitted for rating.completed.v2 events and includes the customer context.
-message RatingCompletedV2 {
-  // Tenant namespace that owns the rated subscription (SmallBiznis Cloud or a tenant such as Company A).
-  string tenant_id = 1;
-  // Customer that owns the subscription being rated (Company A or its downstream customer).
-  string customer_id = 2;
-  string subscription_id = 3;
-  RatingResult result = 4;
-}
-
-message RatePriceRequest {
-  string subscription_id = 1;
-  google.protobuf.Timestamp period_start = 2;
-  google.protobuf.Timestamp period_end = 3;
-}
-
-message RatePriceResponse {
-  RatedLineItem line_item = 1;
-}
-
+// RatingService converts usage into rated monetary amounts for invoicing.
 service RatingService {
+  // Rate a subscription for the specified billing window.
   rpc RateSubscription(RateSubscriptionRequest) returns (RateSubscriptionResponse);
-  rpc RatePrice(RatePriceRequest) returns (RatePriceResponse);
 }

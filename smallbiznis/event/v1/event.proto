@@ -4,20 +4,23 @@ package smallbiznis.event.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/event/v1;eventv1";
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 
-// Event is a tenant scoped message broadcast on the billing event bus.
+// Event is a generic envelope emitted across the billing platform. Subjects are
+// defined in event_catalog.proto and describe lifecycle actions like usage
+// recorded, rating completed, and invoice created.
 message Event {
-  // Global idempotent identifier for deduplication and tracing across services.
+  // Globally unique identifier for idempotency and tracing.
   string id = 1;
-  // Subject string (e.g., billing.usage_recorded) representing the event topic.
+  // Canonical subject string (e.g., "billing.usage.recorded.v1").
   string subject = 2;
-  // Tenant namespace that owns the event payload.
+  // Tenant that owns the resource referenced by the event.
   string tenant_id = 3;
-
-  // Structured payload containing event specific data.
-  google.protobuf.Struct data = 4;
-  // RFC3339 timestamp when the event occurred or was emitted.
-  google.protobuf.Timestamp occurred_at = 5;
+  // Timestamp when the event was created.
+  google.protobuf.Timestamp created_at = 4;
+  // Arbitrary event payload. Shape depends on the subject.
+  google.protobuf.Struct data = 5;
+  // Additional metadata such as source service or correlation ids.
+  google.protobuf.Struct metadata = 6;
 }

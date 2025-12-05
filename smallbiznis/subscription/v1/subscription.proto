@@ -6,6 +6,8 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subscription
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
 // Subscription ties a tenant's customer to a price. It drives usage collection,
 // rating, and invoicing. Subscriptions are always scoped to a tenant.

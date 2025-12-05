@@ -6,6 +6,8 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/usage/v1;usa
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
 // UsageRecord represents raw usage submitted by a tenant for a specific
 // customer and subscription. Tenant identity must be validated via API key, but

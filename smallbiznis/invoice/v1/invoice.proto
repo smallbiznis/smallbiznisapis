@@ -6,6 +6,8 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/invoice/v1;i
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
 // Invoice is the final bill for a tenant's customer over a billing period.
 message Invoice {
@@ -98,7 +100,7 @@ service InvoiceService {
   // Retrieve a single invoice by ID within a tenant.
   rpc GetInvoice(GetInvoiceRequest) returns (Invoice) {
     option (google.api.http) = {
-        get: "/v1/invoices/{invoice_id}"
+        get: "/v1/invoices/{id}"
     };
   };
 

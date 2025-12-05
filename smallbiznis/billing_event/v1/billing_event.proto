@@ -4,9 +4,13 @@ package smallbiznis.billing_event.v1;
 
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing_event/v1;billingeventv1";
 
+// INTERNAL
+import "smallbiznis/event/v1/event.proto";
+
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
-import "smallbiznis/event/v1/event.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
 // BillingEvent wraps the generic Event message with billing-specific context for
 // storage and webhook delivery.

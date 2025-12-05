@@ -6,6 +6,8 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/pricing/v1;p
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
 // Product is a sellable item defined by a tenant. Products group multiple
 // prices and can be attached to subscriptions.
@@ -151,21 +153,47 @@ message ListPricesResponse {
 // subscriptions and rating.
 service PricingService {
   // Create a new product definition for a tenant.
-  rpc CreateProduct(CreateProductRequest) returns (Product);
+  rpc CreateProduct(CreateProductRequest) returns (Product) {
+    option (google.api.http) = {
+      post: "/v1/products"
+      body: "*"
+    };
+  };
 
   // Retrieve a product by ID within a tenant.
-  rpc GetProduct(GetProductRequest) returns (Product);
+  rpc GetProduct(GetProductRequest) returns (Product) {
+    option (google.api.http) = {
+      get: "/v1/products/{id}"
+    };
+  };
 
   // List products for a tenant with pagination.
-  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse) {
+    option (google.api.http) = {
+      get: "/v1/products"
+    };
+  };
 
   // Create a price (and optional tiers) for a product.
-  rpc CreatePrice(CreatePriceRequest) returns (Price);
+  rpc CreatePrice(CreatePriceRequest) returns (Price) {
+    option (google.api.http) = {
+      post: "/v1/prices"
+      body: "*"
+    };
+  };
 
   // Retrieve a price by ID within a tenant.
-  rpc GetPrice(GetPriceRequest) returns (Price);
+  rpc GetPrice(GetPriceRequest) returns (Price) {
+    option (google.api.http) = {
+      get: "/v1/prices/{id}"
+    };
+  };
 
   // List prices filtered by tenant/product/code with pagination. Tiers are
   // returned alongside their parent prices.
-  rpc ListPrices(ListPricesRequest) returns (ListPricesResponse);
+  rpc ListPrices(ListPricesRequest) returns (ListPricesResponse) {
+    option (google.api.http) = {
+      get: "/v1/prices"
+    };
+  };
 }

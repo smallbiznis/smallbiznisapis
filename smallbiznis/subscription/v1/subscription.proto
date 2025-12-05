@@ -95,14 +95,32 @@ message CancelSubscriptionRequest {
 // SubscriptionService manages subscription lifecycle for tenant customers.
 service SubscriptionService {
   // Create a new subscription for a customer and price.
-  rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription);
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription) {
+    option (google.api.http) = {
+        post: "/v1/subscriptions"
+        body: "*"
+    };
+  };
 
   // Retrieve a subscription by ID.
-  rpc GetSubscription(GetSubscriptionRequest) returns (Subscription);
+  rpc GetSubscription(GetSubscriptionRequest) returns (Subscription) {
+    option (google.api.http) = {
+        get: "/v1/subscriptions/{id}"
+    };
+  };
 
   // List subscriptions for a tenant with optional customer filter.
-  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse);
+  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+    option (google.api.http) = {
+        get: "/v1/subscriptions"
+    };
+  };
 
   // Cancel a subscription either immediately or at period end.
-  rpc CancelSubscription(CancelSubscriptionRequest) returns (Subscription);
+  rpc CancelSubscription(CancelSubscriptionRequest) returns (Subscription) {
+    option (google.api.http) = {
+        post: "/v1/subscriptions/{id}/cancel"
+        body: "*"
+    };
+  };
 }

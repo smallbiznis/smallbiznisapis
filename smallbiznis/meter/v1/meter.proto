@@ -63,26 +63,26 @@ message UpdateMeterResponse {
 service MeterService {
   rpc CreateMeter(CreateMeterRequest) returns (CreateMeterResponse) {
     option (google.api.http) = {
-      post: "/v2/meters"
+      post: "/v1/meters"
       body: "meter"
     };
   }
 
   rpc GetMeter(GetMeterRequest) returns (Meter) {
     option (google.api.http) = {
-      get: "/v2/meters/{id}"
+      get: "/v1/meters/{id}"
     };
   }
 
   rpc ListMeters(ListMetersRequest) returns (ListMetersResponse) {
     option (google.api.http) = {
-      get: "/v2/meters"
+      get: "/v1/meters"
     };
   }
 
   rpc UpdateMeter(UpdateMeterRequest) returns (UpdateMeterResponse) {
     option (google.api.http) = {
-      patch: "/v2/meters/{meter.id}"
+      patch: "/v1/meters/{meter.id}"
       body: "meter"
     };
   }

@@ -48,7 +48,12 @@ message DeliverWebhookResponse {
 service BillingEventService {
   // Emit and store a billing event using the generic envelope for downstream
   // processing.
-  rpc EmitEvent(smallbiznis.event.v1.Event) returns (BillingEvent);
+  rpc EmitEvent(smallbiznis.event.v1.Event) returns (BillingEvent) {
+    option (google.api.http) = {
+        post: "/v1/events"
+        body: "*"
+    };
+  };
 
   // Deliver a stored event to a tenant-configured webhook endpoint.
   rpc DeliverWebhook(DeliverWebhookRequest) returns (DeliverWebhookResponse);

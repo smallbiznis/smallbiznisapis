@@ -63,8 +63,17 @@ message ListUsageResponse {
 // rating and reconciliation pipelines.
 service UsageService {
   // Ingest a usage record provided by a tenant.
-  rpc IngestUsage(IngestUsageRequest) returns (IngestUsageResponse);
+  rpc IngestUsage(IngestUsageRequest) returns (IngestUsageResponse) {
+    option (google.api.http) = {
+        post: "/v1/usage"
+        body: "*"
+    };
+  };
 
   // List usage records for analytics or rerating operations.
-  rpc ListUsage(ListUsageRequest) returns (ListUsageResponse);
+  rpc ListUsage(ListUsageRequest) returns (ListUsageResponse) {
+    option (google.api.http) = {
+        get: "/v1/usage"
+    };
+  };
 }

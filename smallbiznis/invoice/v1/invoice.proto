@@ -96,8 +96,16 @@ message ListInvoicesResponse {
 // InvoiceService provides read APIs for invoices created by the invoice engine.
 service InvoiceService {
   // Retrieve a single invoice by ID within a tenant.
-  rpc GetInvoice(GetInvoiceRequest) returns (Invoice);
+  rpc GetInvoice(GetInvoiceRequest) returns (Invoice) {
+    option (google.api.http) = {
+        get: "/v1/invoices/{invoice_id}"
+    };
+  };
 
   // List invoices for a tenant with optional customer or subscription filters.
-  rpc ListInvoices(ListInvoicesRequest) returns (ListInvoicesResponse);
+  rpc ListInvoices(ListInvoicesRequest) returns (ListInvoicesResponse) {
+    option (google.api.http) = {
+        get: "/v1/invoices"
+    };
+  };
 }

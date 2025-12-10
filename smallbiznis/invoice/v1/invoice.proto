@@ -39,6 +39,39 @@ message Invoice {
   google.protobuf.Timestamp paid_at = 13;
   // Arbitrary metadata for bookkeeping.
   google.protobuf.Struct metadata = 14;
+  // Optional billing cycle reference for consolidated billing.
+  string billing_cycle_id = 15;
+  // Tenant scoped sequence number for invoice issuance.
+  int64 sequence_number = 16;
+  // Discounts applied to the invoice.
+  int64 discount_cents = 17;
+  // Amount remaining to be collected.
+  int64 amount_due_cents = 18;
+  // Amount paid against the invoice.
+  int64 amount_paid_cents = 19;
+  // Amount still outstanding.
+  int64 amount_remaining_cents = 20;
+  // Payment due window in days.
+  int32 payment_due_days = 21;
+  // Timestamp when the invoice was voided.
+  google.protobuf.Timestamp void_at = 22;
+  // Timestamp when the invoice was marked uncollectible.
+  google.protobuf.Timestamp uncollectible_at = 23;
+  // Indicates this invoice is a reversal/credit note.
+  bool is_reversal = 24;
+  // Original invoice that was reversed.
+  string reversed_from = 25;
+  // How taxes are applied to this invoice.
+  InvoiceTaxBehavior tax_behavior = 26;
+  // Collection mode used when the invoice was issued.
+  InvoiceCollectionMode collection_mode = 27;
+  // Hosted URL for the generated PDF.
+  string pdf_url = 28;
+  // Audit timestamps.
+  google.protobuf.Timestamp created_at = 29;
+  google.protobuf.Timestamp updated_at = 30;
+  // When the invoice was finalized and immutable.
+  google.protobuf.Timestamp finalized_at = 31;
 }
 
 // InvoiceStatus enumerates lifecycle states for invoices.
@@ -49,6 +82,22 @@ enum InvoiceStatus {
   INVOICE_STATUS_PAID = 3;
   INVOICE_STATUS_VOID = 4;
   INVOICE_STATUS_UNCOLLECTIBLE = 5;
+  INVOICE_STATUS_PARTIALLY_PAID = 6;
+}
+
+// InvoiceTaxBehavior describes how taxes are represented on an invoice.
+enum InvoiceTaxBehavior {
+  INVOICE_TAX_BEHAVIOR_UNSPECIFIED = 0;
+  INVOICE_TAX_BEHAVIOR_INCLUSIVE = 1;
+  INVOICE_TAX_BEHAVIOR_EXCLUSIVE = 2;
+  INVOICE_TAX_BEHAVIOR_INLINE = 3;
+}
+
+// InvoiceCollectionMode enumerates the collection strategy.
+enum InvoiceCollectionMode {
+  INVOICE_COLLECTION_MODE_UNSPECIFIED = 0;
+  INVOICE_COLLECTION_MODE_SEND_INVOICE = 1;
+  INVOICE_COLLECTION_MODE_CHARGE_AUTOMATICALLY = 2;
 }
 
 // InvoiceLineItem represents a rated charge included on an invoice.
@@ -71,6 +120,56 @@ message InvoiceLineItem {
   int64 amount_cents = 8;
   // Arbitrary metadata for reconciliation.
   google.protobuf.Struct metadata = 9;
+  // Tenant owning this line.
+  string tenant_id = 10;
+  // Customer being billed.
+  string customer_id = 11;
+  // Subscription tied to this charge.
+  string subscription_id = 12;
+  // Specific subscription item (for usage/recurring).
+  string subscription_item_id = 13;
+  // Classification of this line item.
+  InvoiceLineType line_type = 14;
+  // Snapshot of the price code at billing time.
+  string price_code = 15;
+  // Currency code for the line.
+  string currency_code = 16;
+  // Subtotal before tax/discount.
+  int64 subtotal_cents = 17;
+  // Tax rate applied to this line.
+  double tax_rate_percentage = 18;
+  // Total tax collected for this line.
+  int64 tax_amount_cents = 19;
+  // Whether tax is included in the price.
+  bool tax_inclusive = 20;
+  // Tax reporting code.
+  string tax_code = 21;
+  // Total discount applied to this line.
+  int64 discount_amount_cents = 22;
+  // Discount reference code.
+  string discount_code = 23;
+  // Final total for this line.
+  int64 total_cents = 24;
+  // Rating window start.
+  google.protobuf.Timestamp period_start = 25;
+  // Rating window end.
+  google.protobuf.Timestamp period_end = 26;
+  // Audit timestamps.
+  google.protobuf.Timestamp created_at = 27;
+  google.protobuf.Timestamp updated_at = 28;
+}
+
+// InvoiceLineType classifies each invoice line.
+enum InvoiceLineType {
+  INVOICE_LINE_TYPE_UNSPECIFIED = 0;
+  INVOICE_LINE_TYPE_RECURRING = 1;
+  INVOICE_LINE_TYPE_USAGE = 2;
+  INVOICE_LINE_TYPE_ONE_TIME = 3;
+  INVOICE_LINE_TYPE_DISCOUNT = 4;
+  INVOICE_LINE_TYPE_TAX = 5;
+  INVOICE_LINE_TYPE_PRORATION = 6;
+  INVOICE_LINE_TYPE_CREDIT_REVERSAL = 7;
+  INVOICE_LINE_TYPE_ADJUSTMENT = 8;
 }
 
 // Request to retrieve a single invoice.

@@ -40,6 +40,25 @@ message Subscription {
   google.protobuf.Timestamp canceled_at = 13;
   // Arbitrary metadata for downstream systems.
   google.protobuf.Struct metadata = 14;
+  // Subscription collection mode for invoices/payments.
+  SubscriptionCollectionMode collection_mode = 15;
+  // Day of the month to anchor billing (1-31).
+  int32 billing_anchor_day = 16;
+  // Textual representation of the billing cycle type (e.g., MONTHLY).
+  string billing_cycle_type = 17;
+  // Identifier for the billing cycle that owns this subscription.
+  string current_billing_cycle_id = 18;
+  // Default payment term in days for invoices generated from this subscription.
+  int32 default_payment_term_days = 19;
+  // Default currency to use when billing this subscription.
+  string default_currency = 20;
+  // Default tax behavior for new invoices.
+  TaxBehavior default_tax_behavior = 21;
+  // Indicates cancellation at the end of the current period.
+  bool cancel_at_period_end = 22;
+  // Audit timestamps.
+  google.protobuf.Timestamp created_at = 23;
+  google.protobuf.Timestamp updated_at = 24;
 }
 
 // SubscriptionStatus describes lifecycle states for billing and provisioning.
@@ -50,6 +69,37 @@ enum SubscriptionStatus {
   SUBSCRIPTION_STATUS_CANCELED = 3;
   SUBSCRIPTION_STATUS_PAST_DUE = 4;
   SUBSCRIPTION_STATUS_INCOMPLETE = 5;
+}
+
+// Controls how invoices for the subscription are collected.
+enum SubscriptionCollectionMode {
+  SUBSCRIPTION_COLLECTION_MODE_UNSPECIFIED = 0;
+  SUBSCRIPTION_COLLECTION_MODE_SEND_INVOICE = 1;
+  SUBSCRIPTION_COLLECTION_MODE_CHARGE_AUTOMATICALLY = 2;
+}
+
+// TaxBehavior describes how taxes are treated during invoicing.
+enum TaxBehavior {
+  TAX_BEHAVIOR_UNSPECIFIED = 0;
+  TAX_BEHAVIOR_INCLUSIVE = 1;
+  TAX_BEHAVIOR_EXCLUSIVE = 2;
+  TAX_BEHAVIOR_INLINE = 3;
+}
+
+// SubscriptionItem defines the billing configuration for a price under a subscription.
+message SubscriptionItem {
+  string id = 1;
+  string tenant_id = 2;
+  string subscription_id = 3;
+  string price_id = 4;
+  string quantity = 5;
+  string billing_mode = 6;
+  string usage_behavior = 7;
+  string billing_threshold = 8;
+  string proration_behavior = 9;
+  google.protobuf.Struct metadata = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
 }
 
 // Request to create a subscription linking a customer to a price.
@@ -64,6 +114,18 @@ message CreateSubscriptionRequest {
   bool auto_renew = 6;
   // Optional metadata to store with the subscription.
   google.protobuf.Struct metadata = 7;
+  // Optional collection mode preference for the subscription.
+  SubscriptionCollectionMode collection_mode = 8;
+  // Optional billing anchor day (1-31).
+  int32 billing_anchor_day = 9;
+  // Optional billing cycle type string.
+  string billing_cycle_type = 10;
+  // Default payment term days for invoices.
+  int32 default_payment_term_days = 11;
+  // Primary currency for the subscription.
+  string default_currency = 12;
+  // Default tax behavior for invoices.
+  TaxBehavior default_tax_behavior = 13;
 }
 
 // Request to fetch a subscription by ID.

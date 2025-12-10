@@ -1,15 +1,14 @@
 syntax = "proto3";
 
-package smallbiznis.customer.v1;
+package smallbiznis.apikey.v1;
 
-option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/customer/v1;customerv1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/apikey/v1;apikeyv1";
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
 // ApiKey represents a tenant-owned credential for server-to-server API access.
-// Keys are never attached to customers and must be scoped to a tenant.
 message ApiKey {
   // Unique identifier for the API key record.
   string id = 1 [
@@ -113,7 +112,6 @@ message RotateApiKeyResponse {
 }
 
 // ApiKeyService manages tenant-scoped API keys used for accessing the billing
-// platform. Customers never receive API keys.
 service ApiKeyService {
   // Create a new API key for the tenant, returning the plaintext once.
   rpc CreateApiKey(CreateApiKeyRequest) returns (CreateApiKeyResponse) {

@@ -5,52 +5,117 @@ package smallbiznis.tax.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/tax/v1;taxv1";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
-import "google/protobuf/struct.proto";
 import "smallbiznis/common/money.proto";
 
-message TaxRule {
+// Enumerations captured from the SQL tax_rate definition.
+enum TaxType {
+  TAX_TYPE_UNSPECIFIED = 0;
+  TAX_TYPE_VAT = 1;
+  TAX_TYPE_GST = 2;
+  TAX_TYPE_SALES_TAX = 3;
+  TAX_TYPE_SERVICE_TAX = 4;
+  TAX_TYPE_WITHHOLDING = 5;
+}
+
+enum JurisdictionLevel {
+  JURISDICTION_LEVEL_UNSPECIFIED = 0;
+  JURISDICTION_LEVEL_GLOBAL = 1;
+  JURISDICTION_LEVEL_COUNTRY = 2;
+  JURISDICTION_LEVEL_STATE = 3;
+  JURISDICTION_LEVEL_CITY = 4;
+  JURISDICTION_LEVEL_POSTAL_CODE = 5;
+}
+
+enum AppliesTo {
+  APPLIES_TO_UNSPECIFIED = 0;
+  APPLIES_TO_ALL = 1;
+  APPLIES_TO_DIGITAL_GOODS = 2;
+  APPLIES_TO_SAAS = 3;
+  APPLIES_TO_PHYSICAL_GOODS = 4;
+  APPLIES_TO_SHIPPING = 5;
+  APPLIES_TO_OTHER = 6;
+}
+
+// TaxRate models a tenant-scoped tax rate record.
+message TaxRate {
   string id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = IMMUTABLE
   ];
-  string region_code = 2 [
+  string tenant_id = 2 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = IMMUTABLE
-  ]; // e.g. "ID", "SG", "EU-DE"
-  string name = 3 [(google.api.field_behavior) = REQUIRED]; // "PPN", "VAT"
-  double rate_percent = 4 [(google.api.field_behavior) = REQUIRED];
-  bool is_default = 5;
-  bool is_active = 6 [(google.api.field_behavior) = REQUIRED];
-  google.protobuf.Timestamp created_at = 10
-      [(google.api.field_behavior) = OUTPUT_ONLY];
-  google.protobuf.Timestamp updated_at = 11
-      [(google.api.field_behavior) = OUTPUT_ONLY];
+  ];
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+  string code = 4 [(google.api.field_behavior) = REQUIRED];
+  double percentage = 5 [(google.api.field_behavior) = REQUIRED];
+  bool inclusive = 6;
+  TaxType tax_type = 7;
+  JurisdictionLevel jurisdiction_level = 8;
+  AppliesTo applies_to = 9;
+  string country = 10;
+  string state = 11;
+  string city = 12;
+  string postal_code = 13;
+  google.protobuf.Timestamp effective_from = 14 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp effective_until = 15;
+  bool compound = 16;
+  bool is_default = 17;
+  int32 priority = 18;
+  bool active = 19;
+  google.protobuf.Timestamp retired_at = 20;
+  google.protobuf.Struct metadata = 21;
+  google.protobuf.Timestamp created_at = 22 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 23 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-message ListTaxRulesRequest {
-  string region_code = 1 [(google.api.field_behavior) = OPTIONAL];
+message ListTaxRatesRequest {
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  bool only_active = 2;
+  string country = 3;
+  string state = 4;
+  string city = 5;
+  string postal_code = 6;
 }
 
-message ListTaxRulesResponse {
-  repeated TaxRule rules = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+message ListTaxRatesResponse {
+  repeated TaxRate tax_rates = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message GetTaxRateRequest {
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 message TaxCalculationRequest {
-  smallbiznis.common.Money subtotal = 1 [(google.api.field_behavior) = REQUIRED];
-  string country = 2 [(google.api.field_behavior) = REQUIRED];
-  string region = 3;
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  smallbiznis.common.Money subtotal = 2 [(google.api.field_behavior) = REQUIRED];
+  string country = 3;
+  string state = 4;
+  string city = 5;
+  string postal_code = 6;
+  AppliesTo applies_to = 7;
+  google.protobuf.Timestamp as_of = 8;
 }
 
 message TaxCalculationResponse {
   smallbiznis.common.Money tax = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated TaxRate applied_rates = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 service TaxService {
-  rpc ListTaxRules(ListTaxRulesRequest) returns (ListTaxRulesResponse) {
+  rpc ListTaxRates(ListTaxRatesRequest) returns (ListTaxRatesResponse) {
     option (google.api.http) = {
-      get: "/v1/tax-rules"
+      get: "/v1/tenants/{tenant_id}/tax-rates"
+    };
+  }
+
+  rpc GetTaxRate(GetTaxRateRequest) returns (TaxRate) {
+    option (google.api.http) = {
+      get: "/v1/tenants/{tenant_id}/tax-rates/{id}"
     };
   }
 

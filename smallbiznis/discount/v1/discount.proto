@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package smallbiznis.discount.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/discount/v1;discountv1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+// DiscountType mirrors SQL enumerations for discount behavior.
+enum DiscountType {
+  DISCOUNT_TYPE_UNSPECIFIED = 0;
+  DISCOUNT_TYPE_FIXED_AMOUNT = 1;
+  DISCOUNT_TYPE_PERCENTAGE = 2;
+}
+
+// DiscountAppliesTo scopes where the discount can be applied.
+enum DiscountAppliesTo {
+  DISCOUNT_APPLIES_TO_UNSPECIFIED = 0;
+  DISCOUNT_APPLIES_TO_ALL = 1;
+  DISCOUNT_APPLIES_TO_RECURRING = 2;
+  DISCOUNT_APPLIES_TO_USAGE = 3;
+  DISCOUNT_APPLIES_TO_ONE_TIME = 4;
+}
+
+// DurationType describes the recurrence window for the discount.
+enum DiscountDurationType {
+  DISCOUNT_DURATION_TYPE_UNSPECIFIED = 0;
+  DISCOUNT_DURATION_TYPE_ONCE = 1;
+  DISCOUNT_DURATION_TYPE_FOREVER = 2;
+  DISCOUNT_DURATION_TYPE_REPEATING = 3;
+}
+
+message Discount {
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string code = 3 [(google.api.field_behavior) = REQUIRED];
+  string name = 4 [(google.api.field_behavior) = REQUIRED];
+  string description = 5;
+  DiscountType discount_type = 6 [(google.api.field_behavior) = REQUIRED];
+  int64 amount_cents = 7;
+  double percentage = 8;
+  DiscountAppliesTo applies_to = 9;
+  DiscountDurationType duration_type = 10;
+  int32 duration_in_cycles = 11;
+  bool active = 12 [(google.api.field_behavior) = REQUIRED];
+  int32 max_redemptions = 13;
+  int32 redemptions_count = 14;
+  google.protobuf.Timestamp valid_from = 15;
+  google.protobuf.Timestamp valid_until = 16;
+  google.protobuf.Struct metadata = 17;
+  google.protobuf.Timestamp created_at = 18 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp updated_at = 19 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message ListDiscountsRequest {
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  bool only_active = 2;
+  string code = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+}
+
+message ListDiscountsResponse {
+  repeated Discount discounts = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string next_page_token = 2;
+}
+
+message GetDiscountRequest {
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+service DiscountService {
+  rpc ListDiscounts(ListDiscountsRequest) returns (ListDiscountsResponse) {
+    option (google.api.http) = {
+      get: "/v1/tenants/{tenant_id}/discounts"
+    };
+  }
+
+  rpc GetDiscount(GetDiscountRequest) returns (Discount) {
+    option (google.api.http) = {
+      get: "/v1/tenants/{tenant_id}/discounts/{id}"
+    };
+  }
+}

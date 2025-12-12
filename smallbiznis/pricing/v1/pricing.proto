@@ -101,6 +101,10 @@ message Price {
   bool active = 11;
   // Arbitrary metadata such as ERP codes.
   google.protobuf.Struct metadata = 12;
+  // Optional breakdown of amounts per currency or billing context.
+  repeated PriceAmount price_amounts = 13;
+  // Default trial duration offered for this price (days).
+  int32 trial_period_days = 14;
   // Audit timestamps.
   google.protobuf.Timestamp created_at = 20;
   google.protobuf.Timestamp updated_at = 21;
@@ -122,6 +126,22 @@ message PriceTier {
   string unit = 6;
   // Arbitrary metadata for documentation or analytics.
   google.protobuf.Struct metadata = 7;
+}
+
+// PriceAmount represents a currency-specific amount for a price.
+message PriceAmount {
+  string id = 1;
+  string tenant_id = 2;
+  string price_id = 3;
+  // Currency of this amount (e.g., "USD", "IDR").
+  string currency = 4;
+  // Amount in the lowest currency unit (cents).
+  int64 amount_cents = 5;
+  // Optional contextual metadata.
+  google.protobuf.Struct metadata = 6;
+  // Audit timestamps.
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
 
 // Requests and responses for basic CRUD operations.
@@ -148,6 +168,7 @@ message ListProductsResponse {
 message CreatePriceRequest {
   Price price = 1;
   repeated PriceTier tiers = 2;
+  repeated PriceAmount price_amounts = 3;
 }
 
 message GetPriceRequest {
@@ -166,7 +187,8 @@ message ListPricesRequest {
 message ListPricesResponse {
   repeated Price prices = 1;
   repeated PriceTier tiers = 2;
-  string next_page_token = 3;
+  repeated PriceAmount price_amounts = 3;
+  string next_page_token = 4;
 }
 
 // PricingService lets tenants manage products, prices, and tiers used by

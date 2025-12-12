@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package smallbiznis.license.v1;
+
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/license/v1;licensev1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// ------------------------------------------------------------
+// JSON Web Key (PUBLIC KEY ONLY)
+// Used only for verifying signatures. Never includes private key.
+// ------------------------------------------------------------
+message JsonWebKey {
+  // Key Type (always "RSA").
+  string kty = 1;
+
+  // Public modulus (base64url).
+  string n = 2;
+
+  // Public exponent (base64url).
+  string e = 3;
+
+  // Key ID (useful for key rotation).
+  string kid = 4;
+
+  // Algorithm (typically "RS256").
+  string alg = 5;
+
+  // Key usage (should be "sig").
+  string use = 6;
+}
+
+// ------------------------------------------------------------
+// License Payload (vendor-signed)
+// Contains only legal-identification-type fields.
+// Does NOT contain any feature flags.
+// ------------------------------------------------------------
+message LicensePayload {
+  // License unique identifier.
+  string license_id = 1;
+
+  // Edition: e.g. "enterprise", "trial", "partner"
+  string edition = 2;
+
+  // Customer organization name.
+  string customer_name = 3;
+
+  // Optional vendor metadata (non-feature-related).
+  google.protobuf.Struct metadata = 4;
+
+  // When license was issued.
+  google.protobuf.Timestamp issued_at = 5;
+
+  // When license expires.
+  google.protobuf.Timestamp expires_at = 6;
+}
+
+// ------------------------------------------------------------
+// Full license file, equivalent to the external license.json.
+// ------------------------------------------------------------
+message LicenseFile {
+  // Vendor-signed payload.
+  LicensePayload payload = 1;
+
+  // RS256 signature in base64.
+  string signature = 2;
+
+  // Optional embedded public JWK (rarely used, but allowed).
+  JsonWebKey jwk = 3;
+}
+
+// ------------------------------------------------------------
+// License validation API (optional for setup wizard).
+// ------------------------------------------------------------
+message GetLicenseStatusRequest {}
+
+message GetLicenseStatusResponse {
+  // Whether the signature and payload are valid.
+  bool valid = 1;
+
+  // Whether the license is expired.
+  bool expired = 2;
+
+  // Expiry timestamp for display.
+  google.protobuf.Timestamp expires_at = 3;
+
+  // Parsed license payload.
+  LicensePayload payload = 4;
+
+  // Optional error message for invalid or expired license.
+  string message = 5;
+}
+
+service LicenseService {
+  // Called by FE setup wizard to confirm license validity.
+  // NOT used for runtime gating of feature flags.
+  rpc GetLicenseStatus(GetLicenseStatusRequest)
+      returns (GetLicenseStatusResponse);
+}

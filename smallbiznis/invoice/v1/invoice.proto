@@ -100,8 +100,8 @@ enum InvoiceCollectionMode {
   INVOICE_COLLECTION_MODE_CHARGE_AUTOMATICALLY = 2;
 }
 
-// InvoiceLineItem represents a rated charge included on an invoice.
-message InvoiceLineItem {
+// InvoiceItem represents a rated charge included on an invoice.
+message InvoiceItem {
   // Unique line item identifier.
   string id = 1;
   // Associated invoice ID.
@@ -194,6 +194,23 @@ message ListInvoicesResponse {
   string next_page_token = 2;
 }
 
+// Request to list invoice items belonging to a tenant or filtered by invoice.
+message ListInvoiceItemsRequest {
+  string tenant_id = 1;
+  string invoice_id = 2;
+  string customer_id = 3;
+  string subscription_id = 4;
+  InvoiceLineType line_type = 5;
+  int32 page_size = 6;
+  string page_token = 7;
+}
+
+// Response containing invoice items and pagination metadata.
+message ListInvoiceItemsResponse {
+  repeated InvoiceItem invoice_items = 1;
+  string next_page_token = 2;
+}
+
 // InvoiceService provides read APIs for invoices created by the invoice engine.
 service InvoiceService {
   // Retrieve a single invoice by ID within a tenant.
@@ -207,6 +224,16 @@ service InvoiceService {
   rpc ListInvoices(ListInvoicesRequest) returns (ListInvoicesResponse) {
     option (google.api.http) = {
         get: "/v1/invoices"
+    };
+  };
+
+  // List line items that were generated for the tenant's invoices.
+  rpc ListInvoiceItems(ListInvoiceItemsRequest) returns (ListInvoiceItemsResponse) {
+    option (google.api.http) = {
+        get: "/v1/invoices/{invoice_id}/items"
+        additional_bindings {
+          get: "/v1/invoices/{invoice_id}/items"
+        }
     };
   };
 }

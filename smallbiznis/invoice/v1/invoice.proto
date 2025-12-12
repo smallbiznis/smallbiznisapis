@@ -230,7 +230,7 @@ service InvoiceService {
   // List line items that were generated for the tenant's invoices.
   rpc ListInvoiceItems(ListInvoiceItemsRequest) returns (ListInvoiceItemsResponse) {
     option (google.api.http) = {
-        get: "/v1/invoices/{invoice_id}/items"
+        get: "/v1/invoice_items"
         additional_bindings {
           get: "/v1/invoices/{invoice_id}/items"
         }

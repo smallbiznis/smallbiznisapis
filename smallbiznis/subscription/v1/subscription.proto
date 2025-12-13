@@ -19,7 +19,7 @@ message Subscription {
   // Customer that will be billed.
   string customer_id = 3;
   // Price that defines billing behavior (recurring/usage/tiered).
-  string price_id = 4;
+  reserved 4;
   // Current lifecycle status of the subscription.
   SubscriptionStatus status = 5;
   // Whether the subscription auto-renews at period end.

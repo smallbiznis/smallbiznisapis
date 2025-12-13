@@ -89,10 +89,8 @@ message Price {
   string lookup_key = 5;
   // Pricing strategy for this price.
   PricingModel pricing_model = 6;
-  // Currency for billing amounts (e.g., "IDR", "USD").
-  string currency = 7;
-  // Unit amount in cents for flat or per-unit models.
-  int64 unit_amount_cents = 8;
+  // Reserved field numbers for removed currency/unit_amount fields.
+  reserved 7, 8;
   // Billing cadence (monthly, yearly, etc.).
   BillingInterval billing_interval = 9;
   // Number of intervals between billings (e.g., 3 for every 3 months).

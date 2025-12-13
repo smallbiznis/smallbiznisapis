@@ -92,31 +92,34 @@ message SubscriptionItem {
   string tenant_id = 2;
   string subscription_id = 3;
   string price_id = 4;
-  int64 quantity = 5;
-  string billing_mode = 6;
-  string usage_behavior = 7;
-  string billing_threshold = 8;
-  string proration_behavior = 9;
-  google.protobuf.Struct metadata = 10;
-  google.protobuf.Timestamp created_at = 11;
-  google.protobuf.Timestamp updated_at = 12;
+  string meter_id = 5;
+  int64 quantity = 6;
+  string billing_mode = 7;
+  string usage_behavior = 8;
+  string billing_threshold = 9;
+  string proration_behavior = 10;
+  google.protobuf.Struct metadata = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
 }
 
 message CreateSubscriptionItem {
   // Price to bill under the subscription.
   string price_id = 1;
+  // 
+  string meter_id = 2;
   // Quantity or units for billing.
-  int64 quantity = 2;
+  int64 quantity = 3;
   // Determines how charges are billed (e.g., recurring, usage based).
-  string billing_mode = 3;
+  string billing_mode = 4;
   // Behavior for usage-based charges.
-  string usage_behavior = 4;
-  // Threshold at which billing behavior changes.
-  string billing_threshold = 5;
+  string usage_behavior = 5;
+  // Threshold at which bi5lling behavior changes.
+  string billing_threshold = 6;
   // Behavior for prorations when billing periods change.
-  string proration_behavior = 6;
+  string proration_behavior = 7;
   // Optional metadata for downstream systems.
-  google.protobuf.Struct metadata = 7;
+  google.protobuf.Struct metadata = 8;
 }
 
 // Request to create a subscription linking a customer to a price.

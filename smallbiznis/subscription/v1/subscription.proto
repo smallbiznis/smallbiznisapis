@@ -106,7 +106,7 @@ message SubscriptionItem {
 message CreateSubscriptionRequest {
   string tenant_id = 1;
   string customer_id = 2;
-  string price_id = 3;
+  reserved 3;
   // Optional trial start/end times if the price includes a trial.
   google.protobuf.Timestamp trial_start_at = 4;
   google.protobuf.Timestamp trial_end_at = 5;

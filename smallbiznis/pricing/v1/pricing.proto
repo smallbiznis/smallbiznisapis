@@ -189,6 +189,32 @@ message ListPricesResponse {
   string next_page_token = 4;
 }
 
+message ListPriceTiersRequest {
+  string tenant_id = 1;
+  string price_id = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListPriceTiersResponse {
+  repeated PriceTier price_tiers = 1;
+  string next_page_token = 2;
+}
+
+message ListPriceAmountsRequest {
+  string tenant_id = 1;
+  string price_id = 2;
+  string currency = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+}
+
+message ListPriceAmountsResponse {
+  repeated PriceAmount price_amounts = 1;
+  string next_page_token = 2;
+}
+
+
 // PricingService lets tenants manage products, prices, and tiers used by
 // subscriptions and rating.
 service PricingService {
@@ -234,6 +260,20 @@ service PricingService {
   rpc ListPrices(ListPricesRequest) returns (ListPricesResponse) {
     option (google.api.http) = {
       get: "/v1/prices"
+    };
+  };
+
+  // List tiers for prices within a tenant context.
+  rpc ListPriceTiers(ListPriceTiersRequest) returns (ListPriceTiersResponse) {
+    option (google.api.http) = {
+      get: "/v1/price_tiers"
+    };
+  };
+
+  // List currency-specific amounts for prices within a tenant context.
+  rpc ListPriceAmounts(ListPriceAmountsRequest) returns (ListPriceAmountsResponse) {
+    option (google.api.http) = {
+      get: "/v1/price_amounts"
     };
   };
 }

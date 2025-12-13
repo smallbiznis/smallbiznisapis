@@ -160,8 +160,9 @@ message GetSubscriptionRequest {
 message ListSubscriptionsRequest {
   string tenant_id = 1;
   string customer_id = 2;
-  int32 page_size = 3;
-  string page_token = 4;
+  SubscriptionStatus status = 3;
+  int32 page_size = 4;
+  string page_token = 5;
 }
 
 // Response containing subscriptions and pagination token.

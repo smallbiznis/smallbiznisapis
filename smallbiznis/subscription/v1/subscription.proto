@@ -93,7 +93,7 @@ message SubscriptionItem {
   string subscription_id = 3;
   string price_id = 4;
   string meter_id = 5;
-  int64 quantity = 6;
+  double quantity = 6;
   string billing_mode = 7;
   string usage_behavior = 8;
   string billing_threshold = 9;

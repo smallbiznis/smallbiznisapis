@@ -56,22 +56,76 @@ enum PricingModel {
   // Default unspecified value.
   PRICING_MODEL_UNSPECIFIED = 0;
   // Fixed amount per billing interval.
-  PRICING_MODEL_FLAT = 1;
+  FLAT = 1;
   // Per-unit charge multiplied by quantity.
-  PRICING_MODEL_PER_UNIT = 2;
+  PER_UNIT = 2;
   // Volume pricing where unit price depends on total quantity tier.
-  PRICING_MODEL_TIERED_VOLUME = 3;
+  TIERED_VOLUME = 3;
   // Graduated pricing where each tier has its own unit price.
-  PRICING_MODEL_TIERED_GRADUATED = 4;
+  TIERED_GRADUATED = 4;
 }
+
+// BillingUnit defines the logical unit being billed.
+enum BillingUnit {
+  BILLING_UNIT_UNSPECIFIED = 0;
+
+  API_CALL = 1;
+  GB = 2; // decimal (10^9)
+  GIB = 3; // binary (2^30)
+  MB = 4;
+  MIB = 5;
+  SECOND = 6;
+  MINUTE = 7;
+  HOUR = 8;
+  SEAT = 9;
+}
+
+
+// TODO: add description for this BillingModel
+// BillingMode defines how quantity is determined.
+enum BillingMode {
+  BILLING_MODE_UNSPECIFIED = 0;
+
+  // Quantity is fixed (e.g. 10 seats, 3 licenses)
+  LICENSED = 1;
+
+  // Quantity comes from usage records (metered)
+  METERED = 2;
+}
+
 
 // BillingInterval configures how often a recurring price is charged.
 enum BillingInterval {
   BILLING_INTERVAL_UNSPECIFIED = 0;
-  BILLING_INTERVAL_DAY = 1;
-  BILLING_INTERVAL_WEEK = 2;
-  BILLING_INTERVAL_MONTH = 3;
-  BILLING_INTERVAL_YEAR = 4;
+  DAY = 1;
+  WEEK = 2;
+  MONTH = 3;
+  YEAR = 4;
+}
+
+// TODO: Add description for AggregateUsage
+enum AggregateUsage {
+  AGGREGATE_USAGE_UNSPECIFIED = 0;
+  SUM = 1;
+  MAX = 2;
+  LAST = 3;
+}
+
+// TODO: add description for ProrationBehavior
+enum ProrationBehavior {
+  PRORATION_BEHAVIOR_UNSPECIFIED = 0;
+
+  // No proration at all
+  NONE = 1;
+
+  // Prorate remaining time and invoice immediately
+  CREATE_PRORATIONS = 2;
+
+  // Calculate proration but invoice in next cycle
+  DEFERRED = 3;
+
+  // Immediately invoice full new amount
+  INVOICE_IMMEDIATELY = 4;
 }
 
 // Price represents how a product is billed for a tenant. Prices can be flat,
@@ -103,6 +157,8 @@ message Price {
   repeated PriceAmount price_amounts = 13;
   // Default trial duration offered for this price (days).
   int32 trial_period_days = 14;
+
+  BillingUnit billing_unit = 15;
   // Audit timestamps.
   google.protobuf.Timestamp created_at = 20;
   google.protobuf.Timestamp updated_at = 21;

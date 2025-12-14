@@ -9,6 +9,8 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
+import "smallbiznis/pricing/v1/pricing.proto";
+
 // Subscription ties a tenant's customer to a price. It drives usage collection,
 // rating, and invoicing. Subscriptions are always scoped to a tenant.
 message Subscription {
@@ -64,26 +66,26 @@ message Subscription {
 // SubscriptionStatus describes lifecycle states for billing and provisioning.
 enum SubscriptionStatus {
   SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
-  SUBSCRIPTION_STATUS_ACTIVE = 1;
-  SUBSCRIPTION_STATUS_TRIALING = 2;
-  SUBSCRIPTION_STATUS_CANCELED = 3;
-  SUBSCRIPTION_STATUS_PAST_DUE = 4;
-  SUBSCRIPTION_STATUS_INCOMPLETE = 5;
+  ACTIVE = 1;
+  TRIALING = 2;
+  CANCELED = 3;
+  PAST_DUE = 4;
+  INCOMPLETE = 5;
 }
 
 // Controls how invoices for the subscription are collected.
 enum SubscriptionCollectionMode {
   SUBSCRIPTION_COLLECTION_MODE_UNSPECIFIED = 0;
-  SUBSCRIPTION_COLLECTION_MODE_SEND_INVOICE = 1;
-  SUBSCRIPTION_COLLECTION_MODE_CHARGE_AUTOMATICALLY = 2;
+  SEND_INVOICE = 1;
+  CHARGE_AUTOMATICALLY = 2;
 }
 
 // TaxBehavior describes how taxes are treated during invoicing.
 enum TaxBehavior {
   TAX_BEHAVIOR_UNSPECIFIED = 0;
-  TAX_BEHAVIOR_INCLUSIVE = 1;
-  TAX_BEHAVIOR_EXCLUSIVE = 2;
-  TAX_BEHAVIOR_INLINE = 3;
+  INCLUSIVE = 1;
+  EXCLUSIVE = 2;
+  INLINE = 3;
 }
 
 // SubscriptionItem defines the billing configuration for a price under a subscription.
@@ -94,10 +96,10 @@ message SubscriptionItem {
   string price_id = 4;
   string meter_id = 5;
   double quantity = 6;
-  string billing_mode = 7;
-  string usage_behavior = 8;
-  string billing_threshold = 9;
-  string proration_behavior = 10;
+  smallbiznis.pricing.v1.BillingInterval billing_mode = 7;
+  smallbiznis.pricing.v1.AggregateUsage usage_behavior = 8;
+  double billing_threshold = 9;
+  smallbiznis.pricing.v1.ProrationBehavior proration_behavior = 10;
   google.protobuf.Struct metadata = 11;
   google.protobuf.Timestamp created_at = 12;
   google.protobuf.Timestamp updated_at = 13;
@@ -109,15 +111,16 @@ message CreateSubscriptionItem {
   // 
   string meter_id = 2;
   // Quantity or units for billing.
-  int64 quantity = 3;
-  // Determines how charges are billed (e.g., recurring, usage based).
-  string billing_mode = 4;
+  double quantity = 3;
+  // BillingMode defines how the billable quantity is determined
+  // (fixed from subscription vs derived from usage records).
+  smallbiznis.pricing.v1.BillingMode billing_mode = 4;
   // Behavior for usage-based charges.
-  string usage_behavior = 5;
+  smallbiznis.pricing.v1.AggregateUsage usage_behavior = 5;
   // Threshold at which bi5lling behavior changes.
-  string billing_threshold = 6;
+  double billing_threshold = 6;
   // Behavior for prorations when billing periods change.
-  string proration_behavior = 7;
+  smallbiznis.pricing.v1.ProrationBehavior proration_behavior = 7;
   // Optional metadata for downstream systems.
   google.protobuf.Struct metadata = 8;
 }

@@ -9,8 +9,8 @@ import "google/protobuf/timestamp.proto";
 
 // RatingResultItem represents a single rated meter for a subscription.
 message RatingResultItem {
-  // Meter code used to price the usage.
-  string meter_code = 1;
+  // Meter id used to price the usage.
+  string meter_id = 1;
   // Quantity consumed for the meter during the rating window.
   double quantity = 2;
   // Total amount in minor units (cents) for this item.

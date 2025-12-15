@@ -84,21 +84,24 @@ message SubscriptionItem {
 
   // Pricing reference
   string price_id = 4;
-  string meter_id = 5;
+  string price_code = 5;
+
+  string meter_id = 6;
+  string meter_code = 7;
 
   // Quantity for LICENSED billing
-  double quantity = 6;
+  double quantity = 8;
 
   // Billing behavior
-  smallbiznis.pricing.v1.BillingMode billing_mode = 7;
-  smallbiznis.pricing.v1.AggregateUsage aggregate_usage = 8;
-  double billing_threshold = 9;
-  smallbiznis.pricing.v1.ProrationBehavior proration_behavior = 10;
+  smallbiznis.pricing.v1.BillingMode billing_mode = 9;
+  smallbiznis.pricing.v1.AggregateUsage aggregate_usage = 10;
+  double billing_threshold = 11;
+  smallbiznis.pricing.v1.ProrationBehavior proration_behavior = 12;
 
-  google.protobuf.Struct metadata = 11;
+  google.protobuf.Struct metadata = 13;
 
-  google.protobuf.Timestamp created_at = 12;
-  google.protobuf.Timestamp updated_at = 13;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp updated_at = 15;
 }
 
 

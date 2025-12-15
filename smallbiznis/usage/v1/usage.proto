@@ -21,24 +21,30 @@ message UsageRecord {
   string customer_id = 3;
   // Subscription under which this usage will be billed.
   string subscription_id = 4;
-  // Meter code defined by the tenant (per-tenant unique, e.g., "api_calls").
-  string meter_code = 5;
+  // 
+  string subscription_item_id = 5;
   // Canonical meter identifier that ties the usage to meter.v1.Meter.id even if codes change.
-  // string meter_id = 6;
-  reserved 6;
+  string meter_id = 6;
+  // Meter code defined by the tenant (per-tenant unique, e.g., "api_calls").
+  double meter_code = 7;
   // Measured quantity for the meter (floating point to support fractional units).
-  double value = 7;
+  double value = 8;
   // Event time of the usage measurement.
-  google.protobuf.Timestamp recorded_at = 8;
+  google.protobuf.Timestamp recorded_at = 9;
   // Idempotency key provided by the caller to deduplicate retries.
-  string idempotency_key = 9;
+  string idempotency_key = 10;
   // Arbitrary metadata forwarded through rating and invoicing.
-  google.protobuf.Struct metadata = 10;
+  google.protobuf.Struct metadata = 11;
 }
 
 // IngestUsageRequest accepts a single usage record for persistence.
 message IngestUsageRequest {
-  UsageRecord record = 1;
+  string customer_id = 1;
+  string meter_code = 2;
+  string value = 3;
+  string idempotency_key = 4;
+  google.protobuf.Timestamp recorded_at = 5;
+  google.protobuf.Struct metadata = 6;
 }
 
 // IngestUsageResponse returns the canonical usage identifier after storage.
@@ -49,13 +55,14 @@ message IngestUsageResponse {
 // ListUsageRequest filters usage records for querying and reconciliation.
 message ListUsageRequest {
   string tenant_id = 1;
-  string subscription_id = 2;
-  string customer_id = 3;
-  string meter_code = 4;
-  google.protobuf.Timestamp from = 5;
-  google.protobuf.Timestamp to = 6;
-  int32 page_size = 7;
-  string page_token = 8;
+  string customer_id = 2;
+  string subscription_id = 3;
+  string subscription_item_id = 4;
+  string meter_id = 5;
+  google.protobuf.Timestamp from = 6;
+  google.protobuf.Timestamp to = 7;
+  int32 page_size = 20;
+  string page_token = 21;
 }
 
 // ListUsageResponse contains a page of usage records matching the filters.
@@ -76,9 +83,5 @@ service UsageService {
   };
 
   // List usage records for analytics or rerating operations.
-  rpc ListUsage(ListUsageRequest) returns (ListUsageResponse) {
-    option (google.api.http) = {
-        get: "/v1/usage"
-    };
-  };
+  rpc ListUsage(ListUsageRequest) returns (ListUsageResponse);
 }

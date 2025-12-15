@@ -7,63 +7,14 @@ option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/subscription
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
-import "google/api/field_behavior.proto";
 
 import "smallbiznis/pricing/v1/pricing.proto";
 
-// Subscription ties a tenant's customer to a price. It drives usage collection,
-// rating, and invoicing. Subscriptions are always scoped to a tenant.
-message Subscription {
-  // Unique subscription identifier.
-  string id = 1;
-  // Tenant that owns this subscription.
-  string tenant_id = 2;
-  // Customer that will be billed.
-  string customer_id = 3;
-  // Price that defines billing behavior (recurring/usage/tiered).
-  reserved 4;
-  // Current lifecycle status of the subscription.
-  SubscriptionStatus status = 5;
-  // Whether the subscription auto-renews at period end.
-  bool auto_renew = 6;
-  // Subscription start time.
-  google.protobuf.Timestamp start_at = 7;
-  // Start of the current billing period.
-  google.protobuf.Timestamp current_period_start = 8;
-  // End of the current billing period.
-  google.protobuf.Timestamp current_period_end = 9;
-  // Optional trial window start time.
-  google.protobuf.Timestamp trial_start_at = 10;
-  // Optional trial window end time.
-  google.protobuf.Timestamp trial_end_at = 11;
-  // Scheduled cancellation time (cancel at period end).
-  google.protobuf.Timestamp cancel_at = 12;
-  // Timestamp when the subscription was canceled.
-  google.protobuf.Timestamp canceled_at = 13;
-  // Arbitrary metadata for downstream systems.
-  google.protobuf.Struct metadata = 14;
-  // Subscription collection mode for invoices/payments.
-  SubscriptionCollectionMode collection_mode = 15;
-  // Day of the month to anchor billing (1-31).
-  int32 billing_anchor_day = 16;
-  // Textual representation of the billing cycle type (e.g., MONTHLY).
-  string billing_cycle_type = 17;
-  // Identifier for the billing cycle that owns this subscription.
-  string current_billing_cycle_id = 18;
-  // Default payment term in days for invoices generated from this subscription.
-  int32 default_payment_term_days = 19;
-  // Default currency to use when billing this subscription.
-  string default_currency = 20;
-  // Default tax behavior for new invoices.
-  TaxBehavior default_tax_behavior = 21;
-  // Indicates cancellation at the end of the current period.
-  bool cancel_at_period_end = 22;
-  // Audit timestamps.
-  google.protobuf.Timestamp created_at = 23;
-  google.protobuf.Timestamp updated_at = 24;
-}
 
-// SubscriptionStatus describes lifecycle states for billing and provisioning.
+// ==============================
+// ENUMS
+// ==============================
+
 enum SubscriptionStatus {
   SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
   ACTIVE = 1;
@@ -73,14 +24,12 @@ enum SubscriptionStatus {
   INCOMPLETE = 5;
 }
 
-// Controls how invoices for the subscription are collected.
 enum SubscriptionCollectionMode {
   SUBSCRIPTION_COLLECTION_MODE_UNSPECIFIED = 0;
   SEND_INVOICE = 1;
   CHARGE_AUTOMATICALLY = 2;
 }
 
-// TaxBehavior describes how taxes are treated during invoicing.
 enum TaxBehavior {
   TAX_BEHAVIOR_UNSPECIFIED = 0;
   INCLUSIVE = 1;
@@ -88,129 +37,169 @@ enum TaxBehavior {
   INLINE = 3;
 }
 
-// SubscriptionItem defines the billing configuration for a price under a subscription.
+// ==============================
+// SUBSCRIPTION
+// ==============================
+
+message Subscription {
+  string id = 1;
+  string tenant_id = 2;
+  string customer_id = 3;
+
+  SubscriptionStatus status = 4;
+  bool auto_renew = 5;
+
+  google.protobuf.Timestamp start_at = 6;
+  google.protobuf.Timestamp end_at = 7;
+
+  google.protobuf.Timestamp cancel_at = 8;
+  google.protobuf.Timestamp canceled_at = 9;
+  bool cancel_at_period_end = 10;
+
+  SubscriptionCollectionMode collection_mode = 11;
+
+  int32 billing_anchor_day = 12;
+  string billing_cycle_type = 13;
+  string current_billing_cycle_id = 14;
+
+  int32 default_payment_term_days = 15;
+  string default_currency = 16;
+  TaxBehavior default_tax_behavior = 17;
+
+  google.protobuf.Struct metadata = 18;
+
+  google.protobuf.Timestamp created_at = 19;
+  google.protobuf.Timestamp updated_at = 20;
+}
+
+
+// ==============================
+// SUBSCRIPTION ITEM
+// ==============================
+
 message SubscriptionItem {
   string id = 1;
   string tenant_id = 2;
   string subscription_id = 3;
+
+  // Pricing reference
   string price_id = 4;
   string meter_id = 5;
+
+  // Quantity for LICENSED billing
   double quantity = 6;
-  smallbiznis.pricing.v1.BillingInterval billing_mode = 7;
-  smallbiznis.pricing.v1.AggregateUsage usage_behavior = 8;
+
+  // Billing behavior
+  smallbiznis.pricing.v1.BillingMode billing_mode = 7;
+  smallbiznis.pricing.v1.AggregateUsage aggregate_usage = 8;
   double billing_threshold = 9;
   smallbiznis.pricing.v1.ProrationBehavior proration_behavior = 10;
+
   google.protobuf.Struct metadata = 11;
+
   google.protobuf.Timestamp created_at = 12;
   google.protobuf.Timestamp updated_at = 13;
 }
 
+
+// ==============================
+// CREATE REQUESTS
+// ==============================
+
 message CreateSubscriptionItem {
-  // Price to bill under the subscription.
   string price_id = 1;
-  // 
   string meter_id = 2;
-  // Quantity or units for billing.
   double quantity = 3;
-  // BillingMode defines how the billable quantity is determined
-  // (fixed from subscription vs derived from usage records).
+
   smallbiznis.pricing.v1.BillingMode billing_mode = 4;
-  // Behavior for usage-based charges.
-  smallbiznis.pricing.v1.AggregateUsage usage_behavior = 5;
-  // Threshold at which bi5lling behavior changes.
+  smallbiznis.pricing.v1.AggregateUsage aggregate_usage = 5;
   double billing_threshold = 6;
-  // Behavior for prorations when billing periods change.
   smallbiznis.pricing.v1.ProrationBehavior proration_behavior = 7;
-  // Optional metadata for downstream systems.
+
   google.protobuf.Struct metadata = 8;
 }
 
-// Request to create a subscription linking a customer to a price.
 message CreateSubscriptionRequest {
   string tenant_id = 1;
   string customer_id = 2;
-  reserved 3;
-  // Optional trial start/end times if the price includes a trial.
-  google.protobuf.Timestamp trial_start_at = 4;
-  google.protobuf.Timestamp trial_end_at = 5;
-  // Whether to auto-renew at the end of the billing period.
-  bool auto_renew = 6;
-  // Optional metadata to store with the subscription.
-  google.protobuf.Struct metadata = 7;
-  // Optional collection mode preference for the subscription.
-  SubscriptionCollectionMode collection_mode = 8;
-  // Optional billing anchor day (1-31).
-  int32 billing_anchor_day = 9;
-  // Optional billing cycle type string.
-  string billing_cycle_type = 10;
-  // Default payment term days for invoices.
-  int32 default_payment_term_days = 11;
-  // Primary currency for the subscription.
-  string default_currency = 12;
-  // Default tax behavior for invoices.
-  TaxBehavior default_tax_behavior = 13;
-  // Items to attach to the subscription upon creation.
-  repeated CreateSubscriptionItem items = 14;
+
+  google.protobuf.Timestamp trial_start_at = 3;
+  google.protobuf.Timestamp trial_end_at = 4;
+
+  bool auto_renew = 5;
+  SubscriptionCollectionMode collection_mode = 6;
+
+  int32 billing_anchor_day = 7;
+  string billing_cycle_type = 8;
+  int32 default_payment_term_days = 9;
+  string default_currency = 10;
+  TaxBehavior default_tax_behavior = 11;
+
+  google.protobuf.Struct metadata = 12;
+  repeated CreateSubscriptionItem items = 13;
 }
 
-// Request to fetch a subscription by ID.
+
+// ==============================
+// QUERY & LIFECYCLE
+// ==============================
+
 message GetSubscriptionRequest {
   string id = 1;
   string tenant_id = 2;
 }
 
-// Request to list subscriptions for a tenant or customer.
 message ListSubscriptionsRequest {
   string tenant_id = 1;
   string customer_id = 2;
   SubscriptionStatus status = 3;
-  int32 page_size = 4;
-  string page_token = 5;
+
+  google.protobuf.Timestamp period_start = 4;
+  google.protobuf.Timestamp period_end = 5;
+
+  int32 page_size = 6;
+  string page_token = 7;
 }
 
-// Response containing subscriptions and pagination token.
 message ListSubscriptionsResponse {
   repeated Subscription subscriptions = 1;
   string next_page_token = 2;
 }
 
-// Request to cancel a subscription (immediate or at period end).
 message CancelSubscriptionRequest {
   string id = 1;
-  // If true, cancel at current_period_end; otherwise cancel immediately.
-  bool cancel_at_period_end = 2;
-  string tenant_id = 3;
+  string tenant_id = 2;
+  bool cancel_at_period_end = 3;
 }
 
-// SubscriptionService manages subscription lifecycle for tenant customers.
+// ==============================
+// SERVICE
+// ==============================
+
 service SubscriptionService {
-  // Create a new subscription for a customer and price.
   rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription) {
     option (google.api.http) = {
-        post: "/v1/subscriptions"
-        body: "*"
+      post: "/v1/subscriptions"
+      body: "*"
     };
-  };
+  }
 
-  // Retrieve a subscription by ID.
   rpc GetSubscription(GetSubscriptionRequest) returns (Subscription) {
     option (google.api.http) = {
-        get: "/v1/subscriptions/{id}"
+      get: "/v1/subscriptions/{id}"
     };
-  };
+  }
 
-  // List subscriptions for a tenant with optional customer filter.
   rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
     option (google.api.http) = {
-        get: "/v1/subscriptions"
+      get: "/v1/subscriptions"
     };
-  };
+  }
 
-  // Cancel a subscription either immediately or at period end.
   rpc CancelSubscription(CancelSubscriptionRequest) returns (Subscription) {
     option (google.api.http) = {
-        post: "/v1/subscriptions/{id}/cancel"
-        body: "*"
+      post: "/v1/subscriptions/{id}/cancel"
+      body: "*"
     };
-  };
+  }
 }

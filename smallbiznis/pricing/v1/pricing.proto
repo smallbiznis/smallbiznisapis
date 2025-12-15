@@ -322,14 +322,14 @@ service PricingService {
   // List tiers for prices within a tenant context.
   rpc ListPriceTiers(ListPriceTiersRequest) returns (ListPriceTiersResponse) {
     option (google.api.http) = {
-      get: "/v1/price_tiers"
+      get: "/v1/tiers"
     };
   };
 
   // List currency-specific amounts for prices within a tenant context.
   rpc ListPriceAmounts(ListPriceAmountsRequest) returns (ListPriceAmountsResponse) {
     option (google.api.http) = {
-      get: "/v1/price_amounts"
+      get: "/v1/amounts"
     };
   };
 }

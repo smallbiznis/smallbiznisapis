@@ -6,6 +6,7 @@ package smallbiznis.meter.v1;
 option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/meter/v1;meterv1";
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 enum MeterAggregation {
   METER_AGGREGATION_UNSPECIFIED = 0;
@@ -21,12 +22,22 @@ enum MeterTransform {
   ROUND_UP = 3;
 }
 
+enum MeterStatus {
+  METER_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+  ARCHIVED = 3;  
+}
+
 message Meter {
   string id = 1;
   string tenant_id = 2;
   string code = 3;
   MeterAggregation aggregation = 4;
   MeterTransform transform = 5;
+  MeterStatus status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
 
 message CreateMeterRequest {

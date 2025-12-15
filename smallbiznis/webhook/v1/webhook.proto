@@ -8,9 +8,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 
-// ===============================
-// ENUM
-// ===============================
 
 enum WebhookStatus {
   WEBHOOK_STATUS_UNSPECIFIED = 0;
@@ -31,14 +28,14 @@ enum DeliveryStatus {
 
 // Webhook subscription
 message WebhookSubscription {
-  string id = 1;                // uuid
+  string id = 1; // uuid
   string tenant_id = 2;
 
   // e.g. "order.created", "voucher.used"
   repeated string event_types = 3;
 
   string url = 4;
-  string secret = 5;            // HMAC verification
+  string secret = 5; // HMAC verification
 
   WebhookStatus status = 6;
 

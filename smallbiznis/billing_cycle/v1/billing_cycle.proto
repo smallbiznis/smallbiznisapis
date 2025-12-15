@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package smallbiznis.billing_schedule.v1;
+package smallbiznis.billing_cycle.v1;
 
-option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing_schedule/v1;billingschedulev1";
+option go_package = "github.com/smallbiznis/go-genproto/smallbiznis/billing_cycle/v1;billingcycle";
 
 import "google/protobuf/timestamp.proto";
 
@@ -33,16 +33,15 @@ message UpsertScheduleResponse {
 }
 
 // Request to list schedules for a tenant.
-message ListSchedulesRequest {
+message GetScheduleRequest {
   string tenant_id = 1;
   int32 page_size = 2;
   string page_token = 3;
 }
 
 // Response containing schedules and pagination token.
-message ListSchedulesResponse {
-  repeated SubscriptionBillingSchedule schedules = 1;
-  string next_page_token = 2;
+message GetScheduleResponse {
+  SubscriptionBillingSchedule schedule = 1;
 }
 
 // BillingScheduleService manages when subscriptions should be billed.
@@ -51,5 +50,5 @@ service BillingScheduleService {
   rpc UpsertSchedule(UpsertScheduleRequest) returns (UpsertScheduleResponse);
 
   // List billing schedules for a tenant.
-  rpc ListSchedules(ListSchedulesRequest) returns (ListSchedulesResponse);
+  rpc GetSchedule(GetScheduleRequest) returns (GetScheduleResponse);
 }

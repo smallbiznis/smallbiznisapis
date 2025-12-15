@@ -172,11 +172,19 @@ message CancelSubscriptionRequest {
   bool cancel_at_period_end = 3;
 }
 
+message GetSubscriptionByCustomer {
+  string tenant_id = 1;
+  string customer_id = 2;
+}
+
 // ==============================
 // SERVICE
 // ==============================
 
 service SubscriptionService {
+
+  rpc GetSubscriptionByCustomer() returns ();
+
   rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription) {
     option (google.api.http) = {
       post: "/v1/subscriptions"

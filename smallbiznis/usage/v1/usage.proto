@@ -39,12 +39,13 @@ message UsageRecord {
 
 // IngestUsageRequest accepts a single usage record for persistence.
 message IngestUsageRequest {
-  string customer_id = 1;
-  string meter_code = 2;
-  string value = 3;
-  string idempotency_key = 4;
-  google.protobuf.Timestamp recorded_at = 5;
-  google.protobuf.Struct metadata = 6;
+  string tenant_id = 1;
+  string customer_id = 2;
+  string meter_code = 3;
+  string value = 4;
+  string idempotency_key = 5;
+  google.protobuf.Timestamp recorded_at = 6;
+  google.protobuf.Struct metadata = 7;
 }
 
 // IngestUsageResponse returns the canonical usage identifier after storage.

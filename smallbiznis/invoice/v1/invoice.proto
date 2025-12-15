@@ -128,7 +128,6 @@ message ListInvoiceItemsResponse {
   string next_page_token = 2;
 }
 
-
 service InvoiceService {
 
   rpc GetInvoice(GetInvoiceRequest)

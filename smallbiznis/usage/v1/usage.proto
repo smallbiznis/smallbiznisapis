@@ -26,7 +26,7 @@ message UsageRecord {
   // Canonical meter identifier that ties the usage to meter.v1.Meter.id even if codes change.
   string meter_id = 6;
   // Meter code defined by the tenant (per-tenant unique, e.g., "api_calls").
-  double meter_code = 7;
+  string meter_code = 7;
   // Measured quantity for the meter (floating point to support fractional units).
   double value = 8;
   // Event time of the usage measurement.

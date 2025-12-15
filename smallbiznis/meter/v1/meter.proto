@@ -89,7 +89,7 @@ service MeterService {
     };
   }
 
-  rpc GetMeterByCode(GetMeterRequest) returns (Meter);
+  rpc GetMeterByCode(GetMeterByCodeRequest) returns (Meter);
 
   rpc ListMeters(ListMetersRequest) returns (ListMetersResponse) {
     option (google.api.http) = {

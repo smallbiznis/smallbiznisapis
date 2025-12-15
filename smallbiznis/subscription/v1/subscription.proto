@@ -183,7 +183,7 @@ message GetSubscriptionByCustomer {
 
 service SubscriptionService {
 
-  rpc GetSubscriptionByCustomer() returns ();
+  rpc GetActiveSubscriptionByCustomer(GetSubscriptionByCustomer) returns (Subscription);
 
   rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription) {
     option (google.api.http) = {

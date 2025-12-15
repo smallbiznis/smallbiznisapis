@@ -42,7 +42,7 @@ message IngestUsageRequest {
   string tenant_id = 1;
   string customer_id = 2;
   string meter_code = 3;
-  string value = 4;
+  double value = 4;
   string idempotency_key = 5;
   google.protobuf.Timestamp recorded_at = 6;
   google.protobuf.Struct metadata = 7;

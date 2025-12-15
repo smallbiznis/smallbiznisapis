@@ -49,11 +49,13 @@ message CreateMeterResponse {
 }
 
 message GetMeterRequest {
-  string id = 1;
+  string tenant_id = 1;
+  string id = 2;
 }
 
 message GetMeterByCodeRequest {
-  string code = 1;
+  string tenant_id = 1;
+  string code = 2;
 }
 
 message ListMetersRequest {

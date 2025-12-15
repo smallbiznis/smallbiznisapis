@@ -52,6 +52,10 @@ message GetMeterRequest {
   string id = 1;
 }
 
+message GetMeterByCodeRequest {
+  string code = 1;
+}
+
 message ListMetersRequest {
   string tenant_id = 1;
   int32 page_size = 2;
@@ -84,6 +88,8 @@ service MeterService {
       get: "/v1/meters/{id}"
     };
   }
+
+  rpc GetMeterByCode(GetMeterRequest) returns (Meter);
 
   rpc ListMeters(ListMetersRequest) returns (ListMetersResponse) {
     option (google.api.http) = {

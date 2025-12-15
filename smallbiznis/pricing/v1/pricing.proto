@@ -80,7 +80,6 @@ enum BillingUnit {
   SEAT = 9;
 }
 
-
 // TODO: add description for this BillingModel
 // BillingMode defines how quantity is determined.
 enum BillingMode {
